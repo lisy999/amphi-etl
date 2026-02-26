@@ -12,5 +12,17 @@
 
 改完任何东西都需要重新运行3和4
 
+删除命令
+
+Remove-Item -Recurse -Force node_modules, yarn.lock, packages\*\node_modules, packages\*\yarn.lock
+
+```
+
+```jupyterlab-amphi下
+
+1.需要使用 jlpm install
+2.jlpm build
+3.pip install -e .
+5.jupyter lab  //启动 Jupyter Lab
 
 ```
