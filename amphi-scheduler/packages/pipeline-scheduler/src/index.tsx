@@ -1,14 +1,14 @@
 // index.tsx
 import {
   JupyterFrontEnd,
-  JupyterFrontEndPlugin
-} from '@jupyterlab/application';
-import { ICommandPalette, ReactWidget } from '@jupyterlab/apputils';
-import { ServerConnection } from '@jupyterlab/services';
-import { URLExt } from '@jupyterlab/coreutils';
-import { requestScheduler } from './handler';
-import { IDocumentManager } from '@jupyterlab/docmanager';
-import React, { useState, useEffect } from 'react';
+  JupyterFrontEndPlugin,
+} from "@jupyterlab/application";
+import { ICommandPalette, ReactWidget } from "@jupyterlab/apputils";
+import { ServerConnection } from "@jupyterlab/services";
+import { URLExt } from "@jupyterlab/coreutils";
+import { requestScheduler } from "./handler";
+import { IDocumentManager } from "@jupyterlab/docmanager";
+import React, { useState, useEffect } from "react";
 import {
   CheckCircleOutlined,
   CalendarOutlined,
@@ -22,9 +22,9 @@ import {
   ReloadOutlined,
   ScheduleOutlined,
   CloseCircleOutlined,
-  FolderOpenOutlined
-} from '@ant-design/icons';
-import { pipelineBrandIcon, schedulerIcon } from './icons';
+  FolderOpenOutlined,
+} from "@ant-design/icons";
+import { pipelineBrandIcon, schedulerIcon } from "./icons";
 import {
   Button,
   Card,
@@ -44,13 +44,12 @@ import {
   Tabs,
   Tooltip,
   message,
-
-  ConfigProvider
-} from 'antd';
-import { createStyles } from 'antd-style';
-import dayjs, { Dayjs } from 'dayjs'; // Import dayjs and Dayjs type
-import { showBrowseFileDialog } from './BrowseFileDialog';   /* NEW */
-import { Notification } from '@jupyterlab/apputils';
+  ConfigProvider,
+} from "antd";
+import { createStyles } from "antd-style";
+import dayjs, { Dayjs } from "dayjs"; // Import dayjs and Dayjs type
+import { showBrowseFileDialog } from "./BrowseFileDialog"; /* NEW */
+import { Notification } from "@jupyterlab/apputils";
 
 /* ---------- types ---------- */
 interface Job {
@@ -61,27 +60,27 @@ interface Job {
   pipeline_path: string;
 
   /*  ⇣ fields returned by the backend's `_serialise()` helper ⇣  */
-  schedule_type: 'date' | 'interval' | 'cron' | 'trigger';
-  date_type?: 'once' | 'daily' | 'weekly' | 'monthly' | 'every_x_days';
-  run_date?: string;              // only for `date`
-  interval_seconds?: number;      // only for `interval`
-  interval_days?: number;         // only for `date` with `every_x_days`
-  cron_expression?: string;       // only for `cron`
-  logical_operator?: 'AND' | 'OR';
+  schedule_type: "date" | "interval" | "cron" | "trigger";
+  date_type?: "once" | "daily" | "weekly" | "monthly" | "every_x_days";
+  run_date?: string; // only for `date`
+  interval_seconds?: number; // only for `interval`
+  interval_days?: number; // only for `date` with `every_x_days`
+  cron_expression?: string; // only for `cron`
+  logical_operator?: "AND" | "OR";
   trigger_conditions?: TriggerCondition[];
 }
 
 interface TriggerCondition {
   job_id: string;
-  on: 'success' | 'failure';
+  on: "success" | "failure";
 }
 
 interface RunEntry {
   id: number;
   job_id?: string;
   job_name?: string;
-  status: 'success' | 'failure';
-  triggered_by: 'schedule' | 'manual' | 'trigger' | string;
+  status: "success" | "failure";
+  triggered_by: "schedule" | "manual" | "trigger" | string;
   started_at: string;
   finished_at: string;
   exit_code?: number | null;
@@ -93,13 +92,13 @@ interface JobFormValues {
   id?: string;
   name: string;
   pipeline_path: string;
-  schedule_type: 'date' | 'interval' | 'cron' | 'trigger';
-  date_type?: 'once' | 'daily' | 'weekly' | 'monthly' | 'every_x_days';
-  run_date?: Dayjs;  // Changed to Dayjs type
+  schedule_type: "date" | "interval" | "cron" | "trigger";
+  date_type?: "once" | "daily" | "weekly" | "monthly" | "every_x_days";
+  run_date?: Dayjs; // Changed to Dayjs type
   interval_seconds?: number;
   interval_days?: number;
   cron_expression?: string;
-  logical_operator?: 'AND' | 'OR';
+  logical_operator?: "AND" | "OR";
   trigger_conditions?: TriggerCondition[];
 }
 
@@ -107,21 +106,21 @@ interface JobFormValues {
 interface JobFormSubmitValues {
   id?: string;
   name: string;
-  schedule_type: 'date' | 'interval' | 'cron' | 'trigger';
-  date_type?: 'once' | 'daily' | 'weekly' | 'monthly' | 'every_x_days';
-  run_date?: string;          // ISO string sent to backend
+  schedule_type: "date" | "interval" | "cron" | "trigger";
+  date_type?: "once" | "daily" | "weekly" | "monthly" | "every_x_days";
+  run_date?: string; // ISO string sent to backend
   interval_seconds?: number;
   interval_days?: number;
   cron_expression?: string;
-  logical_operator?: 'AND' | 'OR';
+  logical_operator?: "AND" | "OR";
   trigger_conditions?: TriggerCondition[];
-  pipeline_path: string;      // ALWAYS present - the original file path
-  python_code?: string;       // present when user picked a .ampln
+  pipeline_path: string; // ALWAYS present - the original file path
+  python_code?: string; // present when user picked a .ampln
 }
 
 interface SchedulerPanelProps {
-  commands: JupyterFrontEnd['commands'];
-  docManager: IDocumentManager;   /* NEW */
+  commands: JupyterFrontEnd["commands"];
+  docManager: IDocumentManager /* NEW */;
 }
 
 function toHeaderRecord(h?: HeadersInit): Record<string, string> {
@@ -135,16 +134,18 @@ function toHeaderRecord(h?: HeadersInit): Record<string, string> {
   return { ...(h as Record<string, string>) };
 }
 
-
-type ExtendedRequestInit = Omit<RequestInit, 'body'> & {
+type ExtendedRequestInit = Omit<RequestInit, "body"> & {
   body?: BodyInit | Record<string, any> | null;
 };
 
 /* ---------- API Client ---------- */
 class SchedulerAPI {
-  private static async makeRequest(endpoint: string, init: ExtendedRequestInit = {}) {
+  private static async makeRequest(
+    endpoint: string,
+    init: ExtendedRequestInit = {},
+  ) {
     const settings = ServerConnection.makeSettings();
-    const urlPatterns = ['pipeline-scheduler'];
+    const urlPatterns = ["pipeline-scheduler"];
 
     let lastError: Error | null = null;
 
@@ -156,11 +157,11 @@ class SchedulerAPI {
 
         // normalize headers to a plain object we can mutate
         const headers = toHeaderRecord(rest.headers);
-        const method = (rest.method || 'GET').toUpperCase();
+        const method = (rest.method || "GET").toUpperCase();
 
-        if (method !== 'GET' && body != null) {
+        if (method !== "GET" && body != null) {
           const isPlainObject =
-            typeof body === 'object' &&
+            typeof body === "object" &&
             !(body instanceof FormData) &&
             !(body instanceof URLSearchParams) &&
             !(body instanceof ArrayBuffer) &&
@@ -168,7 +169,8 @@ class SchedulerAPI {
 
           if (isPlainObject) {
             requestInit.body = JSON.stringify(body as Record<string, any>);
-            headers['Content-Type'] = headers['Content-Type'] || 'application/json';
+            headers["Content-Type"] =
+              headers["Content-Type"] || "application/json";
           } else {
             requestInit.body = body as BodyInit;
           }
@@ -183,11 +185,11 @@ class SchedulerAPI {
       }
     }
 
-    throw lastError || new Error('Failed to connect to any API endpoint');
+    throw lastError || new Error("Failed to connect to any API endpoint");
   }
 
   static listJobs(): Promise<{ jobs: Job[] }> {
-    return this.makeRequest('jobs');
+    return this.makeRequest("jobs");
   }
 
   static getJob(id: string): Promise<Job> {
@@ -195,23 +197,23 @@ class SchedulerAPI {
   }
 
   static createJob(job: JobFormSubmitValues): Promise<Job> {
-    return this.makeRequest('jobs', {
-      method: 'POST',
-      body: job  // This will be properly serialized by makeRequest
+    return this.makeRequest("jobs", {
+      method: "POST",
+      body: job, // This will be properly serialized by makeRequest
     });
   }
 
   static deleteJob(id: string): Promise<{ success: boolean }> {
     return this.makeRequest(`jobs/${id}`, {
-      method: 'DELETE'
+      method: "DELETE",
     });
   }
 
   static runJob(
-    id: string
+    id: string,
   ): Promise<{ success: boolean; output?: string; error?: string }> {
     // Server does not read a body here
-    return this.makeRequest(`run/${id}`, { method: 'POST' });
+    return this.makeRequest(`run/${id}`, { method: "POST" });
   }
 
   static listRuns(limit = 200): Promise<{ runs: RunEntry[] }> {
@@ -224,13 +226,13 @@ class SchedulerAPI {
 
   static deleteRun(id: number): Promise<{ success: boolean }> {
     return this.makeRequest(`runs/${id}`, {
-      method: 'DELETE'
+      method: "DELETE",
     });
   }
 
   static clearRuns(): Promise<{ success: boolean; deleted: number }> {
-    return this.makeRequest('runs', {
-      method: 'DELETE'
+    return this.makeRequest("runs", {
+      method: "DELETE",
     });
   }
 }
@@ -279,7 +281,7 @@ const useStyle = createStyles(({ token, css }) => ({
     border-top: 1px solid ${token.colorBorder};
     display: flex;
     justify-content: space-between;
-  `
+  `,
 }));
 
 /* ---------- Components ---------- */
@@ -291,44 +293,42 @@ const JobForm: React.FC<{
   initialValues?: Partial<JobFormValues>;
 }> = ({ docManager, jobs, onSubmit, onCancel, initialValues }) => {
   const [form] = Form.useForm<JobFormValues>();
-  const [scheduleType, setScheduleType] = useState<'date' | 'interval' | 'cron' | 'trigger'>(
-    initialValues?.schedule_type || 'date'
-  );
-  const [dateType, setDateType] = useState<'once' | 'daily' | 'weekly' | 'monthly' | 'every_x_days'>(
-    initialValues?.date_type || 'once'
-  );
+  const [scheduleType, setScheduleType] = useState<
+    "date" | "interval" | "cron" | "trigger"
+  >(initialValues?.schedule_type || "date");
+  const [dateType, setDateType] = useState<
+    "once" | "daily" | "weekly" | "monthly" | "every_x_days"
+  >(initialValues?.date_type || "once");
 
   useEffect(() => {
     if (initialValues) {
       form.setFieldsValue(initialValues);
-      setScheduleType(initialValues.schedule_type || 'date');
-      setDateType(initialValues.date_type || 'once');
+      setScheduleType(initialValues.schedule_type || "date");
+      setDateType(initialValues.date_type || "once");
     }
   }, [initialValues, form]);
-
 
   /* helper to launch the file-picker */
   const pickPipelinePath = async () => {
     try {
       const res = await showBrowseFileDialog(docManager, {
-        extensions: ['.ampln', '.py'],
-        includeDir: false
+        extensions: [".ampln", ".py"],
+        includeDir: false,
       });
       if (res.button.accept && res.value.length) {
         form.setFieldsValue({ pipeline_path: res.value[0].path });
       }
     } catch (err) {
-      console.error('Browse file error:', err);
-      message.error('Failed to open file chooser');
+      console.error("Browse file error:", err);
+      message.error("Failed to open file chooser");
     }
   };
-
 
   return (
     <ConfigProvider
       theme={{
         token: {
-          colorPrimary: '#5F9B97',
+          colorPrimary: "#5F9B97",
         },
       }}
     >
@@ -337,42 +337,50 @@ const JobForm: React.FC<{
         layout="vertical"
         onFinish={onSubmit}
         initialValues={{
-          schedule_type: 'date',
-          date_type: 'once',
-          logical_operator: 'AND',
+          schedule_type: "date",
+          date_type: "once",
+          logical_operator: "AND",
           trigger_conditions: [],
-          ...initialValues
+          ...initialValues,
         }}
       >
         <Form.Item name="id" hidden>
           <Input />
         </Form.Item>
 
-        <Form.Item style={{ marginBottom: 16 }} name="name" label="Task Name" rules={[{ required: true, message: 'Please input a task name' }]}>
+        <Form.Item
+          style={{ marginBottom: 16 }}
+          name="name"
+          label="Task Name"
+          rules={[{ required: true, message: "Please input a task name" }]}
+        >
           <Input placeholder="My Task Name" />
         </Form.Item>
 
         <Form.Item
-          style={{ marginBottom: 16 }}                 /* spacing */
+          style={{ marginBottom: 16 }} /* spacing */
           label="Pipeline Path"
           required
         >
-          <Space.Compact style={{ width: '100%' }}>
+          <Space.Compact style={{ width: "100%" }}>
             <Form.Item
               name="pipeline_path"
               noStyle
-              rules={[{ required: true, message: 'Please select a pipeline file' }]}
+              rules={[
+                { required: true, message: "Please select a pipeline file" },
+              ]}
             >
-              <Input
-                readOnly
-                placeholder="Select a .ampln or .py file"
-              />
+              <Input readOnly placeholder="Select a .ampln or .py file" />
             </Form.Item>
             <Button icon={<FolderOpenOutlined />} onClick={pickPipelinePath} />
           </Space.Compact>
         </Form.Item>
 
-        <Form.Item style={{ marginBottom: 16 }} name="schedule_type" label="Schedule Type">
+        <Form.Item
+          style={{ marginBottom: 16 }}
+          name="schedule_type"
+          label="Schedule Type"
+        >
           <Radio.Group onChange={(e) => setScheduleType(e.target.value)}>
             <Radio value="date">Date</Radio>
             <Radio value="interval">Interval</Radio>
@@ -381,10 +389,17 @@ const JobForm: React.FC<{
           </Radio.Group>
         </Form.Item>
 
-        {scheduleType === 'date' && (
+        {scheduleType === "date" && (
           <>
-            <Form.Item style={{ marginBottom: 16 }} name="date_type" label="Date Type">
-              <Select onChange={(value) => setDateType(value)} style={{ width: '100%' }}>
+            <Form.Item
+              style={{ marginBottom: 16 }}
+              name="date_type"
+              label="Date Type"
+            >
+              <Select
+                onChange={(value) => setDateType(value)}
+                style={{ width: "100%" }}
+              >
                 <Select.Option value="once">One-time</Select.Option>
                 <Select.Option value="daily">Daily</Select.Option>
                 <Select.Option value="weekly">Weekly</Select.Option>
@@ -393,57 +408,65 @@ const JobForm: React.FC<{
               </Select>
             </Form.Item>
 
-            {dateType !== 'every_x_days' ? (
+            {dateType !== "every_x_days" ? (
               <Form.Item
                 style={{ marginBottom: 16 }}
                 name="run_date"
-                label={dateType === 'once' ? 'Run Date & Time' : 'Start Date & Time'}
-                rules={[{ required: true, message: 'Please select a date and time' }]}
+                label={
+                  dateType === "once" ? "Run Date & Time" : "Start Date & Time"
+                }
+                rules={[
+                  { required: true, message: "Please select a date and time" },
+                ]}
               >
-                <DatePicker showTime style={{ width: '100%' }} />
+                <DatePicker showTime style={{ width: "100%" }} />
               </Form.Item>
             ) : (
               <Form.Item
                 style={{ marginBottom: 16 }}
                 name="interval_days"
                 label="Interval (days)"
-                rules={[{ required: true, message: 'Please input a number of days' }]}
+                rules={[
+                  { required: true, message: "Please input a number of days" },
+                ]}
               >
-                <InputNumber min={1} style={{ width: '100%' }} />
+                <InputNumber min={1} style={{ width: "100%" }} />
               </Form.Item>
             )}
           </>
         )}
 
-        {scheduleType === 'interval' && (
+        {scheduleType === "interval" && (
           <Form.Item
             style={{ marginBottom: 16 }}
             name="interval_seconds"
             label="Interval (seconds)"
-            rules={[{ required: true, message: 'Please input an interval' }]}
+            rules={[{ required: true, message: "Please input an interval" }]}
           >
-            <InputNumber min={1} style={{ width: '100%' }} />
+            <InputNumber min={1} style={{ width: "100%" }} />
           </Form.Item>
         )}
 
-        {scheduleType === 'cron' && (
+        {scheduleType === "cron" && (
           <Form.Item
             style={{ marginBottom: 16 }}
             name="cron_expression"
             label="Cron Expression"
-            rules={[{ required: true, message: 'Please input a cron expression' }]}
+            rules={[
+              { required: true, message: "Please input a cron expression" },
+            ]}
           >
             <Input placeholder="*/5 * * * *" />
           </Form.Item>
         )}
 
-        {scheduleType === 'trigger' && (
+        {scheduleType === "trigger" && (
           <>
             <Form.Item
               style={{ marginBottom: 16 }}
               name="logical_operator"
               label="Conditions Logic"
-              rules={[{ required: true, message: 'Please select AND or OR' }]}
+              rules={[{ required: true, message: "Please select AND or OR" }]}
             >
               <Radio.Group>
                 <Radio value="AND">AND</Radio>
@@ -457,21 +480,27 @@ const JobForm: React.FC<{
                 {
                   validator: async (_, value) => {
                     if (!value || value.length < 1) {
-                      return Promise.reject(new Error('Add at least one condition'));
+                      return Promise.reject(
+                        new Error("Add at least one condition"),
+                      );
                     }
                     return Promise.resolve();
-                  }
-                }
+                  },
+                },
               ]}
             >
               {(fields, { add, remove }, { errors }) => (
                 <>
-                  {fields.map(field => (
-                    <Space key={field.key} style={{ display: 'flex', marginBottom: 12 }} align="start">
+                  {fields.map((field) => (
+                    <Space
+                      key={field.key}
+                      style={{ display: "flex", marginBottom: 12 }}
+                      align="start"
+                    >
                       <Form.Item
                         {...field}
-                        name={[field.name, 'job_id']}
-                        rules={[{ required: true, message: 'Select a task' }]}
+                        name={[field.name, "job_id"]}
+                        rules={[{ required: true, message: "Select a task" }]}
                         style={{ minWidth: 220 }}
                       >
                         <Select
@@ -479,15 +508,17 @@ const JobForm: React.FC<{
                           showSearch
                           optionFilterProp="label"
                           options={jobs
-                            .filter(job => job.id !== form.getFieldValue('id'))
-                            .map(job => ({ value: job.id, label: job.name }))}
+                            .filter(
+                              (job) => job.id !== form.getFieldValue("id"),
+                            )
+                            .map((job) => ({ value: job.id, label: job.name }))}
                         />
                       </Form.Item>
 
                       <Form.Item
                         {...field}
-                        name={[field.name, 'on']}
-                        rules={[{ required: true, message: 'Select outcome' }]}
+                        name={[field.name, "on"]}
+                        rules={[{ required: true, message: "Select outcome" }]}
                         style={{ minWidth: 140 }}
                       >
                         <Select placeholder="Outcome">
@@ -496,7 +527,11 @@ const JobForm: React.FC<{
                         </Select>
                       </Form.Item>
 
-                      <Button type="text" danger onClick={() => remove(field.name)}>
+                      <Button
+                        type="text"
+                        danger
+                        onClick={() => remove(field.name)}
+                      >
                         Remove
                       </Button>
                     </Space>
@@ -506,9 +541,9 @@ const JobForm: React.FC<{
 
                   <Button
                     type="dashed"
-                    onClick={() => add({ on: 'success' })}
+                    onClick={() => add({ on: "success" })}
                     icon={<PlusOutlined />}
-                    style={{ width: '100%', marginBottom: 16 }}
+                    style={{ width: "100%", marginBottom: 16 }}
                   >
                     Add Condition
                   </Button>
@@ -519,7 +554,13 @@ const JobForm: React.FC<{
         )}
 
         <Form.Item>
-          <Space style={{ marginBottom: 16, width: '100%', justifyContent: 'flex-end' }}>
+          <Space
+            style={{
+              marginBottom: 16,
+              width: "100%",
+              justifyContent: "flex-end",
+            }}
+          >
             <Button onClick={onCancel}>Cancel</Button>
             <Button type="primary" htmlType="submit">
               Submit
@@ -534,42 +575,38 @@ const JobForm: React.FC<{
 /** getPythonCode – convert .ampln to Python */
 const getPythonCode = async (
   path: string,
-  commands: JupyterFrontEnd['commands'],
-  docManager: IDocumentManager
+  commands: JupyterFrontEnd["commands"],
+  docManager: IDocumentManager,
 ): Promise<string> => {
-
-  console.log('Loaded path:', path);
+  console.log("Loaded path:", path);
   // Ask for text; server may still return JSON for certain mimetypes
   const file = await docManager.services.contents.get(path, {
     content: true,
-    format: 'text'
+    format: "text",
   });
 
-  console.log('Loaded file:', file);
+  console.log("Loaded file:", file);
 
   if (file.content == null) {
-    console.error('File content is empty or null:', path);
-    throw new Error('Selected file is empty or could not be loaded');
+    console.error("File content is empty or null:", path);
+    throw new Error("Selected file is empty or could not be loaded");
   }
 
-  if (path.endsWith('.ampln')) {
+  if (path.endsWith(".ampln")) {
     try {
       const raw = file.content as unknown;
-      const jsonString =
-        typeof raw === 'string'
-          ? raw
-          : JSON.stringify(raw);
+      const jsonString = typeof raw === "string" ? raw : JSON.stringify(raw);
 
       // Many generators expect a string and will JSON.parse internally.
-      const code = (await commands.execute('pipeline-editor:generate-code', {
-        json: jsonString
+      const code = (await commands.execute("pipeline-editor:generate-code", {
+        json: jsonString,
       })) as string;
 
-      console.log('Generated Python code:', code);
-      if (!code) throw new Error('Code generation failed');
+      console.log("Generated Python code:", code);
+      if (!code) throw new Error("Code generation failed");
       return code;
     } catch (err) {
-      console.error('Error during code generation:', err);
+      console.error("Error during code generation:", err);
       throw err;
     }
   }
@@ -578,16 +615,20 @@ const getPythonCode = async (
   return file.content as string;
 };
 
-
-const SchedulerPanel: React.FC<SchedulerPanelProps> = ({ commands, docManager }) => {
+const SchedulerPanel: React.FC<SchedulerPanelProps> = ({
+  commands,
+  docManager,
+}) => {
   const { styles } = useStyle();
   const [jobs, setJobs] = useState<Job[]>([]);
   const [runs, setRuns] = useState<RunEntry[]>([]);
   const [loading, setLoading] = useState(false);
   const [monitoringLoading, setMonitoringLoading] = useState(false);
   const [jobModalVisible, setJobModalVisible] = useState(false);
-  const [currentJob, setCurrentJob] = useState<Partial<JobFormValues> | null>(null);
-  const [activeTab, setActiveTab] = useState<'tasks' | 'monitoring'>('tasks');
+  const [currentJob, setCurrentJob] = useState<Partial<JobFormValues> | null>(
+    null,
+  );
+  const [activeTab, setActiveTab] = useState<"tasks" | "monitoring">("tasks");
   const [logsModalVisible, setLogsModalVisible] = useState(false);
   const [logsLoading, setLogsLoading] = useState(false);
   const [selectedRun, setSelectedRun] = useState<RunEntry | null>(null);
@@ -600,8 +641,8 @@ const SchedulerPanel: React.FC<SchedulerPanelProps> = ({ commands, docManager })
       const data = await SchedulerAPI.listJobs();
       setJobs(data.jobs || []);
     } catch (error) {
-      console.error('Error fetching jobs:', error);
-      Notification.error('Failed to fetch scheduled jobs');
+      console.error("Error fetching jobs:", error);
+      Notification.error("Failed to fetch scheduled jobs");
     } finally {
       if (showLoader) {
         setLoading(false);
@@ -617,8 +658,8 @@ const SchedulerPanel: React.FC<SchedulerPanelProps> = ({ commands, docManager })
       const data = await SchedulerAPI.listRuns();
       setRuns(data.runs || []);
     } catch (error) {
-      console.error('Error fetching runs:', error);
-      Notification.error('Failed to fetch run monitoring data');
+      console.error("Error fetching runs:", error);
+      Notification.error("Failed to fetch run monitoring data");
     } finally {
       if (showLoader) {
         setMonitoringLoading(false);
@@ -648,26 +689,26 @@ const SchedulerPanel: React.FC<SchedulerPanelProps> = ({ commands, docManager })
       id: job.id,
       name: job.name,
       pipeline_path: job.pipeline_path,
-      schedule_type: job.schedule_type as any
+      schedule_type: job.schedule_type as any,
     };
 
-    if (job.schedule_type === 'date') {
-      formValues.date_type = job.date_type || 'once';
+    if (job.schedule_type === "date") {
+      formValues.date_type = job.date_type || "once";
       if (job.run_date) {
         formValues.run_date = dayjs(job.run_date);
       }
-      if (job.date_type === 'every_x_days') {
+      if (job.date_type === "every_x_days") {
         formValues.interval_days = job.interval_days;
       }
     }
-    if (job.schedule_type === 'interval') {
+    if (job.schedule_type === "interval") {
       formValues.interval_seconds = job.interval_seconds;
     }
-    if (job.schedule_type === 'cron') {
+    if (job.schedule_type === "cron") {
       formValues.cron_expression = job.cron_expression;
     }
-    if (job.schedule_type === 'trigger') {
-      formValues.logical_operator = job.logical_operator || 'AND';
+    if (job.schedule_type === "trigger") {
+      formValues.logical_operator = job.logical_operator || "AND";
       formValues.trigger_conditions = job.trigger_conditions || [];
     }
 
@@ -679,41 +720,47 @@ const SchedulerPanel: React.FC<SchedulerPanelProps> = ({ commands, docManager })
     const promise = SchedulerAPI.deleteJob(jobId);
 
     Notification.promise(promise, {
-      pending: { message: 'Deleting job…' },
-      success: { message: () => 'Job deleted successfully', options: { autoClose: 3000 } },
+      pending: { message: "Deleting job…" },
+      success: {
+        message: () => "Job deleted successfully",
+        options: { autoClose: 3000 },
+      },
       error: {
         message: (err: unknown) =>
-          `Failed to delete job: ${err instanceof Error ? err.message : String(err)}`
-      }
+          `Failed to delete job: ${
+            err instanceof Error ? err.message : String(err)
+          }`,
+      },
     });
 
     promise.then(() => fetchJobs()).catch(console.error);
   };
 
   const handleRunJob = async (jobId: string) => {
-    const job = jobs.find(j => j.id === jobId);
+    const job = jobs.find((j) => j.id === jobId);
     if (!job) return;
 
-    const promise = SchedulerAPI.runJob(jobId).then(res => {
-      if (!res.success) throw new Error(res.error || 'Execution failed');
-      return res.output ?? '';
+    const promise = SchedulerAPI.runJob(jobId).then((res) => {
+      if (!res.success) throw new Error(res.error || "Execution failed");
+      return res.output ?? "";
     });
 
     Notification.promise(promise, {
-      pending: { message: 'Running pipeline…' },
+      pending: { message: "Running pipeline…" },
       success: {
         message: () => {
           fetchRuns();
-          return 'Pipeline executed successfully';
-        }
+          return "Pipeline executed successfully";
+        },
       },
       error: {
         message: (e: unknown) =>
-          `Pipeline execution failed: ${e instanceof Error ? e.message : String(e)}`
-      }
+          `Pipeline execution failed: ${
+            e instanceof Error ? e.message : String(e)
+          }`,
+      },
     });
   };
-
 
   const handleFormSubmit = async (values: JobFormValues) => {
     try {
@@ -721,62 +768,67 @@ const SchedulerPanel: React.FC<SchedulerPanelProps> = ({ commands, docManager })
       const formData: JobFormSubmitValues = {
         name: values.name,
         schedule_type: values.schedule_type,
-        run_date: values.run_date ? values.run_date.toDate().toISOString() : undefined,
+        run_date: values.run_date
+          ? values.run_date.toDate().toISOString()
+          : undefined,
         interval_seconds: values.interval_seconds,
         cron_expression: values.cron_expression,
-        pipeline_path: values.pipeline_path  // ALWAYS send the original path
+        pipeline_path: values.pipeline_path, // ALWAYS send the original path
       };
 
       // Add date_type if schedule_type is 'date'
-      if (values.schedule_type === 'date') {
-        formData.date_type = values.date_type || 'once';
-        if (values.date_type === 'every_x_days') {
+      if (values.schedule_type === "date") {
+        formData.date_type = values.date_type || "once";
+        if (values.date_type === "every_x_days") {
           formData.interval_days = values.interval_days;
         }
       }
-      if (values.schedule_type === 'trigger') {
-        formData.logical_operator = values.logical_operator || 'AND';
+      if (values.schedule_type === "trigger") {
+        formData.logical_operator = values.logical_operator || "AND";
         formData.trigger_conditions = values.trigger_conditions || [];
       }
 
       if (values.id) formData.id = values.id;
 
       /* .ampln → also send raw Python code */
-      if (values.pipeline_path.endsWith('.ampln')) {
+      if (values.pipeline_path.endsWith(".ampln")) {
         formData.python_code = await getPythonCode(
           values.pipeline_path,
           commands,
-          docManager
+          docManager,
         );
       }
 
       await SchedulerAPI.createJob(formData);
-      Notification.success('Job created successfully');
+      Notification.success("Job created successfully");
       setJobModalVisible(false);
       fetchJobs();
     } catch (error) {
-      console.error('Error creating job:', error);
-      Notification.error('Failed to create job');
+      console.error("Error creating job:", error);
+      Notification.error("Failed to create job");
     }
   };
 
-  const jobNameById = new Map(jobs.map(job => [job.id, job.name]));
+  const jobNameById = new Map(jobs.map((job) => [job.id, job.name]));
 
   const getScheduleBadge = (job: Job) => {
-    if (job.schedule_type === 'trigger') return { label: 'Trigger', icon: <ScheduleOutlined /> };
-    if (job.schedule_type === 'interval') return { label: 'Interval', icon: <ClockCircleOutlined /> };
-    if (job.schedule_type === 'cron') return { label: 'Cron', icon: <ScheduleOutlined /> };
-    return { label: 'Date', icon: <CalendarOutlined /> };
+    if (job.schedule_type === "trigger")
+      return { label: "Trigger", icon: <ScheduleOutlined /> };
+    if (job.schedule_type === "interval")
+      return { label: "Interval", icon: <ClockCircleOutlined /> };
+    if (job.schedule_type === "cron")
+      return { label: "Cron", icon: <ScheduleOutlined /> };
+    return { label: "Date", icon: <CalendarOutlined /> };
   };
 
   const formatTriggerConditions = (job: Job): string => {
     const conditions = job.trigger_conditions || [];
-    if (conditions.length <= 1) return '';
-    const op = ` ${job.logical_operator || 'AND'} `;
+    if (conditions.length <= 1) return "";
+    const op = ` ${job.logical_operator || "AND"} `;
     return conditions
-      .map(c => {
+      .map((c) => {
         const sourceName = jobNameById.get(c.job_id) || c.job_id;
-        const outcome = c.on === 'success' ? 'succeeds' : 'fails';
+        const outcome = c.on === "success" ? "succeeds" : "fails";
         return `${sourceName} ${outcome}`;
       })
       .join(op);
@@ -789,8 +841,8 @@ const SchedulerPanel: React.FC<SchedulerPanelProps> = ({ commands, docManager })
       const detailed = await SchedulerAPI.getRun(run.id);
       setSelectedRun(detailed);
     } catch (error) {
-      console.error('Error fetching run logs:', error);
-      Notification.error('Failed to fetch run logs');
+      console.error("Error fetching run logs:", error);
+      Notification.error("Failed to fetch run logs");
       setSelectedRun(run);
     } finally {
       setLogsLoading(false);
@@ -801,17 +853,19 @@ const SchedulerPanel: React.FC<SchedulerPanelProps> = ({ commands, docManager })
     const promise = SchedulerAPI.deleteRun(runId);
 
     Notification.promise(promise, {
-      pending: { message: 'Deleting monitoring entry…' },
+      pending: { message: "Deleting monitoring entry…" },
       success: {
         message: () => {
           fetchRuns();
-          return 'Monitoring entry removed';
-        }
+          return "Monitoring entry removed";
+        },
       },
       error: {
         message: (err: unknown) =>
-          `Failed to remove monitoring entry: ${err instanceof Error ? err.message : String(err)}`
-      }
+          `Failed to remove monitoring entry: ${
+            err instanceof Error ? err.message : String(err)
+          }`,
+      },
     });
   };
 
@@ -819,18 +873,25 @@ const SchedulerPanel: React.FC<SchedulerPanelProps> = ({ commands, docManager })
     const promise = SchedulerAPI.clearRuns();
 
     Notification.promise(promise, {
-      pending: { message: 'Clearing monitoring entries…' },
+      pending: { message: "Clearing monitoring entries…" },
       success: {
-        message: (_result: unknown, data?: { success: boolean; deleted: number }) => {
+        message: (
+          _result: unknown,
+          data?: { success: boolean; deleted: number },
+        ) => {
           fetchRuns();
           const deleted = data?.deleted ?? 0;
-          return `Cleared ${deleted} monitoring entr${deleted === 1 ? 'y' : 'ies'}`;
-        }
+          return `Cleared ${deleted} monitoring entr${
+            deleted === 1 ? "y" : "ies"
+          }`;
+        },
       },
       error: {
         message: (err: unknown) =>
-          `Failed to clear monitoring entries: ${err instanceof Error ? err.message : String(err)}`
-      }
+          `Failed to clear monitoring entries: ${
+            err instanceof Error ? err.message : String(err)
+          }`,
+      },
     });
   };
 
@@ -838,7 +899,7 @@ const SchedulerPanel: React.FC<SchedulerPanelProps> = ({ commands, docManager })
     <ConfigProvider
       theme={{
         token: {
-          colorPrimary: '#5F9B97',
+          colorPrimary: "#5F9B97",
         },
       }}
     >
@@ -846,11 +907,11 @@ const SchedulerPanel: React.FC<SchedulerPanelProps> = ({ commands, docManager })
         <div className={styles.content}>
           <Tabs
             activeKey={activeTab}
-            onChange={key => setActiveTab(key as 'tasks' | 'monitoring')}
+            onChange={(key) => setActiveTab(key as "tasks" | "monitoring")}
             items={[
               {
-                key: 'tasks',
-                label: 'Tasks',
+                key: "tasks",
+                label: "任务集",
                 children: (
                   <>
                     <Space style={{ marginBottom: 12 }}>
@@ -870,7 +931,7 @@ const SchedulerPanel: React.FC<SchedulerPanelProps> = ({ commands, docManager })
                       />
                     </Space>
                     {loading ? (
-                      <div style={{ textAlign: 'center', padding: '40px 0' }}>
+                      <div style={{ textAlign: "center", padding: "40px 0" }}>
                         <Spin size="large" />
                       </div>
                     ) : jobs.length === 0 ? (
@@ -882,7 +943,7 @@ const SchedulerPanel: React.FC<SchedulerPanelProps> = ({ commands, docManager })
                       <List
                         itemLayout="vertical"
                         dataSource={jobs}
-                        renderItem={job => {
+                        renderItem={(job) => {
                           const badge = getScheduleBadge(job);
                           const triggerSummary = formatTriggerConditions(job);
                           return (
@@ -910,13 +971,15 @@ const SchedulerPanel: React.FC<SchedulerPanelProps> = ({ commands, docManager })
                                     icon={<DeleteOutlined />}
                                     onClick={() => handleDeleteJob(job.id)}
                                   />
-                                </Tooltip>
+                                </Tooltip>,
                               ]}
                             >
                               <List.Item.Meta
                                 title={
                                   <Space wrap>
-                                    <span style={{ fontWeight: 600 }}>{job.name}</span>
+                                    <span style={{ fontWeight: 600 }}>
+                                      {job.name}
+                                    </span>
                                     <Tag icon={badge.icon} color="default">
                                       {badge.label}
                                     </Tag>
@@ -925,21 +988,36 @@ const SchedulerPanel: React.FC<SchedulerPanelProps> = ({ commands, docManager })
                                 description={
                                   <div>
                                     <div className={styles.jobMeta}>
-                                      <pipelineBrandIcon.react className={styles.jobMetaIcon} />
+                                      <pipelineBrandIcon.react
+                                        className={styles.jobMetaIcon}
+                                      />
                                       <span>Pipeline: {job.pipeline_path}</span>
                                     </div>
-                                    {job.schedule_type !== 'trigger' && job.next_run_time && (
-                                      <div className={styles.jobMeta}>
-                                        <CalendarOutlined className={styles.jobMetaIcon} />
-                                        <span>Next: {dayjs(job.next_run_time).format('YYYY-MM-DD HH:mm:ss')}</span>
-                                      </div>
-                                    )}
-                                    {job.schedule_type === 'trigger' && !!triggerSummary && (
-                                      <div className={styles.jobMeta}>
-                                        <ScheduleOutlined className={styles.jobMetaIcon} />
-                                        <span>Trigger when: {triggerSummary}</span>
-                                      </div>
-                                    )}
+                                    {job.schedule_type !== "trigger" &&
+                                      job.next_run_time && (
+                                        <div className={styles.jobMeta}>
+                                          <CalendarOutlined
+                                            className={styles.jobMetaIcon}
+                                          />
+                                          <span>
+                                            Next:{" "}
+                                            {dayjs(job.next_run_time).format(
+                                              "YYYY-MM-DD HH:mm:ss",
+                                            )}
+                                          </span>
+                                        </div>
+                                      )}
+                                    {job.schedule_type === "trigger" &&
+                                      !!triggerSummary && (
+                                        <div className={styles.jobMeta}>
+                                          <ScheduleOutlined
+                                            className={styles.jobMetaIcon}
+                                          />
+                                          <span>
+                                            Trigger when: {triggerSummary}
+                                          </span>
+                                        </div>
+                                      )}
                                   </div>
                                 }
                               />
@@ -949,15 +1027,19 @@ const SchedulerPanel: React.FC<SchedulerPanelProps> = ({ commands, docManager })
                       />
                     )}
                   </>
-                )
+                ),
               },
               {
-                key: 'monitoring',
-                label: 'Monitoring',
+                key: "monitoring",
+                label: "Monitoring",
                 children: (
                   <>
                     <Space style={{ marginBottom: 12 }}>
-                      <Button danger icon={<DeleteOutlined />} onClick={handleClearRuns}>
+                      <Button
+                        danger
+                        icon={<DeleteOutlined />}
+                        onClick={handleClearRuns}
+                      >
                         Clear
                       </Button>
                       <Button
@@ -966,7 +1048,7 @@ const SchedulerPanel: React.FC<SchedulerPanelProps> = ({ commands, docManager })
                       />
                     </Space>
                     {monitoringLoading ? (
-                      <div style={{ textAlign: 'center', padding: '40px 0' }}>
+                      <div style={{ textAlign: "center", padding: "40px 0" }}>
                         <Spin size="large" />
                       </div>
                     ) : runs.length === 0 ? (
@@ -978,11 +1060,14 @@ const SchedulerPanel: React.FC<SchedulerPanelProps> = ({ commands, docManager })
                       <List
                         itemLayout="horizontal"
                         dataSource={runs}
-                        renderItem={run => (
+                        renderItem={(run) => (
                           <List.Item
                             key={run.id}
                             actions={[
-                              <Tooltip title="View logs" key={`logs-tooltip-${run.id}`}>
+                              <Tooltip
+                                title="View logs"
+                                key={`logs-tooltip-${run.id}`}
+                              >
                                 <Button
                                   key={`logs-${run.id}`}
                                   type="text"
@@ -990,7 +1075,10 @@ const SchedulerPanel: React.FC<SchedulerPanelProps> = ({ commands, docManager })
                                   onClick={() => openRunLogs(run)}
                                 />
                               </Tooltip>,
-                              <Tooltip title="Remove from monitoring" key={`remove-tooltip-${run.id}`}>
+                              <Tooltip
+                                title="Remove from monitoring"
+                                key={`remove-tooltip-${run.id}`}
+                              >
                                 <Button
                                   key={`remove-${run.id}`}
                                   type="text"
@@ -998,43 +1086,66 @@ const SchedulerPanel: React.FC<SchedulerPanelProps> = ({ commands, docManager })
                                   icon={<CloseOutlined />}
                                   onClick={() => handleDeleteRun(run.id)}
                                 />
-                              </Tooltip>
+                              </Tooltip>,
                             ]}
                           >
                             <List.Item.Meta
                               title={
                                 <Space wrap>
                                   <span style={{ fontWeight: 600 }}>
-                                    {run.job_name || jobNameById.get(run.job_id || '') || run.job_id || 'Unknown Task'}
+                                    {run.job_name ||
+                                      jobNameById.get(run.job_id || "") ||
+                                      run.job_id ||
+                                      "Unknown Task"}
                                   </span>
-                                  {run.triggered_by === 'manual' && <Tag color="default">Manual</Tag>}
+                                  {run.triggered_by === "manual" && (
+                                    <Tag color="default">Manual</Tag>
+                                  )}
                                   <Tag
-                                    icon={run.status === 'success' ? <CheckCircleOutlined /> : <CloseCircleOutlined />}
+                                    icon={
+                                      run.status === "success" ? (
+                                        <CheckCircleOutlined />
+                                      ) : (
+                                        <CloseCircleOutlined />
+                                      )
+                                    }
                                     style={
-                                      run.status === 'success'
-                                        ? { color: '#1f883d', borderColor: '#1f883d', background: '#eef8f2' }
-                                        : { color: '#D1242F', borderColor: '#D1242F', background: '#fff1f2' }
+                                      run.status === "success"
+                                        ? {
+                                            color: "#1f883d",
+                                            borderColor: "#1f883d",
+                                            background: "#eef8f2",
+                                          }
+                                        : {
+                                            color: "#D1242F",
+                                            borderColor: "#D1242F",
+                                            background: "#fff1f2",
+                                          }
                                     }
                                   >
-                                    {run.status === 'success' ? 'Succeeded' : 'Failed'}
+                                    {run.status === "success"
+                                      ? "Succeeded"
+                                      : "Failed"}
                                   </Tag>
                                 </Space>
                               }
-                              description={`Time: ${dayjs(run.finished_at).format('YYYY-MM-DD HH:mm:ss')}`}
+                              description={`Time: ${dayjs(
+                                run.finished_at,
+                              ).format("YYYY-MM-DD HH:mm:ss")}`}
                             />
                           </List.Item>
                         )}
                       />
                     )}
                   </>
-                )
-              }
+                ),
+              },
             ]}
           />
         </div>
 
         <Modal
-          title={currentJob ? 'Edit Task' : 'New Task'}
+          title={currentJob ? "Edit Task" : "New Task"}
           open={jobModalVisible}
           onCancel={() => setJobModalVisible(false)}
           footer={null}
@@ -1051,7 +1162,13 @@ const SchedulerPanel: React.FC<SchedulerPanelProps> = ({ commands, docManager })
         </Modal>
 
         <Modal
-          title={selectedRun ? `Run Logs - ${selectedRun.job_name || selectedRun.job_id || selectedRun.id}` : 'Run Logs'}
+          title={
+            selectedRun
+              ? `Run Logs - ${
+                  selectedRun.job_name || selectedRun.job_id || selectedRun.id
+                }`
+              : "Run Logs"
+          }
           open={logsModalVisible}
           onCancel={() => setLogsModalVisible(false)}
           footer={null}
@@ -1059,26 +1176,42 @@ const SchedulerPanel: React.FC<SchedulerPanelProps> = ({ commands, docManager })
           destroyOnClose
         >
           {logsLoading ? (
-            <div style={{ textAlign: 'center', padding: '24px 0' }}>
+            <div style={{ textAlign: "center", padding: "24px 0" }}>
               <Spin />
             </div>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               <div>
-                <strong>Status:</strong>{' '}
-                {selectedRun?.status === 'success' ? 'Succeeded' : 'Failed'} at{' '}
-                {selectedRun?.finished_at ? dayjs(selectedRun.finished_at).format('YYYY-MM-DD HH:mm:ss') : 'n/a'}
+                <strong>Status:</strong>{" "}
+                {selectedRun?.status === "success" ? "Succeeded" : "Failed"} at{" "}
+                {selectedRun?.finished_at
+                  ? dayjs(selectedRun.finished_at).format("YYYY-MM-DD HH:mm:ss")
+                  : "n/a"}
               </div>
               <div>
                 <strong>Output</strong>
-                <pre style={{ maxHeight: 220, overflow: 'auto', background: '#f6f8fa', padding: 10 }}>
-                  {selectedRun?.output || '(no output)'}
+                <pre
+                  style={{
+                    maxHeight: 220,
+                    overflow: "auto",
+                    background: "#f6f8fa",
+                    padding: 10,
+                  }}
+                >
+                  {selectedRun?.output || "(no output)"}
                 </pre>
               </div>
               <div>
                 <strong>Error</strong>
-                <pre style={{ maxHeight: 220, overflow: 'auto', background: '#fff2f0', padding: 10 }}>
-                  {selectedRun?.error || '(no error)'}
+                <pre
+                  style={{
+                    maxHeight: 220,
+                    overflow: "auto",
+                    background: "#fff2f0",
+                    padding: 10,
+                  }}
+                >
+                  {selectedRun?.error || "(no error)"}
                 </pre>
               </div>
             </div>
@@ -1091,41 +1224,47 @@ const SchedulerPanel: React.FC<SchedulerPanelProps> = ({ commands, docManager })
 
 /* ---------- plugin ---------- */
 namespace CommandIDs {
-  export const open = 'pipeline-scheduler:open';
+  export const open = "pipeline-scheduler:open";
 }
 
 const plugin: JupyterFrontEndPlugin<void> = {
-  id: '@amphi/pipeline-scheduler:plugin',
+  id: "@amphi/pipeline-scheduler:plugin",
   autoStart: true,
-  requires: [ICommandPalette, IDocumentManager],   /* UPDATED */
-  activate: (app: JupyterFrontEnd, palette: ICommandPalette, docManager: IDocumentManager) => {
+  requires: [ICommandPalette, IDocumentManager] /* UPDATED */,
+  activate: (
+    app: JupyterFrontEnd,
+    palette: ICommandPalette,
+    docManager: IDocumentManager,
+  ) => {
     const { commands, shell } = app;
 
     commands.addCommand(CommandIDs.open, {
-      label: 'Pipeline Scheduler',
-      caption: 'Schedule Amphi pipelines',
+      label: "Pipeline Scheduler",
+      caption: "Schedule Amphi pipelines",
       execute: () => {
         class SchedulerWidget extends ReactWidget {
           constructor() {
             super();
-            this.id = 'amphi-pipeline-scheduler';
-            this.title.caption = 'Pipeline Scheduler';
+            this.id = "amphi-pipeline-scheduler";
+            this.title.caption = "Pipeline Scheduler";
             this.title.icon = schedulerIcon;
             this.title.closable = true;
           }
           render() {
-            return <SchedulerPanel commands={commands} docManager={docManager} />;
+            return (
+              <SchedulerPanel commands={commands} docManager={docManager} />
+            );
           }
         }
         const widget = new SchedulerWidget();
-        if (!widget.isAttached) shell.add(widget, 'left');
+        if (!widget.isAttached) shell.add(widget, "left");
         shell.activateById(widget.id);
-      }
+      },
     });
 
-    palette.addItem({ command: CommandIDs.open, category: 'Amphi' });
+    palette.addItem({ command: CommandIDs.open, category: "Amphi" });
     commands.execute(CommandIDs.open);
-  }
+  },
 };
 
 export default plugin;
