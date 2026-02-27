@@ -1,5 +1,6 @@
-import { apiIcon } from '../../../icons';
-import { BaseCoreComponent } from '../../BaseCoreComponent';// Adjust the import path
+import { apiIcon } from "../../../icons";
+import { BaseCoreComponent } from "../../BaseCoreComponent"; // Adjust the import path
+import { chineseLabel } from "../label";
 
 export class RestInput extends BaseCoreComponent {
   constructor() {
@@ -21,73 +22,96 @@ export class RestInput extends BaseCoreComponent {
             { value: "GET", label: "GET" },
             { value: "PUT", label: "PUT" },
             { value: "POST", label: "POST" },
-            { value: "DELETE", label: "DELETE" }
+            { value: "DELETE", label: "DELETE" },
           ],
-          advanced: true
+          advanced: true,
         },
         {
           type: "keyvalue",
           label: "Headers",
           id: "headers",
-          advanced: true
+          advanced: true,
         },
         {
           type: "textarea",
           label: "Body",
           id: "body",
           placeholder: "Write body in JSON",
-          advanced: true
+          advanced: true,
         },
         {
           type: "input",
           label: "JSON Path",
           id: "jsonPath",
           placeholder: "JSON Path to retrieve from response",
-          advanced: true
-        }
+          advanced: true,
+        },
       ],
     };
-    const description = "Use REST Input to perform GET, PUT, POST, and DELETE requests on REST endpoints.";
+    // const description = "Use REST Input to perform GET, PUT, POST, and DELETE requests on REST endpoints.";
+    const description =
+      "使用 REST 输入功能，可以对 REST 端点执行 GET、PUT、POST 和 DELETE 请求操作。";
 
-    super("REST Input", "restInput", description, "pandas_df_input", [], "inputs", apiIcon, defaultConfig, form);
+    super(
+      // "REST Input",
+      "REST 输入",
+      "restInput",
+      description,
+      "pandas_df_input",
+      [],
+      chineseLabel,
+      apiIcon,
+      defaultConfig,
+      form,
+    );
   }
 
   public provideImports({ config }): string[] {
-    return ["import pandas as pd", "import json", "import requests", "from jsonpath_ng import parse"];
+    return [
+      "import pandas as pd",
+      "import json",
+      "import requests",
+      "from jsonpath_ng import parse",
+    ];
   }
 
   public provideDependencies({ config }): string[] {
     let deps: string[] = [];
-    deps.push('jsonpath_ng');
+    deps.push("jsonpath_ng");
     return deps;
   }
 
   public generateComponentCode({ config, outputName }): string {
-    let bodyParam = '';
-    if (config.body && config.body.trim() !== '') {
+    let bodyParam = "";
+    if (config.body && config.body.trim() !== "") {
       // JSON body as a Python dictionary
       bodyParam = `json=${config.body.trim()}, `;
     }
 
-    let headersParam = '';
+    let headersParam = "";
     if (config.headers && config.headers.length > 0) {
-      headersParam = 'headers={' + config.headers.map(header => `"${header.key}": "${header.value}"`).join(', ') + '}, ';
+      headersParam =
+        "headers={" +
+        config.headers
+          .map((header) => `"${header.key}": "${header.value}"`)
+          .join(", ") +
+        "}, ";
     }
 
-    let jsonPathParam = '';
-    if (config.jsonPath && config.jsonPath.trim() !== '') {
+    let jsonPathParam = "";
+    if (config.jsonPath && config.jsonPath.trim() !== "") {
       jsonPathParam = `${outputName}_jsonpath_expr = parse('${config.jsonPath}')\nselected_data = [match.value for match in ${outputName}_jsonpath_expr.find(${outputName}_data)] if ${outputName}_jsonpath_expr.find(${outputName}_data) else []\n${outputName} = pd.DataFrame(selected_data).convert_dtypes() if selected_data else pd.DataFrame()\n`;
     } else {
       jsonPathParam = `${outputName} = pd.DataFrame([${outputName}_data]).convert_dtypes() if isinstance(${outputName}_data, dict) else pd.DataFrame(${outputName}_data).convert_dtypes()\n`;
     }
 
     const params = `${headersParam}${bodyParam}`;
-    const trimmedParams = params.endsWith(', ') ? params.slice(0, -2) : params; // Remove trailing comma and space if present
+    const trimmedParams = params.endsWith(", ") ? params.slice(0, -2) : params; // Remove trailing comma and space if present
 
     const code = `
 ${outputName}_response = requests.request(
   method="${config.method}",
-  url="${config.url}"${trimmedParams ? ', ' + trimmedParams : ''}
+  url="${config.url}"${trimmedParams ? ", " + trimmedParams : ""}
 )
 ${outputName}_data = ${outputName}_response.json()
 ${jsonPathParam}

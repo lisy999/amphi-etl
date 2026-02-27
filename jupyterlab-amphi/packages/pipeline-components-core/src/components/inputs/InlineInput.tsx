@@ -1,6 +1,7 @@
 import { editIcon } from "../../icons";
 // import { BaseCoreComponent } from '../BaseCoreComponent';
 import { BaseCoreComponent } from "../BaseCoreComponent";
+import { chineseLabel } from "./label";
 
 export class InlineInput extends BaseCoreComponent {
   constructor() {
@@ -53,14 +54,14 @@ Sarah,Wilson,30,🥇`;
       ],
     };
     const description =
-      "Use Inline Input to manually enter data you can use in the pipeline using a CSV-like format.";
+      "使用内联输入功能，您可以以类似 CSV 的格式手动输入数据，以便在流程中使用这些数据。";
     super(
       "内联输入",
       "inlineInput",
       description,
       "pandas_df_input",
       [],
-      "inputs",
+      chineseLabel,
       editIcon,
       defaultConfig,
       form,

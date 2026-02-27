@@ -1,7 +1,8 @@
-import { fileParquetIcon } from '../../../icons';
-import { BaseCoreComponent } from '../../BaseCoreComponent';
-import { S3OptionsHandler } from '../../common/S3OptionsHandler';
-import { FileUtils } from '../../common/FileUtils'; // Import the FileUtils class
+import { fileParquetIcon } from "../../../icons";
+import { BaseCoreComponent } from "../../BaseCoreComponent";
+import { S3OptionsHandler } from "../../common/S3OptionsHandler";
+import { FileUtils } from "../../common/FileUtils"; // Import the FileUtils class
+import { chineseLabel } from "../label";
 
 export class ParquetFileInput extends BaseCoreComponent {
   constructor() {
@@ -16,9 +17,9 @@ export class ParquetFileInput extends BaseCoreComponent {
           options: [
             { value: "local", label: "Local" },
             { value: "http", label: "HTTP" },
-            { value: "s3", label: "S3" }
+            { value: "s3", label: "S3" },
           ],
-          advanced: true
+          advanced: true,
         },
         ...S3OptionsHandler.getAWSFields(),
         {
@@ -27,7 +28,8 @@ export class ParquetFileInput extends BaseCoreComponent {
           id: "filePath",
           placeholder: "Type file name or use '*' for patterns",
           validation: "\\.(parquet)$|^(.*\\*)$",
-          tooltip: "This field expects a file with a .parquet extension or a wildcard pattern such as input*.parquet."
+          tooltip:
+            "This field expects a file with a .parquet extension or a wildcard pattern such as input*.parquet.",
         },
         {
           type: "select",
@@ -35,33 +37,51 @@ export class ParquetFileInput extends BaseCoreComponent {
           id: "parquetOptions.engine",
           placeholder: "Select engine",
           options: [
-            { value: "auto", label: "auto", tooltip: "The default behavior is to try ‘pyarrow’, falling back to ‘fastparquet’ if ‘pyarrow’ is unavailable." },
+            {
+              value: "auto",
+              label: "auto",
+              tooltip:
+                "The default behavior is to try ‘pyarrow’, falling back to ‘fastparquet’ if ‘pyarrow’ is unavailable.",
+            },
             { value: "pyarrow", label: "pyarrow" },
-            { value: "fastparquet", label: "fastparquet" }
+            { value: "fastparquet", label: "fastparquet" },
           ],
-          advanced: true
+          advanced: true,
         },
         {
           type: "keyvalue",
           label: "Storage Options",
           id: "parquetOptions.storage_options",
           condition: { fileLocation: ["http", "s3"] },
-          advanced: true
-        }
+          advanced: true,
+        },
       ],
     };
-    const description = "Use Parquet File Input to access data from Parquet files locally or remotely (via HTTP or S3).";
+    // const description = "Use Parquet File Input to access data from Parquet files locally or remotely (via HTTP or S3).";
+    const description =
+      "使用 Parquet 文件输入功能，可从本地或远程（通过 HTTP 或 S3 协议）访问 Parquet 文件中的数据。";
 
-    super("Parquet File Input", "parquetFileInput", description, "pandas_df_input", ["parquet"], "inputs", fileParquetIcon, defaultConfig, form);
+    super(
+      // "Parquet File Input",
+      "Parquet文件输入",
+      "parquetFileInput",
+      description,
+      "pandas_df_input",
+      ["parquet"],
+      chineseLabel,
+      fileParquetIcon,
+      defaultConfig,
+      form,
+    );
   }
 
   public provideDependencies({ config }): string[] {
-    let deps: string[] = ['pyarrow'];
+    let deps: string[] = ["pyarrow"];
     if (config.parquetOptions?.engine === "fastparquet") {
-      deps.push('fastparquet');
+      deps.push("fastparquet");
     }
     if (FileUtils.isWildcardInput(config.filePath)) {
-      deps.push(config.fileLocation === "s3" ? 's3fs' : 'glob');
+      deps.push(config.fileLocation === "s3" ? "s3fs" : "glob");
     }
     return deps;
   }
@@ -83,19 +103,35 @@ export class ParquetFileInput extends BaseCoreComponent {
 
   public generateComponentCode({ config, outputName }): string {
     const parquetOptions = { ...config.parquetOptions };
-    const storageOptionsString = parquetOptions.storage_options ? JSON.stringify(parquetOptions.storage_options) : '{}';
+    const storageOptionsString = parquetOptions.storage_options
+      ? JSON.stringify(parquetOptions.storage_options)
+      : "{}";
     const optionsString = this.generateParquetOptionsCode({ config });
 
-    let code = '';
+    let code = "";
 
     // Check for wildcard input and generate appropriate code
     if (FileUtils.isWildcardInput(config.filePath)) {
       if (config.fileLocation === "s3") {
-        code += FileUtils.getS3FilePaths(config.filePath, storageOptionsString, outputName);
-        code += FileUtils.generateConcatCode(outputName, "read_parquet", optionsString, true);
+        code += FileUtils.getS3FilePaths(
+          config.filePath,
+          storageOptionsString,
+          outputName,
+        );
+        code += FileUtils.generateConcatCode(
+          outputName,
+          "read_parquet",
+          optionsString,
+          true,
+        );
       } else {
         code += FileUtils.getLocalFilePaths(config.filePath, outputName);
-        code += FileUtils.generateConcatCode(outputName, "read_parquet", optionsString, false);
+        code += FileUtils.generateConcatCode(
+          outputName,
+          "read_parquet",
+          optionsString,
+          false,
+        );
       }
     } else {
       // Simple file reading without wildcard
@@ -115,20 +151,27 @@ export class ParquetFileInput extends BaseCoreComponent {
 
     // Step 1: Transform manual storage_options array if it exists
     if (Array.isArray(storageOptions)) {
-      finalStorageOptions = storageOptions.reduce((acc, item: { key: string; value: any }) => {
-        if (item.key) {  // Only add if key exists
-          acc[item.key] = item.value;
-        }
-        return acc;
-      }, {});
-    } else if (typeof storageOptions === 'object') {
+      finalStorageOptions = storageOptions.reduce(
+        (acc, item: { key: string; value: any }) => {
+          if (item.key) {
+            // Only add if key exists
+            acc[item.key] = item.value;
+          }
+          return acc;
+        },
+        {},
+      );
+    } else if (typeof storageOptions === "object") {
       // If it's already an object, use it as base
       finalStorageOptions = { ...storageOptions };
     }
 
     // Step 2: Always apply S3-specific options (these will override manual entries if needed)
-    if (config.fileLocation === 's3') {
-      const s3Options = S3OptionsHandler.handleS3SpecificOptions(config, finalStorageOptions);
+    if (config.fileLocation === "s3") {
+      const s3Options = S3OptionsHandler.handleS3SpecificOptions(
+        config,
+        finalStorageOptions,
+      );
       finalStorageOptions = { ...finalStorageOptions, ...s3Options };
     }
 
@@ -141,11 +184,11 @@ export class ParquetFileInput extends BaseCoreComponent {
     }
 
     const options = Object.entries(parquetOptions)
-      .filter(([key, value]) => value !== null && value !== '')
+      .filter(([key, value]) => value !== null && value !== "")
       .map(([key, value]) => {
-        if (key === 'storage_options' && typeof value === 'object') {
+        if (key === "storage_options" && typeof value === "object") {
           return `${key}=${JSON.stringify(value)}`;
-        } else if (typeof value === 'string') {
+        } else if (typeof value === "string") {
           return `${key}="${value}"`;
         } else {
           return `${key}=${value}`;
@@ -153,6 +196,6 @@ export class ParquetFileInput extends BaseCoreComponent {
       });
 
     // Prepend a comma if there are options
-    return options.length > 0 ? `, ${options.join(', ')}` : '';
+    return options.length > 0 ? `, ${options.join(", ")}` : "";
   }
 }

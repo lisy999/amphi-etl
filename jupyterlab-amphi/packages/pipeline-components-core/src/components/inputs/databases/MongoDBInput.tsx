@@ -1,5 +1,5 @@
-import { mongodbIcon } from '../../../icons';
-import { BaseCoreComponent } from '../../BaseCoreComponent';
+import { mongodbIcon } from "../../../icons";
+import { BaseCoreComponent } from "../../BaseCoreComponent";
 
 export class MongoDBInput extends BaseCoreComponent {
   constructor() {
@@ -7,7 +7,7 @@ export class MongoDBInput extends BaseCoreComponent {
       connectionString: "",
       databaseName: "",
       collectionName: "",
-      limit: ""
+      limit: "",
     };
 
     const form = {
@@ -19,21 +19,21 @@ export class MongoDBInput extends BaseCoreComponent {
           placeholder:
             "mongodb+srv://user:pass@cluster0.example.mongodb.net/?retryWrites=true&w=majority",
           connection: "MongoDB",
-          advanced: true
+          advanced: true,
         },
         {
           type: "input",
           label: "Database Name",
           id: "databaseName",
           placeholder: "Enter database name",
-          connection: "MongoDB"
+          connection: "MongoDB",
         },
         {
           type: "input",
           label: "Collection Name",
           id: "collectionName",
           placeholder: "Enter collection name",
-          connection: "MongoDB"
+          connection: "MongoDB",
         },
         {
           type: "input",
@@ -41,9 +41,9 @@ export class MongoDBInput extends BaseCoreComponent {
           id: "limit",
           inputType: "number",
           placeholder: "Optional limit e.g. 100",
-          advanced: true
-        }
-      ]
+          advanced: true,
+        },
+      ],
     };
 
     const description =
@@ -58,7 +58,7 @@ export class MongoDBInput extends BaseCoreComponent {
       "inputs",
       mongodbIcon,
       defaultConfig,
-      form
+      form,
     );
   }
 
@@ -89,13 +89,22 @@ def mongodb_to_dataframe(connection_string, database_name, collection_name, limi
   }
 
   public generateComponentCode({ config, outputName }): string {
-    const connectionString = (config.connectionString || "").replace(/"/g, '\\"');
+    const connectionString = (config.connectionString || "").replace(
+      /"/g,
+      '\\"',
+    );
     const databaseName = (config.databaseName || "").replace(/"/g, '\\"');
-    const collectionName = (config.collectionName?.value ?? config.collectionName ?? "").replace(/"/g, '\\"');
+    const collectionName = (
+      config.collectionName?.value ??
+      config.collectionName ??
+      ""
+    ).replace(/"/g, '\\"');
     const limit = config.limit ? parseInt(config.limit, 10) : null;
 
     return `
-${outputName} = mongodb_to_dataframe("${connectionString}", "${databaseName}", "${collectionName}", ${limit !== null ? limit : "None"})
+${outputName} = mongodb_to_dataframe("${connectionString}", "${databaseName}", "${collectionName}", ${
+      limit !== null ? limit : "None"
+    })
 `.trim();
   }
 }

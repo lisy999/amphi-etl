@@ -1,6 +1,6 @@
-
-import { filePdfIcon } from '../../../icons';
-import { BaseCoreComponent } from '../../BaseCoreComponent';
+import { filePdfIcon } from "../../../icons";
+import { BaseCoreComponent } from "../../BaseCoreComponent";
+import { chineseLabel } from "../label";
 
 export class PdfTablesInput extends BaseCoreComponent {
   constructor() {
@@ -13,7 +13,8 @@ export class PdfTablesInput extends BaseCoreComponent {
           label: "File path",
           id: "filePath",
           placeholder: "Type file name",
-          tooltip: "This field expects a file path with a csv, tsv or txt extension such as input.csv.",
+          tooltip:
+            "This field expects a file path with a csv, tsv or txt extension such as input.csv.",
           validation: "\\.(pdf)$",
         },
         {
@@ -26,18 +27,29 @@ export class PdfTablesInput extends BaseCoreComponent {
           type: "inputNumber",
           label: "Table number",
           id: "tableNumber",
-          tooltip: "If multiple tables are present on the page, specify the number starting at 0.",
-        }
+          tooltip:
+            "If multiple tables are present on the page, specify the number starting at 0.",
+        },
       ],
     };
 
-    super("PDF Tables Input", "pdfTablesInput", "no desc", "pandas_df_input", ["pdf"], "inputs", filePdfIcon, defaultConfig, form);
+    super(
+      // "PDF Tables Input",
+      "PDF 表格输入",
+      "pdfTablesInput",
+      "no desc",
+      "pandas_df_input",
+      ["pdf"],
+      chineseLabel,
+      filePdfIcon,
+      defaultConfig,
+      form,
+    );
   }
-
 
   public provideDependencies({ config }): string[] {
     let deps: string[] = [];
-    deps.push('PyMuPDF');
+    deps.push("PyMuPDF");
     return deps;
   }
 
@@ -46,7 +58,6 @@ export class PdfTablesInput extends BaseCoreComponent {
   }
 
   public generateComponentCode({ config, outputName }): string {
-  
     // Generate the Python code
     const code = `
 # Extract tables from ${config.filePath}
@@ -55,6 +66,5 @@ ${outputName}_tabs = ${outputName}_doc[${config.pageNumber}].find_tables() # det
 ${outputName} = ${outputName}_tabs[${config.tableNumber}].to_pandas()
 `;
     return code;
-}
-
+  }
 }

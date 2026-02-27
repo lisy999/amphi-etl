@@ -1,10 +1,15 @@
-import { BaseCoreComponent } from '../../BaseCoreComponent';
-import { fileJsonIcon } from '../../../icons';
-import { S3OptionsHandler } from '../../common/S3OptionsHandler';
+import { BaseCoreComponent } from "../../BaseCoreComponent";
+import { fileJsonIcon } from "../../../icons";
+import { S3OptionsHandler } from "../../common/S3OptionsHandler";
+import { chineseLabel } from "../label";
 
 export class JsonFileInput extends BaseCoreComponent {
   constructor() {
-    const defaultConfig = { fileLocation: "local", connectionMethod: "env", jsonOptions: {} };
+    const defaultConfig = {
+      fileLocation: "local",
+      connectionMethod: "env",
+      jsonOptions: {},
+    };
     const form = {
       idPrefix: "component__form",
       fields: [
@@ -15,9 +20,9 @@ export class JsonFileInput extends BaseCoreComponent {
           options: [
             { value: "local", label: "Local" },
             { value: "http", label: "HTTP" },
-            { value: "s3", label: "S3" }
+            { value: "s3", label: "S3" },
           ],
-          advanced: true
+          advanced: true,
         },
         ...S3OptionsHandler.getAWSFields(),
         {
@@ -25,8 +30,9 @@ export class JsonFileInput extends BaseCoreComponent {
           label: "File path",
           id: "filePath",
           placeholder: "Type file name",
-          validation: "\.(json|jsonl)$",
-          validationMessage: "This field expects a file with a json extension such as input.json."
+          validation: ".(json|jsonl)$",
+          validationMessage:
+            "This field expects a file with a json extension such as input.json.",
         },
         {
           type: "select",
@@ -34,11 +40,24 @@ export class JsonFileInput extends BaseCoreComponent {
           id: "jsonOptions.orient",
           placeholder: "default: columns",
           options: [
-            { value: 'columns', label: 'Columns - JSON object with column labels as keys' },
-            { value: 'records', label: 'Records - List of rows as JSON objects' },
-            { value: 'index', label: 'Index - Dict with index labels as keys' },
-            { value: 'split', label: 'Split - Dict with "index", "columns", and "data" keys' },
-            { value: 'table', label: 'Table - Dict with "schema" and "data" keys, following the Table Schema' }
+            {
+              value: "columns",
+              label: "Columns - JSON object with column labels as keys",
+            },
+            {
+              value: "records",
+              label: "Records - List of rows as JSON objects",
+            },
+            { value: "index", label: "Index - Dict with index labels as keys" },
+            {
+              value: "split",
+              label: 'Split - Dict with "index", "columns", and "data" keys',
+            },
+            {
+              value: "table",
+              label:
+                'Table - Dict with "schema" and "data" keys, following the Table Schema',
+            },
           ],
         },
         /*
@@ -54,27 +73,40 @@ export class JsonFileInput extends BaseCoreComponent {
           type: "boolean",
           label: "Infer Data Types",
           id: "jsonOptions.dtype",
-          advanced: true
+          advanced: true,
         },
         {
           type: "boolean",
           label: "Line-delimited",
           id: "jsonOptions.lines",
-          advanced: true
+          advanced: true,
         },
         {
           type: "keyvalue",
           label: "Storage Options",
           id: "jsonOptions.storage_options",
           condition: { fileLocation: ["http", "s3"] },
-          advanced: true
-        }
+          advanced: true,
+        },
       ],
     };
 
-    const description = "Use JSON File Input to access data from a JSON file locally or remotely (via HTTP or S3)."
+    // const description = "Use JSON File Input to access data from a JSON file locally or remotely (via HTTP or S3)."
+    const description =
+      "使用 JSON 文件输入功能，可从本地或远程（通过 HTTP 或 S3）的 JSON 文件中读取数据。";
 
-    super("JSON File Input", "jsonFileInput", description, "pandas_df_input", ["json", "jsonl"], "inputs", fileJsonIcon, defaultConfig, form);
+    super(
+      // "JSON File Input",
+      "JSON 文件输入",
+      "jsonFileInput",
+      description,
+      "pandas_df_input",
+      ["json", "jsonl"],
+      chineseLabel,
+      fileJsonIcon,
+      defaultConfig,
+      form,
+    );
   }
 
   public provideImports({ config }): string[] {
@@ -103,20 +135,27 @@ ${outputName} = pd.read_json("${config.filePath}"${optionsString}).convert_dtype
 
     // Step 1: Transform manual storage_options array if it exists
     if (Array.isArray(storageOptions)) {
-      finalStorageOptions = storageOptions.reduce((acc, item: { key: string; value: any }) => {
-        if (item.key) {  // Only add if key exists
-          acc[item.key] = item.value;
-        }
-        return acc;
-      }, {});
-    } else if (typeof storageOptions === 'object') {
+      finalStorageOptions = storageOptions.reduce(
+        (acc, item: { key: string; value: any }) => {
+          if (item.key) {
+            // Only add if key exists
+            acc[item.key] = item.value;
+          }
+          return acc;
+        },
+        {},
+      );
+    } else if (typeof storageOptions === "object") {
       // If it's already an object, use it as base
       finalStorageOptions = { ...storageOptions };
     }
 
     // Step 2: Always apply S3-specific options (these will override manual entries if needed)
-    if (config.fileLocation === 's3') {
-      const s3Options = S3OptionsHandler.handleS3SpecificOptions(config, finalStorageOptions);
+    if (config.fileLocation === "s3") {
+      const s3Options = S3OptionsHandler.handleS3SpecificOptions(
+        config,
+        finalStorageOptions,
+      );
       finalStorageOptions = { ...finalStorageOptions, ...s3Options };
     }
 
@@ -130,13 +169,13 @@ ${outputName} = pd.read_json("${config.filePath}"${optionsString}).convert_dtype
 
     // Helper function to convert JavaScript values to Python literals
     const toPythonLiteral = (value: any): string => {
-      if (typeof value === 'boolean') {
-        return value ? 'True' : 'False';
-      } else if (typeof value === 'string') {
+      if (typeof value === "boolean") {
+        return value ? "True" : "False";
+      } else if (typeof value === "string") {
         return `"${value}"`; // Handle strings with quotes
       } else if (Array.isArray(value)) {
         return JSON.stringify(value); // Convert arrays to JSON strings
-      } else if (typeof value === 'object' && value !== null) {
+      } else if (typeof value === "object" && value !== null) {
         return JSON.stringify(value); // Convert objects to JSON strings
       } else {
         return String(value); // Handle numbers and other types
@@ -145,15 +184,15 @@ ${outputName} = pd.read_json("${config.filePath}"${optionsString}).convert_dtype
 
     // Process jsonOptions into a string
     let optionsEntries = Object.entries(jsonOptions)
-      .filter(([key, value]) => value !== null && value !== '')
+      .filter(([key, value]) => value !== null && value !== "")
       .map(([key, value]) => {
-        if (key === 'storage_options') {
+        if (key === "storage_options") {
           return `${key}=${toPythonLiteral(value)}`;
         } else {
           return `${key}=${toPythonLiteral(value)}`;
         }
       });
 
-    return optionsEntries.length > 0 ? `, ${optionsEntries.join(', ')}` : '';
+    return optionsEntries.length > 0 ? `, ${optionsEntries.join(", ")}` : "";
   }
 }

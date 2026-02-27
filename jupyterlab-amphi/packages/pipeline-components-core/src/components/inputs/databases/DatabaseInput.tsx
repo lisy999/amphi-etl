@@ -1,10 +1,11 @@
-import { databaseIcon } from '../../../icons';
-import { BaseCoreComponent } from '../../BaseCoreComponent';
-import { MySQLInput } from './MySQLInput';
-import { PostgresInput } from './PostgresInput';
-import { ODBCInput } from './ODBCInput';
-import { SqlServerInput } from './SqlServerInput';
-import { SnowflakeInput } from './SnowflakeInput';
+import { databaseIcon } from "../../../icons";
+import { BaseCoreComponent } from "../../BaseCoreComponent";
+import { MySQLInput } from "./MySQLInput";
+import { PostgresInput } from "./PostgresInput";
+import { ODBCInput } from "./ODBCInput";
+import { SqlServerInput } from "./SqlServerInput";
+import { SnowflakeInput } from "./SnowflakeInput";
+import { chineseLabel } from "../label";
 
 export class DatabaseInput extends BaseCoreComponent {
   constructor() {
@@ -22,7 +23,10 @@ export class DatabaseInput extends BaseCoreComponent {
     };
 
     const wrapFields = (fields: any[], provider: string) =>
-      fields.map(f => ({ ...f, condition: { provider: [provider], ...(f.condition || {}) } }));
+      fields.map((f) => ({
+        ...f,
+        condition: { provider: [provider], ...(f.condition || {}) },
+      }));
 
     const form = {
       idPrefix: "component__form",
@@ -37,64 +41,120 @@ export class DatabaseInput extends BaseCoreComponent {
             { value: "sqlserver", label: "SQL Server" },
             { value: "snowflake", label: "Snowflake" },
             { value: "odbc", label: "ODBC" },
-          ]
+          ],
         },
         ...wrapFields(getFields(mysql), "mysql"),
         ...wrapFields(getFields(pg), "postgres"),
         ...wrapFields(getFields(mssql), "sqlserver"),
         ...wrapFields(getFields(odbc), "odbc"),
         ...wrapFields(getFields(snowflake), "snowflake"),
-      ]
+      ],
     };
 
     const description =
-      "Database Input lets you choose a database and load a DataFrame via table or custom SQL.";
+      "“数据库输入”功能允许您选择一个数据库，并通过表格或自定义 SQL 语句来加载数据框。";
+    // const description =
+    //   "Database Input lets you choose a database and load a DataFrame via table or custom SQL.";
 
-    super("Database Input", "databaseInput", description, "pandas_df_input", [], "inputs", databaseIcon, defaultConfig, form);
+    super(
+      // "Database Input",
+      "数据库 chineseLabel",
+      "databaseInput",
+      description,
+      "pandas_df_input",
+      [],
+      chineseLabel,
+      databaseIcon,
+      defaultConfig,
+      form,
+    );
   }
 
   public provideDependencies({ config }): string[] {
     switch (config.provider) {
-      case "mysql": return new MySQLInput().provideDependencies({ config });
-      case "postgres": return new PostgresInput().provideDependencies({ config });
-      case "sqlserver": return new SqlServerInput().provideDependencies({ config });
-      case "odbc": return new ODBCInput().provideDependencies({ config });
-      case "snowflake": return new SnowflakeInput().provideDependencies({ config });
-      default: return [];
+      case "mysql":
+        return new MySQLInput().provideDependencies({ config });
+      case "postgres":
+        return new PostgresInput().provideDependencies({ config });
+      case "sqlserver":
+        return new SqlServerInput().provideDependencies({ config });
+      case "odbc":
+        return new ODBCInput().provideDependencies({ config });
+      case "snowflake":
+        return new SnowflakeInput().provideDependencies({ config });
+      default:
+        return [];
     }
   }
 
   public provideImports({ config }): string[] {
     const imports =
-      config.provider === "mysql" ? new MySQLInput().provideImports({ config }) :
-      config.provider === "postgres" ? new PostgresInput().provideImports({ config }) :
-      config.provider === "sqlserver" ? new SqlServerInput().provideImports({ config }) :
-      config.provider === "odbc" ? new ODBCInput().provideImports({ config }) :
-      config.provider === "snowflake" ? new SnowflakeInput().provideImports({ config }) :
-      [];
+      config.provider === "mysql"
+        ? new MySQLInput().provideImports({ config })
+        : config.provider === "postgres"
+        ? new PostgresInput().provideImports({ config })
+        : config.provider === "sqlserver"
+        ? new SqlServerInput().provideImports({ config })
+        : config.provider === "odbc"
+        ? new ODBCInput().provideImports({ config })
+        : config.provider === "snowflake"
+        ? new SnowflakeInput().provideImports({ config })
+        : [];
 
     const seen = new Set<string>();
-    return imports.filter(i => (seen.has(i) ? false : (seen.add(i), true)));
+    return imports.filter((i) => (seen.has(i) ? false : (seen.add(i), true)));
   }
 
   public generateDatabaseConnectionCode({ config, connectionName }): string {
     switch (config.provider) {
-      case "mysql": return new MySQLInput().generateDatabaseConnectionCode({ config, connectionName });
-      case "postgres": return new PostgresInput().generateDatabaseConnectionCode({ config, connectionName });
-      case "sqlserver": return new SqlServerInput().generateDatabaseConnectionCode({ config, connectionName }); 
-      case "snowflake": return new SnowflakeInput().generateDatabaseConnectionCode({ config, connectionName });
-      default: return "";
+      case "mysql":
+        return new MySQLInput().generateDatabaseConnectionCode({
+          config,
+          connectionName,
+        });
+      case "postgres":
+        return new PostgresInput().generateDatabaseConnectionCode({
+          config,
+          connectionName,
+        });
+      case "sqlserver":
+        return new SqlServerInput().generateDatabaseConnectionCode({
+          config,
+          connectionName,
+        });
+      case "snowflake":
+        return new SnowflakeInput().generateDatabaseConnectionCode({
+          config,
+          connectionName,
+        });
+      default:
+        return "";
     }
   }
 
   public generateComponentCode({ config, outputName }): string {
     switch (config.provider) {
-      case "mysql": return new MySQLInput().generateComponentCode({ config, outputName });
-      case "postgres": return new PostgresInput().generateComponentCode({ config, outputName });
-      case "sqlserver": return new SqlServerInput().generateComponentCode({ config, outputName });
-      case "odbc": return new ODBCInput().generateComponentCode({ config, outputName });
-      case "snowflake": return new SnowflakeInput().generateComponentCode({ config, outputName });
-      default: return "";
+      case "mysql":
+        return new MySQLInput().generateComponentCode({ config, outputName });
+      case "postgres":
+        return new PostgresInput().generateComponentCode({
+          config,
+          outputName,
+        });
+      case "sqlserver":
+        return new SqlServerInput().generateComponentCode({
+          config,
+          outputName,
+        });
+      case "odbc":
+        return new ODBCInput().generateComponentCode({ config, outputName });
+      case "snowflake":
+        return new SnowflakeInput().generateComponentCode({
+          config,
+          outputName,
+        });
+      default:
+        return "";
     }
   }
 }

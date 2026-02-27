@@ -1,15 +1,20 @@
-import { bucketIcon } from '../../../icons';
-import { BaseCoreComponent } from '../../BaseCoreComponent';
-import { S3OptionsHandler } from '../../common/S3OptionsHandler';
-import { CsvFileInput } from './CsvFileInput';
-import { JsonFileInput } from './JsonFileInput';
-import { ExcelFileInput } from './ExcelFileInput';
-import { ParquetFileInput } from './ParquetFileInput';
-import { XmlFileInput } from './XmlFileInput';
+import { bucketIcon } from "../../../icons";
+import { BaseCoreComponent } from "../../BaseCoreComponent";
+import { S3OptionsHandler } from "../../common/S3OptionsHandler";
+import { CsvFileInput } from "./CsvFileInput";
+import { JsonFileInput } from "./JsonFileInput";
+import { ExcelFileInput } from "./ExcelFileInput";
+import { ParquetFileInput } from "./ParquetFileInput";
+import { XmlFileInput } from "./XmlFileInput";
+import { chineseLabel } from "../label";
 
 export class S3FileInput extends BaseCoreComponent {
   constructor() {
-    const defaultConfig = { fileType: "csv", fileLocation: "s3", connectionMethod: "env" };
+    const defaultConfig = {
+      fileType: "csv",
+      fileLocation: "s3",
+      connectionMethod: "env",
+    };
 
     const csvComponent = new CsvFileInput();
     const jsonComponent = new JsonFileInput();
@@ -19,11 +24,21 @@ export class S3FileInput extends BaseCoreComponent {
 
     const fieldsToRemove = ["fileLocation"]; // Fields to remove from all components
 
-    const filteredCsvFields = csvComponent._form['fields'].filter(field => !fieldsToRemove.includes(field.id));
-    const filteredJsonFields = jsonComponent._form['fields'].filter(field => !fieldsToRemove.includes(field.id));
-    const filteredExcelFields = excelComponent._form['fields'].filter(field => !fieldsToRemove.includes(field.id));
-    const filteredParquetFields = parquetComponent._form['fields'].filter(field => !fieldsToRemove.includes(field.id));
-    const filteredXmlFields = xmlComponent._form['fields'].filter(field => !fieldsToRemove.includes(field.id));
+    const filteredCsvFields = csvComponent._form["fields"].filter(
+      (field) => !fieldsToRemove.includes(field.id),
+    );
+    const filteredJsonFields = jsonComponent._form["fields"].filter(
+      (field) => !fieldsToRemove.includes(field.id),
+    );
+    const filteredExcelFields = excelComponent._form["fields"].filter(
+      (field) => !fieldsToRemove.includes(field.id),
+    );
+    const filteredParquetFields = parquetComponent._form["fields"].filter(
+      (field) => !fieldsToRemove.includes(field.id),
+    );
+    const filteredXmlFields = xmlComponent._form["fields"].filter(
+      (field) => !fieldsToRemove.includes(field.id),
+    );
 
     const form = {
       idPrefix: "component__form",
@@ -37,41 +52,54 @@ export class S3FileInput extends BaseCoreComponent {
             { value: "json", label: "JSON" },
             { value: "excel", label: "Excel" },
             { value: "parquet", label: "Parquet" },
-            { value: "xml", label: "XML" }
-          ]
+            { value: "xml", label: "XML" },
+          ],
         },
         // Conditionally display filtered fields based on selected file type
-        ...filteredCsvFields.map(field => ({
+        ...filteredCsvFields.map((field) => ({
           ...field,
-          condition: { fileType: ["csv"], ...(field.condition || {}) }
+          condition: { fileType: ["csv"], ...(field.condition || {}) },
         })),
-        ...filteredJsonFields.map(field => ({
+        ...filteredJsonFields.map((field) => ({
           ...field,
-          condition: { fileType: ["json"], ...(field.condition || {}) }
+          condition: { fileType: ["json"], ...(field.condition || {}) },
         })),
-        ...filteredExcelFields.map(field => ({
+        ...filteredExcelFields.map((field) => ({
           ...field,
-          condition: { fileType: ["excel"], ...(field.condition || {}) }
+          condition: { fileType: ["excel"], ...(field.condition || {}) },
         })),
-        ...filteredParquetFields.map(field => ({
+        ...filteredParquetFields.map((field) => ({
           ...field,
-          condition: { fileType: ["parquet"], ...(field.condition || {}) }
+          condition: { fileType: ["parquet"], ...(field.condition || {}) },
         })),
-        ...filteredXmlFields.map(field => ({
+        ...filteredXmlFields.map((field) => ({
           ...field,
-          condition: { fileType: ["xml"], ...(field.condition || {}) }
-        }))
-      ]
+          condition: { fileType: ["xml"], ...(field.condition || {}) },
+        })),
+      ],
     };
 
-    const description = "Use File Input to read data from a file remotely (S3). Supports CSV, JSON, Excel, Parquet, and XML formats.";
+    // const description = "Use File Input to read data from a file remotely (S3). Supports CSV, JSON, Excel, Parquet, and XML formats.";
+    const description =
+      "使用文件输入从远程文件（S3）读取数据。支持 CSV、JSON、Excel、Parquet 和 XML 格式。";
 
-    super("S3 File Input", "s3FileInput", description, "pandas_df_input", [], "inputs", bucketIcon, defaultConfig, form);
+    super(
+      // "S3 File Input",
+      "S3 文件输入",
+      "s3FileInput",
+      description,
+      "pandas_df_input",
+      [],
+      chineseLabel,
+      bucketIcon,
+      defaultConfig,
+      form,
+    );
   }
 
   public provideDependencies({ config }): string[] {
     let deps: string[] = [];
-    deps.push('s3fs');
+    deps.push("s3fs");
     return deps;
   }
 
@@ -100,6 +128,6 @@ export class S3FileInput extends BaseCoreComponent {
       const xmlComponent = new XmlFileInput();
       return xmlComponent.generateComponentCode({ config, outputName });
     }
-    return '';
+    return "";
   }
 }

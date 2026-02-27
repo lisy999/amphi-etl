@@ -1,98 +1,100 @@
-import { generateCalendarIcon } from '../../icons';
-import { BaseCoreComponent } from '../BaseCoreComponent';
+import { generateCalendarIcon } from "../../icons";
+import { BaseCoreComponent } from "../BaseCoreComponent";
+import { chineseLabel } from "./label";
 
 export class GenerateCalendar extends BaseCoreComponent {
   constructor() {
-    const description = 'Generate a Calendar';
+    // const description = 'Generate a Calendar';
+    const description = "生成日历";
     const defaultConfig = {
-        tsCFdateFromDate:"",
-        tsCFbooleanFromToday:true,
-        tsCFinputNumberFromXBack:"",
-        tsCFselectFromWhatBack:"days",
-        //tsCFcolumnFromColumn:"",
-        tsCFdateToDate:"",
-        tsCFbooleanToToday:true,
-        tsCFinputNumberToXAhead:"",
-        tsCFselectToWhatAhead:"days",
-        //tsCFcolumnToColumn:"",
-		tsCFselectMultipleCustomizableFieldsToInclude:["date"],
-        // tsCFSelectinputEngine:"pandas",
-        tsCFSelectoutputEngine:"pandas"
-	};
+      tsCFdateFromDate: "",
+      tsCFbooleanFromToday: true,
+      tsCFinputNumberFromXBack: "",
+      tsCFselectFromWhatBack: "days",
+      //tsCFcolumnFromColumn:"",
+      tsCFdateToDate: "",
+      tsCFbooleanToToday: true,
+      tsCFinputNumberToXAhead: "",
+      tsCFselectToWhatAhead: "days",
+      //tsCFcolumnToColumn:"",
+      tsCFselectMultipleCustomizableFieldsToInclude: ["date"],
+      // tsCFSelectinputEngine:"pandas",
+      tsCFSelectoutputEngine: "pandas",
+    };
     const form = {
-      idPrefix: 'component__form_name_input_hello_df',
+      idPrefix: "component__form_name_input_hello_df",
       fields: [
-		{
+        {
           type: "date",
           label: "From Date",
           id: "tsCFdateFromDate",
-          advanced: true
-        },	  
+          advanced: true,
+        },
         {
           type: "boolean",
           label: "From Today",
           id: "tsCFbooleanFromToday",
-          advanced: true
+          advanced: true,
         },
-		{
+        {
           type: "inputNumber",
           label: "From X Back",
           id: "tsCFinputNumberFromXBack",
-          advanced: true
+          advanced: true,
         },
-		{
+        {
           type: "select",
           label: "From what back",
           id: "tsCFselectFromWhatBack",
-		  options: [
-            { value: "days", label: "Days"},
-            { value: "weeks", label: "Weeks"},
+          options: [
+            { value: "days", label: "Days" },
+            { value: "weeks", label: "Weeks" },
             { value: "months", label: "Months" },
-			{ value: "years", label: "Years" }
+            { value: "years", label: "Years" },
           ],
-          advanced: true
+          advanced: true,
         },
-		// {
-          // type: "column",
-          // label: "From Column",
-          // id: "tsCFcolumnFromColumn",
-          // advanced: true
+        // {
+        // type: "column",
+        // label: "From Column",
+        // id: "tsCFcolumnFromColumn",
+        // advanced: true
         // },
-		{
+        {
           type: "date",
           label: "To Date",
           id: "tsCFdateToDate",
-          advanced: true
+          advanced: true,
         },
-		{
+        {
           type: "boolean",
           label: "To Today",
           id: "tsCFbooleanToToday",
-          advanced: true
+          advanced: true,
         },
-		{
+        {
           type: "inputNumber",
           label: "To X Ahead",
           id: "tsCFinputNumberToXAhead",
-          advanced: true
+          advanced: true,
         },
-		{
+        {
           type: "select",
           label: "To What Ahead",
           id: "tsCFselectToWhatAhead",
-		  options: [
-            { value: "days", label: "Days"},
-            { value: "weeks", label: "Weeks"},
+          options: [
+            { value: "days", label: "Days" },
+            { value: "weeks", label: "Weeks" },
             { value: "months", label: "Months" },
-			{ value: "years", label: "Years" }
+            { value: "years", label: "Years" },
           ],
-          advanced: true
+          advanced: true,
         },
-		// {
-          // type: "column",
-          // label: "To Column",
-          // id: "tsCFcolumnToColumn",
-          // advanced: true
+        // {
+        // type: "column",
+        // label: "To Column",
+        // id: "tsCFcolumnToColumn",
+        // advanced: true
         // },
         {
           type: "selectMultipleCustomizable",
@@ -106,51 +108,75 @@ export class GenerateCalendar extends BaseCoreComponent {
             { value: "weekday_name", label: "Weekday Name" },
             { value: "weekday_number", label: "Weekday Number" },
             { value: "week", label: "Week" },
-            { value: "weekend_flag", label: "Week-End Flag" }
+            { value: "weekend_flag", label: "Week-End Flag" },
           ],
-          advanced: true
-        },		
-		// {
-          // type: "select",
-          // label: "Input Engine",
-          // id: "tsCFSelectinputEngine",
-		  // options: [
-            // { value: "pandas", label: "Pandas", tooltip: "Mature, easy-to-use, great for small-to-medium datasets." },
-            // { value: "polars", label: "Polars", tooltip: "Fast, memory-efficient, great for large-scale in-memory analytics." },
-            // { value: "duckdb", label: "DuckDB", tooltip: "SQL-based, excellent for large datasets" }
-          // ],
-          // advanced: true
+          advanced: true,
+        },
+        // {
+        // type: "select",
+        // label: "Input Engine",
+        // id: "tsCFSelectinputEngine",
+        // options: [
+        // { value: "pandas", label: "Pandas", tooltip: "Mature, easy-to-use, great for small-to-medium datasets." },
+        // { value: "polars", label: "Polars", tooltip: "Fast, memory-efficient, great for large-scale in-memory analytics." },
+        // { value: "duckdb", label: "DuckDB", tooltip: "SQL-based, excellent for large datasets" }
+        // ],
+        // advanced: true
         // },
-		{
+        {
           type: "select",
           label: "Output Engine",
           id: "tsCFSelectoutputEngine",
-		  options: [
-            { value: "pandas", label: "Pandas", tooltip: "Mature, easy-to-use, great for small-to-medium datasets." },
-            { value: "polars", label: "Polars", tooltip: "Fast, memory-efficient, great for large-scale in-memory analytics." },
-            { value: "duckdb", label: "DuckDB", tooltip: "SQL-based, excellent for large datasets" }
+          options: [
+            {
+              value: "pandas",
+              label: "Pandas",
+              tooltip:
+                "Mature, easy-to-use, great for small-to-medium datasets.",
+            },
+            {
+              value: "polars",
+              label: "Polars",
+              tooltip:
+                "Fast, memory-efficient, great for large-scale in-memory analytics.",
+            },
+            {
+              value: "duckdb",
+              label: "DuckDB",
+              tooltip: "SQL-based, excellent for large datasets",
+            },
           ],
-          advanced: true
+          advanced: true,
         },
       ],
     };
 
-
-    super('Generate Calendar', 'GenerateCalendar', description, 'pandas_df_input', [], 'inputs', generateCalendarIcon, defaultConfig, form);
+    super(
+      //   'Generate Calendar',
+      "生成日历",
+      "GenerateCalendar",
+      description,
+      "pandas_df_input",
+      [],
+      chineseLabel,
+      generateCalendarIcon,
+      defaultConfig,
+      form,
+    );
   }
 
   provideImports() {
     return [
-"from datetime import date, datetime",
-"from dateutil.relativedelta import relativedelta",
-"import pandas as pd",
-"import polars as pl",
-"import duckdb",
-"from typing import Optional, Union, Dict, Tuple, List"
-];
+      "from datetime import date, datetime",
+      "from dateutil.relativedelta import relativedelta",
+      "import pandas as pd",
+      "import polars as pl",
+      "import duckdb",
+      "from typing import Optional, Union, Dict, Tuple, List",
+    ];
   }
 
-provideFunctions({ config }): string[] {
+  provideFunctions({ config }): string[] {
     const prefix = config?.backend?.prefix ?? "pd";
     const tsGenerateCalendarFunction = `
 def py_fn_generate_calendar(
@@ -325,39 +351,41 @@ def py_fn_generate_calendar(
     return [tsGenerateCalendarFunction];
   }
   generateComponentCode({ config, outputName }) {
-	const tsConsFieldsToInclude = JSON.stringify(config.tsCFselectMultipleCustomizableFieldsToInclude);
-   let tsConstFromDate = 'None';
-    if (config.tsCFdateFromDate && config.tsCFdateFromDate.trim() !== '' 
-	) {
-      tsConstFromDate = '"' + config.tsCFdateFromDate+ '"';
+    const tsConsFieldsToInclude = JSON.stringify(
+      config.tsCFselectMultipleCustomizableFieldsToInclude,
+    );
+    let tsConstFromDate = "None";
+    if (config.tsCFdateFromDate && config.tsCFdateFromDate.trim() !== "") {
+      tsConstFromDate = '"' + config.tsCFdateFromDate + '"';
     }
-   let tsConstToDate = 'None';
-    if (config.tsCFdateToDate && config.tsCFdateToDate.trim() !== '' 
-	) {
-      tsConstToDate = '"' + config.tsCFdateToDate+ '"';
+    let tsConstToDate = "None";
+    if (config.tsCFdateToDate && config.tsCFdateToDate.trim() !== "") {
+      tsConstToDate = '"' + config.tsCFdateToDate + '"';
     }
-   let tsConstFromWhatBack = 'None';
-    if (config.tsCFselectFromWhatBack && config.tsCFselectFromWhatBack.trim() !== '' 
-	) {
-      tsConstFromWhatBack = '"' + config.tsCFselectFromWhatBack+ '"';
-    }	
-   let tsConstToWhatAhead = 'None';
-    if (config.tsCFselectToWhatAhead && config.tsCFselectToWhatAhead.trim() !== '' 
-	) {
-      tsConstToWhatAhead = '"' + config.tsCFselectToWhatAhead+ '"';
+    let tsConstFromWhatBack = "None";
+    if (
+      config.tsCFselectFromWhatBack &&
+      config.tsCFselectFromWhatBack.trim() !== ""
+    ) {
+      tsConstFromWhatBack = '"' + config.tsCFselectFromWhatBack + '"';
     }
-   let tsConstFromXBack =0;
-    if (config.tsCFinputNumberFromXBack
-	) {
+    let tsConstToWhatAhead = "None";
+    if (
+      config.tsCFselectToWhatAhead &&
+      config.tsCFselectToWhatAhead.trim() !== ""
+    ) {
+      tsConstToWhatAhead = '"' + config.tsCFselectToWhatAhead + '"';
+    }
+    let tsConstFromXBack = 0;
+    if (config.tsCFinputNumberFromXBack) {
       tsConstFromXBack = config.tsCFinputNumberFromXBack;
-    }	
-   let tsConstToXAhead = 0;
-    if (config.tsCFinputNumberToXAhead 
-	) {
-      tsConstToXAhead =  config.tsCFinputNumberToXAhead;
-    }	
-	let tsConstFromToday = config.tsCFbooleanFromToday ? 'True' : 'False';
-	let tsConstToToday = config.tsCFbooleanToToday ? 'True' : 'False';
+    }
+    let tsConstToXAhead = 0;
+    if (config.tsCFinputNumberToXAhead) {
+      tsConstToXAhead = config.tsCFinputNumberToXAhead;
+    }
+    let tsConstFromToday = config.tsCFbooleanFromToday ? "True" : "False";
+    let tsConstToToday = config.tsCFbooleanToToday ? "True" : "False";
     return `
 ${outputName}=py_fn_generate_calendar(
     py_arg_from_date = ${tsConstFromDate},

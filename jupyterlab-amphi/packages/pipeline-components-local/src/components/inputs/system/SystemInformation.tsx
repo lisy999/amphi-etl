@@ -1,10 +1,8 @@
 // Import necessary icons and the base component
-import { systemInformationIcon } from '../../../icons';
-import { BaseCoreComponent } from '../../BaseCoreComponent';
-
+import { systemInformationIcon } from "../../../icons";
+import { BaseCoreComponent } from "../../BaseCoreComponent";
 // Main component definition
 export class SystemInformation extends BaseCoreComponent {
-  
   // Constructor to define the component's structure
   constructor() {
     const defaultConfig = {};
@@ -14,29 +12,31 @@ export class SystemInformation extends BaseCoreComponent {
       idPrefix: "component__form",
       fields: [
         {
-          type: "info",  // Form type
+          type: "info", // Form type
           label: "Info", // Display label
           id: "instructions",
           text: "Available fields may depend on the Operating System",
-          advanced: false // No expandable options
-        }
-      ]
+          advanced: false, // No expandable options
+        },
+      ],
     };
 
     // Tooltip description for the component in the menu
-    const description = "Information about your system";
+    // const description = "Information about your system";
+    const description = "关于您系统的信息";
 
     // Call the parent class constructor with component details
     super(
-      "System Information",    // Display name
-      "system_informations",   // Component ID
-      description,             // Description
-      "pandas_df_input",       // Component type
-      [],                      // File drop (unused)
-      "inputs",         // Category
-      systemInformationIcon,  // Component icon
-      defaultConfig,           // Default configuration
-      form                     // Form structure
+      // "System Information", // Display name
+      "系统信息", // Display name
+      "system_informations", // Component ID
+      description, // Description
+      "pandas_df_input", // Component type
+      [], // File drop (unused)
+      "输入", // Category
+      systemInformationIcon, // Component icon
+      defaultConfig, // Default configuration
+      form, // Form structure
     );
   }
 
@@ -50,7 +50,7 @@ export class SystemInformation extends BaseCoreComponent {
       "import psutil",
       "import datetime",
       "import sys",
-      "import subprocess"
+      "import subprocess",
     ];
   }
 
@@ -143,8 +143,14 @@ def system_informations():
   }
 
   // Generate the Python execution script
-  public generateComponentCode({ config, outputName }: { config: any; outputName: string }): string {
-    console.log("Generated outputName:", outputName);  // Debugging output
+  public generateComponentCode({
+    config,
+    outputName,
+  }: {
+    config: any;
+    outputName: string;
+  }): string {
+    console.log("Generated outputName:", outputName); // Debugging output
 
     return `
 # Execute the system information retrieval function
