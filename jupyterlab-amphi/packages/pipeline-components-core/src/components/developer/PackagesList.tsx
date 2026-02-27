@@ -1,10 +1,10 @@
 // Import necessary icons and the base component
-import { PackagesListIcon } from '../../icons';
-import { BaseCoreComponent } from '../BaseCoreComponent';
+import { PackagesListIcon } from "../../icons";
+import { BaseCoreComponent } from "../BaseCoreComponent";
+import { chineseLabel } from "../inputs/label";
 
 // Main component definition
 export class PackagesList extends BaseCoreComponent {
-  
   // Constructor to define the component's structure
   constructor() {
     const defaultConfig = {};
@@ -14,29 +14,31 @@ export class PackagesList extends BaseCoreComponent {
       idPrefix: "component__form",
       fields: [
         {
-          type: "info",  // Form type
+          type: "info", // Form type
           label: "Info", // Display label
           id: "description",
           text: "List of the installed python packages",
-          advanced: false // No expandable options
-        }
-      ]
+          advanced: false, // No expandable options
+        },
+      ],
     };
 
     // Tooltip description for the component in the menu
-    const description = "List of the installed python packages";
+    // const description = "List of the installed python packages";
+    const description = "已安装的 Python 包列表";
 
     // Call the parent class constructor with component details
     super(
-      "Packages List",    // Display name
-      "packages_list",   // Component ID
-      description,             // Description
-      "pandas_df_input",       // Component type
-      [],                      // File drop (unused)
-      "developer",         // Category
-      PackagesListIcon,  // Component icon
-      defaultConfig,           // Default configuration
-      form                     // Form structure
+      // "Packages List", // Display name
+      "包列表", // Display name
+      "packages_list", // Component ID
+      description, // Description
+      "pandas_df_input", // Component type
+      [], // File drop (unused)
+      chineseLabel[5],
+      PackagesListIcon, // Component icon
+      defaultConfig, // Default configuration
+      form, // Form structure
     );
   }
 
@@ -45,9 +47,9 @@ export class PackagesList extends BaseCoreComponent {
     return [
       "import pandas as pd",
       "import importlib.metadata",
-	  "import datetime",
-	  "import os",
-	  "import sys"
+      "import datetime",
+      "import os",
+      "import sys",
     ];
   }
 
@@ -102,8 +104,14 @@ def packages_list():
   }
 
   // Generate the Python execution script
-  public generateComponentCode({ config, outputName }: { config: any; outputName: string }): string {
-    console.log("Generated outputName:", outputName);  // Debugging output
+  public generateComponentCode({
+    config,
+    outputName,
+  }: {
+    config: any;
+    outputName: string;
+  }): string {
+    console.log("Generated outputName:", outputName); // Debugging output
 
     return `
 # Execute the function

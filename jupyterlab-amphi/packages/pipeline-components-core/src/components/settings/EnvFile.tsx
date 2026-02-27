@@ -1,18 +1,60 @@
-import React, { useContext, useEffect, useCallback, useState, useRef } from 'react';
-import { ComponentItem, PipelineComponent, InputFile, InputRegular, SelectRegular, onChange, renderComponentUI, renderHandle, setDefaultConfig, createZoomSelector, RequestService, Option } from '@amphi/pipeline-components-manager';
-import { KernelMessage } from '@jupyterlab/services';
-import { Handle, Position, useReactFlow, useStore, useStoreApi, NodeToolbar } from 'reactflow';
-import { fileVariableIcon, settingsIcon } from '../../icons';
+import React, {
+  useContext,
+  useEffect,
+  useCallback,
+  useState,
+  useRef,
+} from "react";
+import {
+  ComponentItem,
+  PipelineComponent,
+  InputFile,
+  InputRegular,
+  SelectRegular,
+  onChange,
+  renderComponentUI,
+  renderHandle,
+  setDefaultConfig,
+  createZoomSelector,
+  RequestService,
+  Option,
+} from "@amphi/pipeline-components-manager";
+import { KernelMessage } from "@jupyterlab/services";
+import {
+  Handle,
+  Position,
+  useReactFlow,
+  useStore,
+  useStoreApi,
+  NodeToolbar,
+} from "reactflow";
+import { fileVariableIcon, settingsIcon } from "../../icons";
 
-import { Form, Table, ConfigProvider, Divider, Input, Select, Space, Button, Typography, Modal, Popconfirm } from 'antd';
-import type { GetRef, InputRef } from 'antd';
+import {
+  Form,
+  Table,
+  ConfigProvider,
+  Divider,
+  Input,
+  Select,
+  Space,
+  Button,
+  Typography,
+  Modal,
+  Popconfirm,
+} from "antd";
+import type { GetRef, InputRef } from "antd";
+import { chineseLabel } from "../inputs/label";
 
 export class EnvFile extends PipelineComponent<ComponentItem>() {
-  public _name = "Env. File";
+  // public _name = "Env. File";
+  public _name = "环境文件";
   public _id = "envFile";
   public _type = "env_variables";
-  public _category = "configuration";
-  public _description = "Use Env. Variables to define environment variable names for use in the pipeline. You can also assign a value directly and set a default value. It is not recommended for credentials or sensitive data unless you fully understand the implications."
+  public _category = chineseLabel[4];
+  // public _description = "Use Env. Variables to define environment variable names for use in the pipeline. You can also assign a value directly and set a default value. It is not recommended for credentials or sensitive data unless you fully understand the implications."
+  public _description =
+    "使用环境变量来定义在管道中使用的环境变量名称。您还可以直接指定一个值，并设置默认值。除非您完全了解其影响，否则不建议将凭证或敏感数据设置为默认值。";
   public _icon = fileVariableIcon;
   public _default = {};
   public _form = {};
@@ -28,7 +70,7 @@ export class EnvFile extends PipelineComponent<ComponentItem>() {
     setNodes,
     handleChange,
     modalOpen,
-    setModalOpen
+    setModalOpen,
   }) => {
     // Define your default config
 
@@ -98,7 +140,7 @@ export class EnvFile extends PipelineComponent<ComponentItem>() {
           toggleEdit();
           handleSave({ ...record, ...values });
         } catch (errInfo) {
-          console.error('Save failed:', errInfo);
+          console.error("Save failed:", errInfo);
         }
       };
 
@@ -109,19 +151,34 @@ export class EnvFile extends PipelineComponent<ComponentItem>() {
           <Form.Item
             style={{ margin: 0 }}
             name={dataIndex}
-            rules={required ? [
-              {
-                required: true,
-                message: `${title} is required.`,
-              },
-            ] : []}
+            rules={
+              required
+                ? [
+                    {
+                      required: true,
+                      message: `${title} is required.`,
+                    },
+                  ]
+                : []
+            }
           >
-            <Input ref={inputRef} onPressEnter={save} onBlur={save} onKeyDown={(e) => e.stopPropagation()} autoComplete="off" />
+            <Input
+              ref={inputRef}
+              onPressEnter={save}
+              onBlur={save}
+              onKeyDown={(e) => e.stopPropagation()}
+              autoComplete="off"
+            />
           </Form.Item>
         ) : (
           <div
             className="editable-cell-value-wrap"
-            style={{ paddingRight: 24, minHeight: '20px', width: '100%', display: 'inline-block' }}
+            style={{
+              paddingRight: 24,
+              minHeight: "20px",
+              width: "100%",
+              display: "inline-block",
+            }}
             onClick={() => toggleEdit()}
           >
             {children}
@@ -131,9 +188,7 @@ export class EnvFile extends PipelineComponent<ComponentItem>() {
 
       return (
         <td {...restProps}>
-          <div onDoubleClick={(e) => e.stopPropagation()}>
-            {childNode}
-          </div>
+          <div onDoubleClick={(e) => e.stopPropagation()}>{childNode}</div>
         </td>
       );
     };
@@ -146,9 +201,11 @@ export class EnvFile extends PipelineComponent<ComponentItem>() {
       value: string;
     }
 
-    type ColumnTypes = Exclude<EditableTableProps['columns'], undefined>;
+    type ColumnTypes = Exclude<EditableTableProps["columns"], undefined>;
 
-    const [dataSource, setDataSource] = useState<DataType[]>(data.variables || []);
+    const [dataSource, setDataSource] = useState<DataType[]>(
+      data.variables || [],
+    );
     const [envVarFile, setEnvVarFile] = useState<Option>(data.envVarFile || "");
     const [loadings, setLoadings] = useState<boolean>();
 
@@ -163,20 +220,24 @@ export class EnvFile extends PipelineComponent<ComponentItem>() {
       setDataSource(newData);
     };
 
-    const defaultColumns: (ColumnTypes[number] & { editable?: boolean; dataIndex: string, required?: boolean })[] = [
+    const defaultColumns: (ColumnTypes[number] & {
+      editable?: boolean;
+      dataIndex: string;
+      required?: boolean;
+    })[] = [
       {
-        title: 'Name',
-        dataIndex: 'name',
-        width: '50%',
+        title: "Name",
+        dataIndex: "name",
+        width: "50%",
         editable: false,
-        required: true
+        required: true,
       },
       {
-        title: 'Default',
-        dataIndex: 'default',
-        width: '50%',
+        title: "Default",
+        dataIndex: "default",
+        width: "50%",
         editable: true,
-        required: false
+        required: false,
       },
     ];
 
@@ -188,24 +249,26 @@ export class EnvFile extends PipelineComponent<ComponentItem>() {
     !pip install --quiet python-dotenv --disable-pip-version-check
     from dotenv import dotenv_values
     
-    env_vars = dotenv_values("${data.envVarFile || 'config.env'}")
+    env_vars = dotenv_values("${data.envVarFile || "config.env"}")
     formatted_output = ", ".join([f"{k} ({v})" for k, v in env_vars.items()])
     print(formatted_output)
     `;
 
-      const future = context.sessionContext.session.kernel!.requestExecute({ code: code });
+      const future = context.sessionContext.session.kernel!.requestExecute({
+        code: code,
+      });
 
-      future.onReply = reply => {
+      future.onReply = (reply) => {
         if (reply.content.status == "ok") {
-          console.log("OK")
+          console.log("OK");
         } else {
-          console.log("Error or abort")
-          setLoadings(false)
+          console.log("Error or abort");
+          setLoadings(false);
         }
       };
 
-      future.onIOPub = msg => {
-        if (msg.header.msg_type === 'stream') {
+      future.onIOPub = (msg) => {
+        if (msg.header.msg_type === "stream") {
           const streamMsg = msg as KernelMessage.IStreamMsg;
           const output = streamMsg.content.text;
 
@@ -218,27 +281,31 @@ export class EnvFile extends PipelineComponent<ComponentItem>() {
             newItems.push({
               key: name,
               name: name,
-              value: value
+              value: value,
             });
           }
 
           setDataSource((items) => {
             const existingKeys = new Set(newItems.map((item) => item.key));
-            const filteredItems = items.filter((item) => existingKeys.has(item.key));
+            const filteredItems = items.filter((item) =>
+              existingKeys.has(item.key),
+            );
             const uniqueItems = newItems.filter(
-              (newItem) => !filteredItems.some((item) => item.key === newItem.key)
+              (newItem) =>
+                !filteredItems.some((item) => item.key === newItem.key),
             );
 
             return [...filteredItems, ...uniqueItems];
           });
 
-
-          setLoadings(false)
-        } else if (msg.header.msg_type === 'error') {
+          setLoadings(false);
+        } else if (msg.header.msg_type === "error") {
           setLoadings(false);
           const errorMsg = msg as KernelMessage.IErrorMsg;
           const errorOutput = errorMsg.content;
-          console.error(`Received error: ${errorOutput.ename}: ${errorOutput.evalue}`);
+          console.error(
+            `Received error: ${errorOutput.ename}: ${errorOutput.evalue}`,
+          );
         }
       };
     };
@@ -284,20 +351,28 @@ export class EnvFile extends PipelineComponent<ComponentItem>() {
           theme={{
             token: {
               // Seed Token
-              colorPrimary: '#5F9B97',
+              colorPrimary: "#5F9B97",
             },
           }}
         >
-          <Form
-            layout="vertical"
-            size="small">
+          <Form layout="vertical" size="small">
             <Form.Item label="File (.env)">
-              <InputFile field={{
-                type: "input", id: "environmentVariableFile", placeholder: "config.env", label: ""
-              }} handleChange={(value) => {
-                handleChange(value, 'envVarFile');
-                setEnvVarFile(value);
-              }} context={context} advanced={false} value={envVarFile} manager={manager} />
+              <InputFile
+                field={{
+                  type: "input",
+                  id: "environmentVariableFile",
+                  placeholder: "config.env",
+                  label: "",
+                }}
+                handleChange={(value) => {
+                  handleChange(value, "envVarFile");
+                  setEnvVarFile(value);
+                }}
+                context={context}
+                advanced={false}
+                value={envVarFile}
+                manager={manager}
+              />
             </Form.Item>
             <Modal
               title="Env. Variables File (.env)"
@@ -312,25 +387,41 @@ export class EnvFile extends PipelineComponent<ComponentItem>() {
                 </>
               )}
             >
-              <Form
-                layout="vertical" >
+              <Form layout="vertical">
                 <div>
-                  <Form.Item label="Environment Variables File (.env)" tooltip="Specify the file from which to extract the connection information. The file is a dot env (.env) file which consists of VARIABLE='value', one per line. You can use the helper to copy-paste the list of variable names below next to the Name column title.">
-
-                    <InputFile field={{
-                      type: "input", id: "environmentVariableFile", placeholder: "config.env", label: ""
-                    }} handleChange={(value) => {
-                      handleChange(value, 'envVarFile');
-                      setEnvVarFile(value);
-                    }} context={context} advanced={true} value={envVarFile} manager={manager} />
+                  <Form.Item
+                    label="Environment Variables File (.env)"
+                    tooltip="Specify the file from which to extract the connection information. The file is a dot env (.env) file which consists of VARIABLE='value', one per line. You can use the helper to copy-paste the list of variable names below next to the Name column title."
+                  >
+                    <InputFile
+                      field={{
+                        type: "input",
+                        id: "environmentVariableFile",
+                        placeholder: "config.env",
+                        label: "",
+                      }}
+                      handleChange={(value) => {
+                        handleChange(value, "envVarFile");
+                        setEnvVarFile(value);
+                      }}
+                      context={context}
+                      advanced={true}
+                      value={envVarFile}
+                      manager={manager}
+                    />
                   </Form.Item>
                   <br />
-                  <Button onClick={retrieveEnvVariablesFromFile} type="primary" loading={loadings} style={{ marginBottom: 16 }}>
+                  <Button
+                    onClick={retrieveEnvVariablesFromFile}
+                    type="primary"
+                    loading={loadings}
+                    style={{ marginBottom: 16 }}
+                  >
                     Retrieve Environment Variables from .env file
                   </Button>
                   <Table
                     components={components}
-                    rowClassName={() => 'editable-row'}
+                    rowClassName={() => "editable-row"}
                     bordered
                     dataSource={dataSource}
                     columns={columns as ColumnTypes}
@@ -342,10 +433,18 @@ export class EnvFile extends PipelineComponent<ComponentItem>() {
         </ConfigProvider>
       </>
     );
-  }
+  };
 
-  public UIComponent({ id, data, context, componentService, manager, commands, rendermimeRegistry, settings }) {
-
+  public UIComponent({
+    id,
+    data,
+    context,
+    componentService,
+    manager,
+    commands,
+    rendermimeRegistry,
+    settings,
+  }) {
     const { setNodes, deleteElements, setViewport } = useReactFlow();
     const store = useStoreApi();
 
@@ -363,23 +462,27 @@ export class EnvFile extends PipelineComponent<ComponentItem>() {
 
     const { nodeInternals, edges } = useStore(selector);
     const nodeId = id;
-    const internals = { nodeInternals, edges, nodeId, componentService }
+    const internals = { nodeInternals, edges, nodeId, componentService };
 
     // Create the handle element
     const handleElement = React.createElement(renderHandle, {
       type: EnvFile.Type,
       Handle: Handle, // Make sure Handle is imported or defined
       Position: Position, // Make sure Position is imported or defined
-      internals: internals
+      internals: internals,
     });
 
-    const handleChange = useCallback((evtTargetValue: any, field: string) => {
-
-      onChange({ evtTargetValue, field, nodeId, store, setNodes });
-    }, [nodeId, store, setNodes]);
+    const handleChange = useCallback(
+      (evtTargetValue: any, field: string) => {
+        onChange({ evtTargetValue, field, nodeId, store, setNodes });
+      },
+      [nodeId, store, setNodes],
+    );
 
     // Selector to determine if the node is selected
-    const isSelected = useStore((state) => !!state.nodeInternals.get(id)?.selected);
+    const isSelected = useStore(
+      (state) => !!state.nodeInternals.get(id)?.selected,
+    );
 
     const [modalOpen, setModalOpen] = useState(false);
 
@@ -393,7 +496,8 @@ export class EnvFile extends PipelineComponent<ComponentItem>() {
           commands: commands,
           name: EnvFile.Name,
           ConfigForm: EnvFile.ConfigForm, // Pass the component itself
-          configFormProps: { // Provide props separately
+          configFormProps: {
+            // Provide props separately
             nodeId: id,
             data,
             context,
@@ -404,7 +508,7 @@ export class EnvFile extends PipelineComponent<ComponentItem>() {
             setNodes,
             handleChange,
             modalOpen,
-            setModalOpen
+            setModalOpen,
           },
           Icon: EnvFile.Icon,
           showContent: showContent,
@@ -412,11 +516,13 @@ export class EnvFile extends PipelineComponent<ComponentItem>() {
           deleteNode: deleteNode,
           setViewport: setViewport,
           handleChange,
-          isSelected
+          isSelected,
         })}
         {showContent && (
           <NodeToolbar isVisible position={Position.Bottom}>
-            <button onClick={() => setModalOpen(true)}><settingsIcon.react /></button>
+            <button onClick={() => setModalOpen(true)}>
+              <settingsIcon.react />
+            </button>
           </NodeToolbar>
         )}
       </>
@@ -429,12 +535,11 @@ export class EnvFile extends PipelineComponent<ComponentItem>() {
 
   public provideDependencies({ config }): string[] {
     let deps: string[] = [];
-    deps.push('python-dotenv');
+    deps.push("python-dotenv");
     return deps;
   }
 
   public generateComponentCode({ config }): string {
-
     let code = `
 # Load environment variables from ${config.envVarFile}
 load_dotenv(dotenv_path="${config.envVarFile}")

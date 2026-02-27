@@ -1,10 +1,10 @@
-import { DataframeIcon } from '../../icons';
-import { BaseCoreComponent } from '../BaseCoreComponent';
+import { DataframeIcon } from "../../icons";
+import { BaseCoreComponent } from "../BaseCoreComponent";
+import { chineseLabel } from "../inputs/label";
 
 export class DataframeList extends BaseCoreComponent {
   constructor() {
-    const defaultConfig = {
-    };
+    const defaultConfig = {};
 
     const form = {
       idPrefix: "component__form",
@@ -13,22 +13,30 @@ export class DataframeList extends BaseCoreComponent {
           type: "info",
           id: "description",
           text: "List all existing pandas dataframes created before the tool",
-          advanced: false
+          advanced: false,
         },
       ],
     };
 
-    const description = "List all existing pandas dataframes created before the tool";
+    // const description = "List all existing pandas dataframes created before the tool";
+    const description = "列出在使用该工具之前创建的所有现有的 pandas 数据框。";
 
-    super("Dataframe List", "DataframeList", description, "pandas_df_processor", [], "developer", DataframeIcon, defaultConfig, form);
+    super(
+      //   "Dataframe List",
+      "数据框列表",
+      "DataframeList",
+      description,
+      "pandas_df_processor",
+      [],
+      chineseLabel[5],
+      DataframeIcon,
+      defaultConfig,
+      form,
+    );
   }
 
   public provideImports({ config }): string[] {
-    return [
-      "import pandas as pd",
-	  "import polars as pl",
-	  "import duckdb" 
-      ];
+    return ["import pandas as pd", "import polars as pl", "import duckdb"];
   }
 
   public provideFunctions({ config }): string[] {
@@ -96,7 +104,15 @@ def list_existing_dataframes(scope, exclude=None):
   }
 
   // Generate the Python execution script
-public generateComponentCode({ config, inputName, outputName }: { config: any; inputName: string; outputName: string }): string {
+  public generateComponentCode({
+    config,
+    inputName,
+    outputName,
+  }: {
+    config: any;
+    inputName: string;
+    outputName: string;
+  }): string {
     return `
 # Execute the function
 ${outputName} = list_existing_dataframes(globals(), exclude=['df_summary'])

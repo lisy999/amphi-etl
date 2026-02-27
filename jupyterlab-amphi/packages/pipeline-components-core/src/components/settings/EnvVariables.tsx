@@ -1,19 +1,55 @@
-import { ComponentItem, PipelineComponent, InputFile, onChange, renderComponentUI, renderHandle, setDefaultConfig, createZoomSelector } from '@amphi/pipeline-components-manager';
-import React, { useContext, useEffect, useCallback, useState, useRef } from 'react';
-import type { GetRef, InputRef } from 'antd';
-import { Form, Table, ConfigProvider, Divider, Input, Select, Space, Button, Typography, Modal, Popconfirm } from 'antd';
-import { DeleteOutlined } from '@ant-design/icons';
-import { Handle, Position, useReactFlow, useStore, useStoreApi, NodeToolbar } from 'reactflow';
-import { variableIcon, settingsIcon } from '../../icons';
-
+import {
+  ComponentItem,
+  PipelineComponent,
+  InputFile,
+  onChange,
+  renderComponentUI,
+  renderHandle,
+  setDefaultConfig,
+  createZoomSelector,
+} from "@amphi/pipeline-components-manager";
+import React, {
+  useContext,
+  useEffect,
+  useCallback,
+  useState,
+  useRef,
+} from "react";
+import type { GetRef, InputRef } from "antd";
+import {
+  Form,
+  Table,
+  ConfigProvider,
+  Divider,
+  Input,
+  Select,
+  Space,
+  Button,
+  Typography,
+  Modal,
+  Popconfirm,
+} from "antd";
+import { DeleteOutlined } from "@ant-design/icons";
+import {
+  Handle,
+  Position,
+  useReactFlow,
+  useStore,
+  useStoreApi,
+  NodeToolbar,
+} from "reactflow";
+import { variableIcon, settingsIcon } from "../../icons";
+import { chineseLabel } from "../inputs/label";
 
 export class EnvVariables extends PipelineComponent<ComponentItem>() {
-
-  public _name = "Env. Variables";
+  // public _name = "Env. Variables";
+  public _name = "环境变量";
   public _id = "envVariables";
   public _type = "env_variables";
-  public _category = "configuration";
-  public _description = "Use Env. Variables File to retrieve environment variables from configuration files. This is the recommended approach for handling credentials or sensitive data that should not be exposed in plain text within the pipeline."
+  public _category = chineseLabel[4];
+  // public _description = "Use Env. Variables File to retrieve environment variables from configuration files. This is the recommended approach for handling credentials or sensitive data that should not be exposed in plain text within the pipeline."
+  public _description =
+    "使用环境变量文件从配置文件中获取环境变量。这是处理不应以明文形式暴露在管道中的凭证或敏感数据的推荐方法。";
   public _icon = variableIcon;
   public _default = {};
   public _form = {};
@@ -29,7 +65,7 @@ export class EnvVariables extends PipelineComponent<ComponentItem>() {
     setNodes,
     handleChange,
     modalOpen,
-    setModalOpen
+    setModalOpen,
   }) => {
     // Define your default config
 
@@ -100,7 +136,7 @@ export class EnvVariables extends PipelineComponent<ComponentItem>() {
           toggleEdit();
           handleSave({ ...record, ...values });
         } catch (errInfo) {
-          console.error('Save failed:', errInfo);
+          console.error("Save failed:", errInfo);
         }
       };
 
@@ -111,19 +147,34 @@ export class EnvVariables extends PipelineComponent<ComponentItem>() {
           <Form.Item
             style={{ margin: 0 }}
             name={dataIndex}
-            rules={required ? [
-              {
-                required: true,
-                message: `${title} is required.`,
-              },
-            ] : []}
+            rules={
+              required
+                ? [
+                    {
+                      required: true,
+                      message: `${title} is required.`,
+                    },
+                  ]
+                : []
+            }
           >
-            <Input ref={inputRef} onPressEnter={save} onBlur={save} onKeyDown={(e) => e.stopPropagation()} autoComplete="off" />
+            <Input
+              ref={inputRef}
+              onPressEnter={save}
+              onBlur={save}
+              onKeyDown={(e) => e.stopPropagation()}
+              autoComplete="off"
+            />
           </Form.Item>
         ) : (
           <div
             className="editable-cell-value-wrap"
-            style={{ paddingRight: 24, minHeight: '20px', width: '100%', display: 'inline-block' }}
+            style={{
+              paddingRight: 24,
+              minHeight: "20px",
+              width: "100%",
+              display: "inline-block",
+            }}
             onClick={() => toggleEdit()}
           >
             {children}
@@ -133,9 +184,7 @@ export class EnvVariables extends PipelineComponent<ComponentItem>() {
 
       return (
         <td {...restProps}>
-          <div onDoubleClick={(e) => e.stopPropagation()}>
-            {childNode}
-          </div>
+          <div onDoubleClick={(e) => e.stopPropagation()}>{childNode}</div>
         </td>
       );
     };
@@ -149,9 +198,11 @@ export class EnvVariables extends PipelineComponent<ComponentItem>() {
       default: string;
     }
 
-    type ColumnTypes = Exclude<EditableTableProps['columns'], undefined>;
+    type ColumnTypes = Exclude<EditableTableProps["columns"], undefined>;
 
-    const [dataSource, setDataSource] = useState<DataType[]>(data.variables || []);
+    const [dataSource, setDataSource] = useState<DataType[]>(
+      data.variables || [],
+    );
 
     useEffect(() => {
       handleChange(dataSource, "variables");
@@ -164,48 +215,54 @@ export class EnvVariables extends PipelineComponent<ComponentItem>() {
       setDataSource(newData);
     };
 
-    const defaultColumns: (ColumnTypes[number] & { editable?: boolean; dataIndex: string, required?: boolean })[] = [
+    const defaultColumns: (ColumnTypes[number] & {
+      editable?: boolean;
+      dataIndex: string;
+      required?: boolean;
+    })[] = [
       {
-        title: 'Name',
-        dataIndex: 'name',
-        width: '30%',
+        title: "Name",
+        dataIndex: "name",
+        width: "30%",
         editable: true,
-        required: true
+        required: true,
       },
       {
-        title: 'Value',
-        dataIndex: 'value',
-        width: '40%',
+        title: "Value",
+        dataIndex: "value",
+        width: "40%",
         editable: true,
-        required: false
+        required: false,
       },
       {
-        title: 'Default',
-        dataIndex: 'default',
-        width: '30%',
+        title: "Default",
+        dataIndex: "default",
+        width: "30%",
         editable: true,
-        required: false
+        required: false,
       },
       {
-        title: '',
-        dataIndex: 'operation',
+        title: "",
+        dataIndex: "operation",
         render: (_, record) => {
           const typedRecord = record as DataType; // ✅ Ensure TypeScript recognizes `key`
           return dataSource.length >= 1 ? (
-            <Popconfirm title="Sure to delete?" onConfirm={() => handleDelete(typedRecord.key)}>
+            <Popconfirm
+              title="Sure to delete?"
+              onConfirm={() => handleDelete(typedRecord.key)}
+            >
               <DeleteOutlined />
             </Popconfirm>
           ) : null;
         },
-      }
+      },
     ];
-    
 
     const handleAdd = () => {
       const newData: DataType = {
         key: count,
         name: `ENV_${count}`,
-        value: '',
+        value: "",
         default: ``,
       };
       setDataSource([...dataSource, newData]);
@@ -250,7 +307,10 @@ export class EnvVariables extends PipelineComponent<ComponentItem>() {
     const { Paragraph, Text } = Typography;
     const info = (
       <span>
-        <Text>Use Env. Variables in components by clicking on the braces icon in inputs fields.</Text>
+        <Text>
+          Use Env. Variables in components by clicking on the braces icon in
+          inputs fields.
+        </Text>
       </span>
     );
     return (
@@ -259,19 +319,15 @@ export class EnvVariables extends PipelineComponent<ComponentItem>() {
           theme={{
             token: {
               // Seed Token
-              colorPrimary: '#5F9B97',
+              colorPrimary: "#5F9B97",
             },
           }}
         >
-          <Form
-            layout="vertical"
-            size="small">
+          <Form layout="vertical" size="small">
             <div className="flex justify-center mt-1 pt-1.5 space-x-4">
               <Space direction="vertical" size="middle">
                 <Space.Compact>
-                  <Paragraph style={{ padding: '5px' }}>
-                    {info}
-                  </Paragraph>
+                  <Paragraph style={{ padding: "5px" }}>{info}</Paragraph>
                 </Space.Compact>
               </Space>
             </div>
@@ -288,18 +344,19 @@ export class EnvVariables extends PipelineComponent<ComponentItem>() {
                 </>
               )}
             >
-              <Form
-                layout="vertical" >
+              <Form layout="vertical">
                 <div>
-                  <Paragraph style={{ padding: '5px' }}>
-                    {info}
-                  </Paragraph>
-                  <Button onClick={handleAdd} type="primary" style={{ marginBottom: 16 }}>
+                  <Paragraph style={{ padding: "5px" }}>{info}</Paragraph>
+                  <Button
+                    onClick={handleAdd}
+                    type="primary"
+                    style={{ marginBottom: 16 }}
+                  >
                     Add environment variable
                   </Button>
                   <Table
                     components={components}
-                    rowClassName={() => 'editable-row'}
+                    rowClassName={() => "editable-row"}
                     bordered
                     dataSource={dataSource}
                     columns={columns as ColumnTypes}
@@ -311,10 +368,18 @@ export class EnvVariables extends PipelineComponent<ComponentItem>() {
         </ConfigProvider>
       </>
     );
-  }
+  };
 
-  public UIComponent({ id, data, context, componentService, manager, commands, rendermimeRegistry, settings }) {
-
+  public UIComponent({
+    id,
+    data,
+    context,
+    componentService,
+    manager,
+    commands,
+    rendermimeRegistry,
+    settings,
+  }) {
     const { setNodes, deleteElements, setViewport } = useReactFlow();
     const store = useStoreApi();
 
@@ -332,23 +397,27 @@ export class EnvVariables extends PipelineComponent<ComponentItem>() {
 
     const { nodeInternals, edges } = useStore(selector);
     const nodeId = id;
-    const internals = { nodeInternals, edges, nodeId, componentService }
+    const internals = { nodeInternals, edges, nodeId, componentService };
 
     // Create the handle element
     const handleElement = React.createElement(renderHandle, {
       type: EnvVariables.Type,
       Handle: Handle, // Make sure Handle is imported or defined
       Position: Position, // Make sure Position is imported or defined
-      internals: internals
+      internals: internals,
     });
 
-    const handleChange = useCallback((evtTargetValue: any, field: string) => {
-
-      onChange({ evtTargetValue, field, nodeId, store, setNodes });
-    }, [nodeId, store, setNodes]);
+    const handleChange = useCallback(
+      (evtTargetValue: any, field: string) => {
+        onChange({ evtTargetValue, field, nodeId, store, setNodes });
+      },
+      [nodeId, store, setNodes],
+    );
 
     // Selector to determine if the node is selected
-    const isSelected = useStore((state) => !!state.nodeInternals.get(id)?.selected);
+    const isSelected = useStore(
+      (state) => !!state.nodeInternals.get(id)?.selected,
+    );
 
     const [modalOpen, setModalOpen] = useState(false);
 
@@ -362,7 +431,8 @@ export class EnvVariables extends PipelineComponent<ComponentItem>() {
           commands: commands,
           name: EnvVariables.Name,
           ConfigForm: EnvVariables.ConfigForm, // Pass the component itself
-          configFormProps: { // Provide props separately
+          configFormProps: {
+            // Provide props separately
             nodeId: id,
             data,
             context,
@@ -373,7 +443,7 @@ export class EnvVariables extends PipelineComponent<ComponentItem>() {
             setNodes,
             handleChange,
             modalOpen,
-            setModalOpen
+            setModalOpen,
           },
           Icon: EnvVariables.Icon,
           showContent: showContent,
@@ -381,11 +451,13 @@ export class EnvVariables extends PipelineComponent<ComponentItem>() {
           deleteNode: deleteNode,
           setViewport: setViewport,
           handleChange,
-          isSelected
+          isSelected,
         })}
         {showContent && (
           <NodeToolbar isVisible position={Position.Bottom}>
-            <button onClick={() => setModalOpen(true)}><settingsIcon.react /></button>
+            <button onClick={() => setModalOpen(true)}>
+              <settingsIcon.react />
+            </button>
           </NodeToolbar>
         )}
       </>
@@ -397,10 +469,9 @@ export class EnvVariables extends PipelineComponent<ComponentItem>() {
   }
 
   public generateComponentCode({ config }): string {
-
     let code = ``;
 
-    config.variables.forEach(variable => {
+    config.variables.forEach((variable) => {
       // Initialize all environment variables to an empty string or the default value if provided
       if (variable.value) {
         code += `os.environ["${variable.name}"] = "${variable.value}"\n`;
@@ -411,7 +482,4 @@ export class EnvVariables extends PipelineComponent<ComponentItem>() {
 
     return code;
   }
-
-
-
 }

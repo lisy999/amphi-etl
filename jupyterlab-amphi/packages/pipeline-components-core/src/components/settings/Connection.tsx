@@ -1,19 +1,59 @@
-import { ComponentItem, InputFile, InputRegular, Option, PipelineComponent, PipelineService, SelectRegular, createZoomSelector, onChange, renderComponentUI, renderHandle } from '@amphi/pipeline-components-manager';
-import { CopyOutlined } from '@ant-design/icons';
-import type { GetRef, InputRef } from 'antd';
-import { ConfigProvider, Form, Input, Modal, Select, Space, Table, Tooltip } from 'antd';
-import React, { useCallback, useContext, useEffect, useRef, useState, useMemo } from 'react';
-import { Handle, NodeToolbar, Position, useReactFlow, useStore, useStoreApi } from 'reactflow';
-import { keyIcon, settingsIcon } from '../../icons';
+import {
+  ComponentItem,
+  InputFile,
+  InputRegular,
+  Option,
+  PipelineComponent,
+  PipelineService,
+  SelectRegular,
+  createZoomSelector,
+  onChange,
+  renderComponentUI,
+  renderHandle,
+} from "@amphi/pipeline-components-manager";
+import { CopyOutlined } from "@ant-design/icons";
+import type { GetRef, InputRef } from "antd";
+import {
+  ConfigProvider,
+  Form,
+  Input,
+  Modal,
+  Select,
+  Space,
+  Table,
+  Tooltip,
+} from "antd";
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+  useMemo,
+} from "react";
+import {
+  Handle,
+  NodeToolbar,
+  Position,
+  useReactFlow,
+  useStore,
+  useStoreApi,
+} from "reactflow";
+import { keyIcon, settingsIcon } from "../../icons";
+import { chineseLabel } from "../inputs/label";
 
 export class Connection extends PipelineComponent<ComponentItem>() {
-  public _name = "Connection";
+  // public _name = "Connection";
+  public _name = "连接";
   public _id = "connection";
   public _type = "connection";
-  public _category = "configuration";
-  public _description = `Use Connection to set up a connection (e.g., credentials, database parameters, configuration file)
-  once for the pipeline, and reuse it across different components. This approach ensures that no credentials are stored 
-  in the pipeline, as they can be retrieved from environment variables or a configuration files.`;
+  public _category = chineseLabel[4];
+  // public _description = `Use Connection to set up a connection (e.g., credentials, database parameters, configuration file)
+  // once for the pipeline, and reuse it across different components. This approach ensures that no credentials are stored
+  // in the pipeline, as they can be retrieved from environment variables or a configuration files.`;
+  public _description = `通过“连接”功能可一次性设置连接（例如，凭证、数据库参数、配置文件），
+然后在不同的组件之间重复使用该连接。这种方式确保了在管道中不会存储任何凭证，
+因为这些凭证可以从环境变量或配置文件中获取。`;
   public _icon = keyIcon;
   public _default = {};
   public _form = {};
@@ -29,7 +69,7 @@ export class Connection extends PipelineComponent<ComponentItem>() {
     setNodes,
     handleChange,
     modalOpen,
-    setModalOpen
+    setModalOpen,
   }) => {
     type FormInstance<T> = GetRef<typeof Form<T>>;
 
@@ -98,7 +138,7 @@ export class Connection extends PipelineComponent<ComponentItem>() {
           toggleEdit();
           handleSave({ ...record, ...values });
         } catch (errInfo) {
-          console.error('Save failed:', errInfo);
+          console.error("Save failed:", errInfo);
         }
       };
 
@@ -109,19 +149,34 @@ export class Connection extends PipelineComponent<ComponentItem>() {
           <Form.Item
             style={{ margin: 0 }}
             name={dataIndex}
-            rules={required ? [
-              {
-                required: true,
-                message: `${title} is required.`,
-              },
-            ] : []}
+            rules={
+              required
+                ? [
+                    {
+                      required: true,
+                      message: `${title} is required.`,
+                    },
+                  ]
+                : []
+            }
           >
-            <Input ref={inputRef} onPressEnter={save} onBlur={save} onKeyDown={(e) => e.stopPropagation()} autoComplete="off" />
+            <Input
+              ref={inputRef}
+              onPressEnter={save}
+              onBlur={save}
+              onKeyDown={(e) => e.stopPropagation()}
+              autoComplete="off"
+            />
           </Form.Item>
         ) : (
           <div
             className="editable-cell-value-wrap"
-            style={{ paddingRight: 24, minHeight: '20px', width: '100%', display: 'inline-block' }}
+            style={{
+              paddingRight: 24,
+              minHeight: "20px",
+              width: "100%",
+              display: "inline-block",
+            }}
             onClick={() => toggleEdit()}
           >
             {children}
@@ -131,9 +186,7 @@ export class Connection extends PipelineComponent<ComponentItem>() {
 
       return (
         <td {...restProps}>
-          <div onDoubleClick={(e) => e.stopPropagation()}>
-            {childNode}
-          </div>
+          <div onDoubleClick={(e) => e.stopPropagation()}>{childNode}</div>
         </td>
       );
     };
@@ -147,20 +200,35 @@ export class Connection extends PipelineComponent<ComponentItem>() {
       default: string;
     }
 
-    type ColumnTypes = Exclude<EditableTableProps['columns'], undefined>;
+    type ColumnTypes = Exclude<EditableTableProps["columns"], undefined>;
 
-    const [dataSource, setDataSource] = useState<DataType[]>(data.variables || []);
-    const [connections, setConnections] = useState<{ label: string, value: string, fields: { id: string, label: string }[] }[]>([]);
-    const [selectedConnection, setSelectedConnection] = useState<{ label: string, value: string } | undefined>({
+    const [dataSource, setDataSource] = useState<DataType[]>(
+      data.variables || [],
+    );
+    const [connections, setConnections] = useState<
+      {
+        label: string;
+        value: string;
+        fields: { id: string; label: string }[];
+      }[]
+    >([]);
+    const [selectedConnection, setSelectedConnection] = useState<
+      { label: string; value: string } | undefined
+    >({
       label: data.connectionType,
-      value: data.connectionType
+      value: data.connectionType,
     });
-    const [connectionName, setConnectionName] = useState<string>(data.connectionName || "");
+    const [connectionName, setConnectionName] = useState<string>(
+      data.connectionName || "",
+    );
     // const [fetchMethod, setFetchMethod] = useState<Option>(data.fetchMethod || "clear" );
-    const fetchMethod = useMemo(() => data.fetchMethod || "clear", [data.fetchMethod]);
+    const fetchMethod = useMemo(
+      () => data.fetchMethod || "clear",
+      [data.fetchMethod],
+    );
 
     if (!data.fetchMethod) {
-      handleChange(fetchMethod, "fetchMethod")
+      handleChange(fetchMethod, "fetchMethod");
     }
 
     const [envVarFile, setEnvVarFile] = useState<Option>(data.envVarFile || "");
@@ -174,59 +242,68 @@ export class Connection extends PipelineComponent<ComponentItem>() {
       setDataSource(newData);
     };
 
-    const defaultColumns = useMemo(() => ([
-      {
-        title: (
-          <>
-            Name
-            {dataSource.length > 0 && (
-              <Tooltip
-                title={() => {
-                  const variables = dataSource.map(item => `${item.name}=""\n`).join('');
-                  return `Copy the following variables:\n${variables}`;
-                }}
-                trigger="hover"
-              >
-                <CopyOutlined
-                  style={{ marginLeft: 8, cursor: 'pointer' }}
-                  onClick={async () => {
-                    const variables = dataSource.map(item => `${item.name}=""\n`).join('');
-                    try {
-                      await navigator.clipboard.writeText(variables);
-                      // Temporarily change the tooltip to "Copied to clipboard"
-                      document.querySelector('.ant-tooltip-inner')!.textContent = 'Copied to clipboard';
-                      setTimeout(() => {
-                        document.querySelector('.ant-tooltip-inner')!.textContent = `Copy the following variables:\n${variables}`;
-                      }, 2000); // Change back after 2 seconds
-                    } catch (err) {
-                      console.error('Could not copy text: ', err);
-                    }
+    const defaultColumns = useMemo(
+      () => [
+        {
+          title: (
+            <>
+              Name
+              {dataSource.length > 0 && (
+                <Tooltip
+                  title={() => {
+                    const variables = dataSource
+                      .map((item) => `${item.name}=""\n`)
+                      .join("");
+                    return `Copy the following variables:\n${variables}`;
                   }}
-                />
-              </Tooltip>
-            )}
-          </>
-        ),
-        dataIndex: 'name',
-        width: '30%',
-        editable: true,
-        required: true
-      },
-      {
-        title: 'Value',
-        dataIndex: 'value',
-        width: '40%',
-        editable: true,
-        required: false
-      },
-      {
-        title: 'Default',
-        dataIndex: 'default',
-        width: '30%',
-        editable: true,
-        required: false
-      }
-      /*
+                  trigger="hover"
+                >
+                  <CopyOutlined
+                    style={{ marginLeft: 8, cursor: "pointer" }}
+                    onClick={async () => {
+                      const variables = dataSource
+                        .map((item) => `${item.name}=""\n`)
+                        .join("");
+                      try {
+                        await navigator.clipboard.writeText(variables);
+                        // Temporarily change the tooltip to "Copied to clipboard"
+                        document.querySelector(
+                          ".ant-tooltip-inner",
+                        )!.textContent = "Copied to clipboard";
+                        setTimeout(() => {
+                          document.querySelector(
+                            ".ant-tooltip-inner",
+                          )!.textContent = `Copy the following variables:\n${variables}`;
+                        }, 2000); // Change back after 2 seconds
+                      } catch (err) {
+                        console.error("Could not copy text: ", err);
+                      }
+                    }}
+                  />
+                </Tooltip>
+              )}
+            </>
+          ),
+          dataIndex: "name",
+          width: "30%",
+          editable: true,
+          required: true,
+        },
+        {
+          title: "Value",
+          dataIndex: "value",
+          width: "40%",
+          editable: true,
+          required: false,
+        },
+        {
+          title: "Default",
+          dataIndex: "default",
+          width: "30%",
+          editable: true,
+          required: false,
+        },
+        /*
       {
         title: '',
         dataIndex: 'operation',
@@ -238,25 +315,32 @@ export class Connection extends PipelineComponent<ComponentItem>() {
           ) : null,
       }
       */
-    ]), [dataSource]);
+      ],
+      [dataSource],
+    );
 
-    const handleSave = useCallback((row: DataType) => {
-      const newData = [...dataSource];
-      const index = newData.findIndex((item) => row.key === item.key);
-      const item = newData[index];
-      newData.splice(index, 1, { ...item, ...row });
-      setDataSource(newData);
-    }, [dataSource]);
-
-    const components = useMemo(() => ({
-      body: {
-        row: EditableRow,
-        cell: EditableCell,
+    const handleSave = useCallback(
+      (row: DataType) => {
+        const newData = [...dataSource];
+        const index = newData.findIndex((item) => row.key === item.key);
+        const item = newData[index];
+        newData.splice(index, 1, { ...item, ...row });
+        setDataSource(newData);
       },
-    }), []);
+      [dataSource],
+    );
+
+    const components = useMemo(
+      () => ({
+        body: {
+          row: EditableRow,
+          cell: EditableCell,
+        },
+      }),
+      [],
+    );
 
     const columns = defaultColumns.map((col) => {
-
       if (!col.editable) {
         return col;
       }
@@ -273,52 +357,63 @@ export class Connection extends PipelineComponent<ComponentItem>() {
       };
     });
 
-    const handleSelectChange = useCallback((value: { value: string; label: string }) => {
-      setSelectedConnection(value);
+    const handleSelectChange = useCallback(
+      (value: { value: string; label: string }) => {
+        setSelectedConnection(value);
 
-      const selectedConnectionFields = connections.find(conn => conn.value === value.value)?.fields || [];
-      handleChange(value.value, "connectionType");
-      if (!data.customTitle) {
-        handleChange(value.value + " Connection", "customTitle");
-      }
-      handleChange(value.value, "connectionName");
-      setConnectionName(value.value);
+        const selectedConnectionFields =
+          connections.find((conn) => conn.value === value.value)?.fields || [];
+        handleChange(value.value, "connectionType");
+        if (!data.customTitle) {
+          handleChange(value.value + " Connection", "customTitle");
+        }
+        handleChange(value.value, "connectionName");
+        setConnectionName(value.value);
 
-      setDataSource(selectedConnectionFields.map(field => ({
-        key: field.id,
-        name: field.label.includes('_')
-          ? field.label
-          : PipelineService.formatVarName(value.value + '_' + field.label),
-        value: '',
-        default: '',
-      })));
-    }, [connections, data.customTitle, handleChange]);
+        setDataSource(
+          selectedConnectionFields.map((field) => ({
+            key: field.id,
+            name: field.label.includes("_")
+              ? field.label
+              : PipelineService.formatVarName(value.value + "_" + field.label),
+            value: "",
+            default: "",
+          })),
+        );
+      },
+      [connections, data.customTitle, handleChange],
+    );
 
     useEffect(() => {
       const extractedConnections = extractConnections(componentService);
-      setConnections(extractedConnections.map(conn => ({
-        label: conn.connection,
-        value: conn.connection,
-        fields: conn.fields
-      })));
+      setConnections(
+        extractedConnections.map((conn) => ({
+          label: conn.connection,
+          value: conn.connection,
+          fields: conn.fields,
+        })),
+      );
     }, [componentService]);
 
     const extractConnections = (componentService: any) => {
       const components = componentService.getComponents();
-      const connectionMap: { [key: string]: { id: string, label: string }[] } = {};
+      const connectionMap: { [key: string]: { id: string; label: string }[] } =
+        {};
 
-      components.forEach(component => {
+      components.forEach((component) => {
         if (component._form && component._form.fields) {
-          component._form.fields.forEach(field => {
+          component._form.fields.forEach((field) => {
             if (field.connection && !field.ignoreConnection) {
               if (!connectionMap[field.connection]) {
                 connectionMap[field.connection] = [];
               }
-              const existingField = connectionMap[field.connection].find(f => f.id === field.id);
+              const existingField = connectionMap[field.connection].find(
+                (f) => f.id === field.id,
+              );
               if (!existingField) {
                 const newField: any = {
                   id: field.id,
-                  label: field.connectionVariableName || field.label
+                  label: field.connectionVariableName || field.label,
                 };
                 connectionMap[field.connection].push(newField);
               }
@@ -327,35 +422,47 @@ export class Connection extends PipelineComponent<ComponentItem>() {
         }
       });
 
-      return Object.keys(connectionMap).map(connection => ({
+      return Object.keys(connectionMap).map((connection) => ({
         connection,
-        fields: connectionMap[connection]
+        fields: connectionMap[connection],
       }));
     };
 
-    const connectionNameTooltip = "Provide a name to the connection to describe and differentiate it with other connections."
+    const connectionNameTooltip =
+      "Provide a name to the connection to describe and differentiate it with other connections.";
 
     return (
       <>
         <ConfigProvider
           theme={{
             token: {
-              colorPrimary: '#5F9B97',
+              colorPrimary: "#5F9B97",
             },
           }}
         >
           <div className="flex justify-center mt-1 pt-1.5 space-x-4">
             <Space direction="vertical" size="middle">
               <Space.Compact>
-                <Form.Item label="Connection Name" tooltip={connectionNameTooltip}>
-                  <InputRegular field={{
-                    type: "input", label: "Submission", id: "connectionName", placeholder: "Optional name",
-                  }} handleChange={(value) => {
-                    handleChange(value, 'connectionName');
-                    setConnectionName(value);
-                  }} context={context} advanced={false} value={connectionName} />
+                <Form.Item
+                  label="Connection Name"
+                  tooltip={connectionNameTooltip}
+                >
+                  <InputRegular
+                    field={{
+                      type: "input",
+                      label: "Submission",
+                      id: "connectionName",
+                      placeholder: "Optional name",
+                    }}
+                    handleChange={(value) => {
+                      handleChange(value, "connectionName");
+                      setConnectionName(value);
+                    }}
+                    context={context}
+                    advanced={false}
+                    value={connectionName}
+                  />
                 </Form.Item>
-
               </Space.Compact>
             </Space>
           </div>
@@ -372,32 +479,47 @@ export class Connection extends PipelineComponent<ComponentItem>() {
             )}
           >
             <Form layout="vertical" size="small">
-              <Form.Item
-                label="Select connection type"
-              >
+              <Form.Item label="Select connection type">
                 <Select
                   showSearch
                   labelInValue
                   className="nodrag"
                   onChange={handleSelectChange}
                   value={selectedConnection}
-                  placeholder='Select connection'
-                  options={connections.map(conn => ({ label: conn.label, value: conn.value }))}
+                  placeholder="Select connection"
+                  options={connections.map((conn) => ({
+                    label: conn.label,
+                    value: conn.value,
+                  }))}
                   size="middle"
                 />
               </Form.Item>
               <br />
-              <Form.Item label="Connection Name"
-                tooltip={connectionNameTooltip} >
-                <InputRegular field={{
-                  type: "input", id: "connectionName", placeholder: "Optional name", label: ""
-                }} handleChange={(value) => {
-                  handleChange(value, 'connectionName');
-                  setConnectionName(value);
-                }} context={context} advanced={true} value={connectionName} />
+              <Form.Item
+                label="Connection Name"
+                tooltip={connectionNameTooltip}
+              >
+                <InputRegular
+                  field={{
+                    type: "input",
+                    id: "connectionName",
+                    placeholder: "Optional name",
+                    label: "",
+                  }}
+                  handleChange={(value) => {
+                    handleChange(value, "connectionName");
+                    setConnectionName(value);
+                  }}
+                  context={context}
+                  advanced={true}
+                  value={connectionName}
+                />
               </Form.Item>
               <br />
-              <Form.Item label="Values to fetch from" tooltip="Select the method used to retrieve the connection information. When choosing from an environment variables file, please specify the file in the file input below.">
+              <Form.Item
+                label="Values to fetch from"
+                tooltip="Select the method used to retrieve the connection information. When choosing from an environment variables file, please specify the file in the file input below."
+              >
                 <SelectRegular
                   field={{
                     type: "select",
@@ -405,27 +527,38 @@ export class Connection extends PipelineComponent<ComponentItem>() {
                     label: "Values to fetch from",
                     placeholder: "Select method",
                     options: [
-                      { value: "clear", label: "Values in clear (not recommended)" },
-                      { value: "envVars", label: "Environment Variables (provided using Env. Variables component)" },
-                      { value: "envFile", label: "Environment Variables from .env file (recommended)" }
-                    ]
+                      {
+                        value: "clear",
+                        label: "Values in clear (not recommended)",
+                      },
+                      {
+                        value: "envVars",
+                        label:
+                          "Environment Variables (provided using Env. Variables component)",
+                      },
+                      {
+                        value: "envFile",
+                        label:
+                          "Environment Variables from .env file (recommended)",
+                      },
+                    ],
                   }}
                   handleChange={(value) => {
-                    handleChange(value, 'fetchMethod');
+                    handleChange(value, "fetchMethod");
 
                     if (value === "envVars" || value === "envFile") {
-                      setDataSource(prevDataSource =>
-                        prevDataSource.map(item => ({
+                      setDataSource((prevDataSource) =>
+                        prevDataSource.map((item) => ({
                           ...item,
-                          value: `{os.getenv('${item.name}')}`
-                        }))
+                          value: `{os.getenv('${item.name}')}`,
+                        })),
                       );
                     } else {
-                      setDataSource(prevDataSource =>
-                        prevDataSource.map(item => ({
+                      setDataSource((prevDataSource) =>
+                        prevDataSource.map((item) => ({
                           ...item,
-                          value: ''
-                        }))
+                          value: "",
+                        })),
                       );
                     }
                   }}
@@ -435,17 +568,30 @@ export class Connection extends PipelineComponent<ComponentItem>() {
               </Form.Item>
               <br />
               {data.fetchMethod === "envFile" && (
-                <Form.Item label="Environment Variables File (.env)" tooltip="If the environment file is the selected method, specify the file from which to extract the connection information. The file is a dot env (.env) file which consists of VARIABLE='value', one per line. You can use the helper to copy-paste the list of variable names below next to the Name column title.">
-                  <InputFile field={{
-                    type: "input", id: "environmentVariableFile", placeholder: "config.env", label: ""
-                  }} handleChange={handleChange} context={context} advanced={true} value={envVarFile} manager={manager} />
+                <Form.Item
+                  label="Environment Variables File (.env)"
+                  tooltip="If the environment file is the selected method, specify the file from which to extract the connection information. The file is a dot env (.env) file which consists of VARIABLE='value', one per line. You can use the helper to copy-paste the list of variable names below next to the Name column title."
+                >
+                  <InputFile
+                    field={{
+                      type: "input",
+                      id: "environmentVariableFile",
+                      placeholder: "config.env",
+                      label: "",
+                    }}
+                    handleChange={handleChange}
+                    context={context}
+                    advanced={true}
+                    value={envVarFile}
+                    manager={manager}
+                  />
                 </Form.Item>
               )}
               <br />
               <Form.Item label="Variables">
                 <Table
                   components={components}
-                  rowClassName={() => 'editable-row'}
+                  rowClassName={() => "editable-row"}
                   bordered
                   dataSource={dataSource}
                   columns={columns as ColumnTypes}
@@ -456,9 +602,17 @@ export class Connection extends PipelineComponent<ComponentItem>() {
         </ConfigProvider>
       </>
     );
-  }
+  };
 
-  public UIComponent({ id, data, context, componentService, manager, commands, rendermimeRegistry }) {
+  public UIComponent({
+    id,
+    data,
+    context,
+    componentService,
+    manager,
+    commands,
+    rendermimeRegistry,
+  }) {
     const { setNodes, deleteElements, setViewport } = useReactFlow();
     const store = useStoreApi();
 
@@ -476,20 +630,25 @@ export class Connection extends PipelineComponent<ComponentItem>() {
 
     const { nodeInternals, edges } = useStore(selector);
     const nodeId = id;
-    const internals = { nodeInternals, edges, nodeId, componentService }
+    const internals = { nodeInternals, edges, nodeId, componentService };
 
     const handleElement = React.createElement(renderHandle, {
       type: Connection.Type,
       Handle: Handle,
       Position: Position,
-      internals: internals
+      internals: internals,
     });
 
-    const handleChange = useCallback((evtTargetValue: any, field: string) => {
-      onChange({ evtTargetValue, field, nodeId, store, setNodes });
-    }, [nodeId, store, setNodes]);
+    const handleChange = useCallback(
+      (evtTargetValue: any, field: string) => {
+        onChange({ evtTargetValue, field, nodeId, store, setNodes });
+      },
+      [nodeId, store, setNodes],
+    );
 
-    const isSelected = useStore((state) => !!state.nodeInternals.get(id)?.selected);
+    const isSelected = useStore(
+      (state) => !!state.nodeInternals.get(id)?.selected,
+    );
     const [modalOpen, setModalOpen] = useState(false);
 
     return (
@@ -502,7 +661,8 @@ export class Connection extends PipelineComponent<ComponentItem>() {
           commands: commands,
           name: Connection.Name,
           ConfigForm: Connection.ConfigForm, // Pass the component itself
-          configFormProps: { // Provide props separately
+          configFormProps: {
+            // Provide props separately
             nodeId: id,
             data,
             context,
@@ -513,7 +673,7 @@ export class Connection extends PipelineComponent<ComponentItem>() {
             setNodes,
             handleChange,
             modalOpen,
-            setModalOpen
+            setModalOpen,
           },
           Icon: Connection.Icon,
           showContent: showContent,
@@ -521,11 +681,13 @@ export class Connection extends PipelineComponent<ComponentItem>() {
           deleteNode: deleteNode,
           setViewport: setViewport,
           handleChange,
-          isSelected
+          isSelected,
         })}
         {showContent && (
           <NodeToolbar isVisible position={Position.Bottom}>
-            <button onClick={() => setModalOpen(true)}><settingsIcon.react /></button>
+            <button onClick={() => setModalOpen(true)}>
+              <settingsIcon.react />
+            </button>
           </NodeToolbar>
         )}
       </>
@@ -542,7 +704,7 @@ export class Connection extends PipelineComponent<ComponentItem>() {
 
   public provideDependencies({ config }): string[] {
     let deps: string[] = [];
-    deps.push('python-dotenv');
+    deps.push("python-dotenv");
     // console.log("python-dotenv");
     return deps;
   }
@@ -556,7 +718,7 @@ export class Connection extends PipelineComponent<ComponentItem>() {
     }
 
     // Define the variables based on the fetch method
-    config.variables.forEach(variable => {
+    config.variables.forEach((variable) => {
       let varName = variable.name;
       if (config.fetchMethod === "clear") {
         code += `${varName} = "${variable.value}"\n`;

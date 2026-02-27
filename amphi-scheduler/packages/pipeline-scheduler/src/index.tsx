@@ -920,7 +920,8 @@ const SchedulerPanel: React.FC<SchedulerPanelProps> = ({
                         icon={<PlusOutlined />}
                         onClick={handleCreateJob}
                       >
-                        New Task
+                        {/* New Task */}
+                        新任务
                       </Button>
                       <Button
                         icon={<ReloadOutlined />}
@@ -1031,7 +1032,7 @@ const SchedulerPanel: React.FC<SchedulerPanelProps> = ({
               },
               {
                 key: "monitoring",
-                label: "Monitoring",
+                label: "监控",
                 children: (
                   <>
                     <Space style={{ marginBottom: 12 }}>

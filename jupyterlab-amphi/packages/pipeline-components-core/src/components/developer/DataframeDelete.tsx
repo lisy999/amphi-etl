@@ -1,11 +1,12 @@
-import { DataframeDeleteIcon } from '../../icons';
-import { BaseCoreComponent } from '../BaseCoreComponent';
+import { DataframeDeleteIcon } from "../../icons";
+import { BaseCoreComponent } from "../BaseCoreComponent";
+import { chineseLabel } from "../inputs/label";
 
 export class DataframeDelete extends BaseCoreComponent {
   constructor() {
     const defaultConfig = {
-    boolean_raise_error:true,
-    boolean_output_result:false
+      boolean_raise_error: true,
+      boolean_output_result: false,
     };
 
     const form = {
@@ -15,39 +16,49 @@ export class DataframeDelete extends BaseCoreComponent {
           type: "info",
           id: "description",
           text: "Delete listed dataframe",
-          advanced: false
+          advanced: false,
         },
         {
           type: "valuesList",
           label: "Dataframe(s) to delete",
           id: "valuesList_dataframe",
           placeholders: "Enter Dataframe names",
-          advanced: true
+          advanced: true,
         },
         {
           type: "boolean",
           label: "Raise an error if failure",
           id: "boolean_raise_error",
-          advanced: true
+          advanced: true,
         },
         {
           type: "boolean",
           label: "Output the result (and not the input dataframe)",
           id: "boolean_output_result",
-          advanced: true
-        }
+          advanced: true,
+        },
       ],
     };
 
-    const description = "Delete intermediate or residual pandas dataframes";
+    // const description = "Delete intermediate or residual pandas dataframes";
+    const description = "删除中间或残留的 pandas 数据框";
 
-    super("Dataframe Delete", "DataframeDelete", description, "pandas_df_processor", [], "developer", DataframeDeleteIcon, defaultConfig, form);
+    super(
+      // "Dataframe Delete",
+      "数据框删除",
+      "DataframeDelete",
+      description,
+      "pandas_df_processor",
+      [],
+      chineseLabel[5],
+      DataframeDeleteIcon,
+      defaultConfig,
+      form,
+    );
   }
 
   public provideImports({ config }): string[] {
-    return [
-      "import pandas as pd"
-      ];
+    return ["import pandas as pd"];
   }
 
   public provideFunctions({ config }): string[] {
@@ -86,14 +97,25 @@ def delete_dataframes(df_to_delete_names: list, scope: dict, raise_on_error: boo
   }
 
   // Generate the Python execution script
-public generateComponentCode({ config, inputName, outputName }: { config: any; inputName: string; outputName: string }): string {
-const raise_on_error=config.boolean_raise_error ? "True" : "False";
-//console.log(config.boolean_raise_error);
-const output_delete_result=config.boolean_output_result ? "True" : "False";
-//console.log(config.boolean_output_result);
-//create a typescript string coming from the typescript list
-const dataframe_to_delete = '[' + config.valuesList_dataframe.map(v => `'${v}'`).join(',') + ']';
-console.log(config.valuesList_dataframe);
+  public generateComponentCode({
+    config,
+    inputName,
+    outputName,
+  }: {
+    config: any;
+    inputName: string;
+    outputName: string;
+  }): string {
+    const raise_on_error = config.boolean_raise_error ? "True" : "False";
+    //console.log(config.boolean_raise_error);
+    const output_delete_result = config.boolean_output_result
+      ? "True"
+      : "False";
+    //console.log(config.boolean_output_result);
+    //create a typescript string coming from the typescript list
+    const dataframe_to_delete =
+      "[" + config.valuesList_dataframe.map((v) => `'${v}'`).join(",") + "]";
+    console.log(config.valuesList_dataframe);
     return `
 # Execute the function
 #boolean : False/True, list ['toto']
