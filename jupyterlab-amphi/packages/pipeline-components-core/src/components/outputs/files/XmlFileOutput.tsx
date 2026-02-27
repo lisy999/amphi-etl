@@ -1,8 +1,8 @@
+import { fileXmlIcon } from "../../../icons";
+import { BaseCoreComponent } from "../../BaseCoreComponent";
 
-import { fileXmlIcon } from '../../../icons';
-import { BaseCoreComponent } from '../../BaseCoreComponent';
-
-import { S3OptionsHandler } from '../../common/S3OptionsHandler';
+import { S3OptionsHandler } from "../../common/S3OptionsHandler";
+import { chineseLabel } from "../../inputs/label";
 
 export class XmlFileOutput extends BaseCoreComponent {
   constructor() {
@@ -16,9 +16,9 @@ export class XmlFileOutput extends BaseCoreComponent {
           id: "fileLocation",
           options: [
             { value: "local", label: "Local" },
-            { value: "s3", label: "S3" }
+            { value: "s3", label: "S3" },
           ],
-          advanced: true
+          advanced: true,
         },
         ...S3OptionsHandler.getAWSFields(),
         {
@@ -27,32 +27,46 @@ export class XmlFileOutput extends BaseCoreComponent {
           id: "filePath",
           placeholder: "Type file name",
           validation: "\\.xml$",
-          validationMessage: "This field expects a file with an xml extension such as output.xml."
+          validationMessage:
+            "This field expects a file with an xml extension such as output.xml.",
         },
         {
           type: "boolean",
           label: "Create folders if don't exist",
           condition: { fileLocation: ["local"] },
           id: "createFoldersIfNotExist",
-          advanced: true
+          advanced: true,
         },
         {
           type: "keyvalue",
           label: "Storage Options",
           id: "csvOptions.storage_options",
-          condition: { fileLocation: [ "s3"] },
-          advanced: true
-        }
+          condition: { fileLocation: ["s3"] },
+          advanced: true,
+        },
       ],
     };
-    const description = "Use XML File Output to write or append data to a XML file locally or remotely (S3)."
+    // const description = "Use XML File Output to write or append data to a XML file locally or remotely (S3)."
+    const description =
+      "使用 XML 文件输出功能，可在本地或远程（如 S3）向 XML 文件中写入或追加数据。";
 
-    super("XML File Output", "xmlFileOutput", "no desc", "pandas_df_output", [], "outputs", fileXmlIcon, defaultConfig, form);
+    super(
+      // "XML File Output",
+      "XML 文件输出",
+      "xmlFileOutput",
+      description,
+      "pandas_df_output",
+      [],
+      chineseLabel[3],
+      fileXmlIcon,
+      defaultConfig,
+      form,
+    );
   }
 
   public provideDependencies({ config }): string[] {
     let deps: string[] = [];
-    deps.push('lxml');
+    deps.push("lxml");
     return deps;
   }
 
@@ -70,7 +84,9 @@ export class XmlFileOutput extends BaseCoreComponent {
     const xmlOutputVar = `${inputName}_xml_output`;
     const fileVar = `${inputName}_file`;
 
-    const createFoldersCode = config.createFoldersIfNotExist ? `os.makedirs(os.path.dirname("${config.filePath}"), exist_ok=True)\n` : '';
+    const createFoldersCode = config.createFoldersIfNotExist
+      ? `os.makedirs(os.path.dirname("${config.filePath}"), exist_ok=True)\n`
+      : "";
 
     const code = `
 # Export to XML file

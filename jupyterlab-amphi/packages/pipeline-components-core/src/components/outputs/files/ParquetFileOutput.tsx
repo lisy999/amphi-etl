@@ -1,12 +1,16 @@
+import { fileParquetIcon } from "../../../icons";
+import { BaseCoreComponent } from "../../BaseCoreComponent";
 
-import { fileParquetIcon } from '../../../icons';
-import { BaseCoreComponent } from '../../BaseCoreComponent';
-
-import { S3OptionsHandler } from '../../common/S3OptionsHandler';
+import { S3OptionsHandler } from "../../common/S3OptionsHandler";
+import { chineseLabel } from "../../inputs/label";
 
 export class ParquetFileOutput extends BaseCoreComponent {
   constructor() {
-    const defaultConfig = { fileLocation: "local", connectionMethod: "env", parquetOptions: { compression: "snappy" } };
+    const defaultConfig = {
+      fileLocation: "local",
+      connectionMethod: "env",
+      parquetOptions: { compression: "snappy" },
+    };
     const form = {
       idPrefix: "component__form",
       fields: [
@@ -16,9 +20,9 @@ export class ParquetFileOutput extends BaseCoreComponent {
           id: "fileLocation",
           options: [
             { value: "local", label: "Local" },
-            { value: "s3", label: "S3" }
+            { value: "s3", label: "S3" },
           ],
-          advanced: true
+          advanced: true,
         },
         ...S3OptionsHandler.getAWSFields(),
         {
@@ -27,7 +31,8 @@ export class ParquetFileOutput extends BaseCoreComponent {
           id: "filePath",
           placeholder: "Type file name",
           validation: "\\.(parquet)$",
-          validationMessage: "This field expects a file with a .parquet extension such as output.parquet."
+          validationMessage:
+            "This field expects a file with a .parquet extension such as output.parquet.",
         },
         {
           type: "radio",
@@ -37,34 +42,47 @@ export class ParquetFileOutput extends BaseCoreComponent {
             { value: "snappy", label: "Snappy" },
             { value: "gzip", label: "GZip" },
             { value: "brotli", label: "Brotli" },
-            { value: "None", label: "None" }
+            { value: "None", label: "None" },
           ],
-          advanced: true
+          advanced: true,
         },
         {
           type: "boolean",
           label: "Create folders if don't exist",
           condition: { fileLocation: ["local"] },
           id: "createFoldersIfNotExist",
-          advanced: true
+          advanced: true,
         },
         {
           type: "keyvalue",
           label: "Storage Options",
           id: "csvOptions.storage_options",
           condition: { fileLocation: ["s3"] },
-          advanced: true
-        }
+          advanced: true,
+        },
       ],
     };
-    const description = "Use Parquet File Output to write or append data to a Parquet file locally or remotely (S3)."
+    // const description = "Use Parquet File Output to write or append data to a Parquet file locally or remotely (S3)."
+    const description =
+      "使用 Parquet 文件输出功能，可在本地或远程（如 S3）向 Parquet 文件中写入或追加数据。";
 
-    super("Parquet File Output", "parquetFileOutput", "no desc", "pandas_df_output", [], "outputs", fileParquetIcon, defaultConfig, form);
+    super(
+      // "Parquet File Output",
+      "Parquet 文件输出",
+      "parquetFileOutput",
+      "no desc",
+      "pandas_df_output",
+      [],
+      chineseLabel[3],
+      fileParquetIcon,
+      defaultConfig,
+      form,
+    );
   }
 
-  public provideDependencies({config}): string[] {
+  public provideDependencies({ config }): string[] {
     let deps: string[] = [];
-    deps.push('pyarrow');
+    deps.push("pyarrow");
     return deps;
   }
 
@@ -78,9 +96,9 @@ export class ParquetFileOutput extends BaseCoreComponent {
 
   public generateComponentCode({ config, inputName }): string {
     const optionsString = this.generateOptionsCode(config);
-    const createFoldersCode = config.createFoldersIfNotExist 
+    const createFoldersCode = config.createFoldersIfNotExist
       ? `os.makedirs(os.path.dirname("${config.filePath}"), exist_ok=True)\n`
-      : '';
+      : "";
 
     const code = `
 # Export to Parquet file
@@ -94,7 +112,10 @@ ${createFoldersCode}${inputName}.to_parquet("${config.filePath}"${optionsString}
 
     // Handle storage options
     let storageOptions = parquetOptions.storage_options || {};
-    storageOptions = S3OptionsHandler.handleS3SpecificOptions(config, storageOptions);
+    storageOptions = S3OptionsHandler.handleS3SpecificOptions(
+      config,
+      storageOptions,
+    );
 
     if (Object.keys(storageOptions).length > 0) {
       parquetOptions.storage_options = storageOptions;
@@ -102,9 +123,9 @@ ${createFoldersCode}${inputName}.to_parquet("${config.filePath}"${optionsString}
 
     // Generate options string
     let optionsEntries = Object.entries(parquetOptions)
-      .filter(([key, value]) => value !== null && value !== '')
+      .filter(([key, value]) => value !== null && value !== "")
       .map(([key, value]) => {
-        if (key === 'storage_options') {
+        if (key === "storage_options") {
           return `${key}=${JSON.stringify(value)}`;
         } else if (value === "None") {
           return `${key}=None`;
@@ -112,8 +133,7 @@ ${createFoldersCode}${inputName}.to_parquet("${config.filePath}"${optionsString}
         return `${key}="${value}"`;
       });
 
-    const optionsString = optionsEntries.join(', ');
-    return optionsString ? `, ${optionsString}` : '';
+    const optionsString = optionsEntries.join(", ");
+    return optionsString ? `, ${optionsString}` : "";
   }
-
 }

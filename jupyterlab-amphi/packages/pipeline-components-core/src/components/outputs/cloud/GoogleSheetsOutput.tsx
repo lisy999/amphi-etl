@@ -1,11 +1,12 @@
-
-import { fileSpreadsheetIcon } from '../../../icons';
-import { BaseCoreComponent } from '../../BaseCoreComponent';
-
+import { fileSpreadsheetIcon } from "../../../icons";
+import { BaseCoreComponent } from "../../BaseCoreComponent";
+import { chineseLabel } from "../../inputs/label";
 
 export class GoogleSheetsOutput extends BaseCoreComponent {
   constructor() {
-    const defaultConfig = { sheetOptions: { spreadsheetId: "", range: "Sheet1" } };
+    const defaultConfig = {
+      sheetOptions: { spreadsheetId: "", range: "Sheet1" },
+    };
     const form = {
       idPrefix: "component__form",
       fields: [
@@ -15,9 +16,10 @@ export class GoogleSheetsOutput extends BaseCoreComponent {
           id: "filePath",
           placeholder: "Type file name",
           validation: "\\.(json)$",
-          validationMessage: "This field expects a file with a .json extension such as your-service-account-file.json.",
+          validationMessage:
+            "This field expects a file with a .json extension such as your-service-account-file.json.",
           connection: "Google Sheet",
-          advanced: true
+          advanced: true,
         },
         {
           type: "input",
@@ -25,7 +27,7 @@ export class GoogleSheetsOutput extends BaseCoreComponent {
           id: "sheetOptions.spreadsheetId",
           placeholder: "Enter Google Sheets' name or ID",
           validation: "^[a-zA-Z0-9-_]+$",
-          validationMessage: "Invalid Spreadsheet ID."
+          validationMessage: "Invalid Spreadsheet ID.",
         },
         {
           type: "input",
@@ -34,16 +36,32 @@ export class GoogleSheetsOutput extends BaseCoreComponent {
           placeholder: "e.g., Sheet1 or Sheet1!A1:D5",
           validation: "^[a-zA-Z0-9-_!]+$",
           validationMessage: "Invalid Range.",
-          advanced: true
-        }
+          advanced: true,
+        },
       ],
     };
 
-    super("G. Sheets Output", "googleSheetsOutput", "no desc", "pandas_df_output", [], "outputs", fileSpreadsheetIcon, defaultConfig, form);
+    super(
+      // "G. Sheets Output",
+      "G. 贴片输出",
+      "googleSheetsOutput",
+      // "no desc",
+      "无描述",
+      "pandas_df_output",
+      [],
+      chineseLabel[3],
+      fileSpreadsheetIcon,
+      defaultConfig,
+      form,
+    );
   }
 
   public provideImports({ config }): string[] {
-    return ["import pandas as pd", "import gspread", "from oauth2client.service_account import ServiceAccountCredentials"];
+    return [
+      "import pandas as pd",
+      "import gspread",
+      "from oauth2client.service_account import ServiceAccountCredentials",
+    ];
   }
 
   public generateComponentCode({ config, inputName }): string {
@@ -51,7 +69,9 @@ export class GoogleSheetsOutput extends BaseCoreComponent {
     let sheetOptions = { ...config.sheetOptions };
 
     // Validate and set the service account file path
-    const serviceAccountFilePath = config.filePath ? `"${config.filePath}"` : 'None';
+    const serviceAccountFilePath = config.filePath
+      ? `"${config.filePath}"`
+      : "None";
 
     // Unique variables for each instance
     const uniqueClientVar = `${inputName}Client`;
@@ -65,7 +85,11 @@ creds = ServiceAccountCredentials.from_json_keyfile_name(${serviceAccountFilePat
 ${uniqueClientVar} = gspread.authorize(creds)
 
 # Open the spreadsheet and select the right worksheet
-${uniqueSheetVar} = ${uniqueClientVar}.open_by_key(${sheetOptions.spreadsheetId ? `"${sheetOptions.spreadsheetId}"` : 'None'}).worksheet(${sheetOptions.range ? `"${sheetOptions.range.split('!')[0]}"` : 'None'})
+${uniqueSheetVar} = ${uniqueClientVar}.open_by_key(${
+      sheetOptions.spreadsheetId ? `"${sheetOptions.spreadsheetId}"` : "None"
+    }).worksheet(${
+      sheetOptions.range ? `"${sheetOptions.range.split("!")[0]}"` : "None"
+    })
 
 # Update the sheet with dataframe's data
 ${uniqueSheetVar}.update([${inputName}.columns.values.tolist()] + ${inputName}.values.tolist())
@@ -73,5 +97,4 @@ ${uniqueSheetVar}.update([${inputName}.columns.values.tolist()] + ${inputName}.v
 
     return code;
   }
-
 }

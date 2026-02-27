@@ -1,9 +1,10 @@
-import { consoleIcon } from '../../icons';
-import { BaseCoreComponent } from '../BaseCoreComponent';
+import { consoleIcon } from "../../icons";
+import { BaseCoreComponent } from "../BaseCoreComponent";
+import { chineseLabel } from "../inputs/label";
 
 export class Console extends BaseCoreComponent {
   constructor() {
-    const defaultConfig = { type: "Data", dataFormat: "text"};
+    const defaultConfig = { type: "Data", dataFormat: "text" };
     const form = {
       idPrefix: "component__form",
       fields: [
@@ -13,10 +14,22 @@ export class Console extends BaseCoreComponent {
           id: "type",
           placeholder: "Select type",
           options: [
-            { value: "Info", label: "Info", tooltip: "Display a regular message in console." },
+            {
+              value: "Info",
+              label: "Info",
+              tooltip: "Display a regular message in console.",
+            },
             // { value: "Warning", label: "Warning", tooltip: "Display a warning message in the console." },
-            { value: "Error", label: "Error", tooltip: "Raise an error and display error message in console." },
-            { value: "Data", label: "Data", tooltip: "Display data from input component." },
+            {
+              value: "Error",
+              label: "Error",
+              tooltip: "Raise an error and display error message in console.",
+            },
+            {
+              value: "Data",
+              label: "Data",
+              tooltip: "Display data from input component.",
+            },
             // { value: "Markdown", label: "Markdown", tooltip: "Display Markdown in the console. The markdown might not be rendered outside Amphi console." },
             // { value: "HTML", label: "HTML", tooltip: "Display HTML in the console. The markdown might not be rendered outside HTML console." }
           ],
@@ -27,7 +40,7 @@ export class Console extends BaseCoreComponent {
           id: "message",
           placeholder: "Write text message",
           advanced: true,
-          condition: { type: ["Info", "Error"] }
+          condition: { type: ["Info", "Error"] },
         },
         {
           type: "inputNumber",
@@ -36,24 +49,45 @@ export class Console extends BaseCoreComponent {
           placeholder: "Number of records to print in console",
           min: 0,
           condition: { type: "Data" },
-          advanced: true
+          advanced: true,
         },
         {
           type: "select",
           label: "Data Format",
           id: "dataFormat",
           options: [
-            { value: "text", label: "Text", tooltip: "Display data as text in console." },
-            { value: "csv", label: "CSV", tooltip: "Display data as a csv in console." }
+            {
+              value: "text",
+              label: "Text",
+              tooltip: "Display data as text in console.",
+            },
+            {
+              value: "csv",
+              label: "CSV",
+              tooltip: "Display data as a csv in console.",
+            },
           ],
           condition: { type: "Data" },
-          advanced: true
+          advanced: true,
         },
       ],
     };
-    const description = "Use Console Message to display a message (info, warning, error) or data into the Pipeline Console.";
+    // const description = "Use Console Message to display a message (info, warning, error) or data into the Pipeline Console.";
+    const description =
+      "使用控制台消息功能将消息（信息、警告、错误）或数据显示在管道控制台中。";
 
-    super("Console Message", "console", description, "pandas_df_output", [], "outputs", consoleIcon, defaultConfig, form);
+    super(
+      // "Console Message",
+      "控制台消息",
+      "console",
+      description,
+      "pandas_df_output",
+      [],
+      chineseLabel[3],
+      consoleIcon,
+      defaultConfig,
+      form,
+    );
   }
 
   public provideDependencies({ config }): string[] {
@@ -81,13 +115,13 @@ export class Console extends BaseCoreComponent {
 
     switch (config.type) {
       case "Info":
-        code += `print("Info: ${config.message || ''}")\n`;
+        code += `print("Info: ${config.message || ""}")\n`;
         break;
       case "Warning":
-        code += `warnings.warn("${config.message || ''}")\n`;
+        code += `warnings.warn("${config.message || ""}")\n`;
         break;
       case "Error":
-        code += `raise Exception("Error: ${config.message || ''}")\n`;
+        code += `raise Exception("Error: ${config.message || ""}")\n`;
         break;
       case "Data":
         if (config.limit) {
@@ -102,14 +136,14 @@ export class Console extends BaseCoreComponent {
             code += `print(${inputName}.to_csv(index=False))\n`;
             break;
           default:
-            code += `print(${inputName}.to_string(index=False))\n`;  // Default to text output if format is not specified
+            code += `print(${inputName}.to_string(index=False))\n`; // Default to text output if format is not specified
         }
         break;
       case "Markdown":
-        code += `display(Markdown("${config.message || ''}"))\n`;
+        code += `display(Markdown("${config.message || ""}"))\n`;
         break;
       case "HTML":
-        code += `display(HTML("${config.message || ''}"))\n`;
+        code += `display(HTML("${config.message || ""}"))\n`;
         break;
       default:
         code += `print(${inputName})\n`;
