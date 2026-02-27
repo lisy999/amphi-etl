@@ -1,7 +1,6 @@
-import { filterIcon } from '../../icons';
-import { BaseCoreComponent } from '../BaseCoreComponent';
-
-
+import { filterIcon } from "../../icons";
+import { BaseCoreComponent } from "../BaseCoreComponent";
+import { chineseLabel } from "../inputs/label";
 
 export class Filter extends BaseCoreComponent {
   constructor() {
@@ -15,16 +14,16 @@ export class Filter extends BaseCoreComponent {
           id: "filterType",
           options: [
             { value: "basic", label: "Basic" },
-            { value: "advanced", label: "Advanced" }
+            { value: "advanced", label: "Advanced" },
           ],
-          advanced: true
+          advanced: true,
         },
         {
           type: "column",
           label: "Column name",
           id: "column",
           placeholder: "Select column",
-          condition: { filterType: "basic" }
+          condition: { filterType: "basic" },
         },
         {
           type: "select",
@@ -45,48 +44,81 @@ export class Filter extends BaseCoreComponent {
             { value: "contains", label: "Contains (string)" },
             { value: "not contains", label: "Not contains (string)" },
             { value: "startswith", label: "Starts With (string)" },
-            { value: "endswith", label: "Ends With (string)" }
+            { value: "endswith", label: "Ends With (string)" },
           ],
-          condition: { filterType: "basic" }
+          condition: { filterType: "basic" },
         },
         {
           type: "input",
           label: "Value",
           id: "conditionValue",
           placeholder: "Any string of characters (enforce numbers if needed)",
-          condition: { filterType: "basic" }
+          condition: { filterType: "basic" },
         },
         {
           type: "boolean",
           label: "Enforce value as string",
           id: "enforceString",
           condition: { filterType: "basic" },
-          advanced: true
+          advanced: true,
         },
         {
           type: "codeTextarea",
           label: "Python Expression",
           mode: "python",
           id: "pythonExpression",
-          tooltip: "Enter a valid pandas query expression. This should be combining column names, values, and logical operators (e.g., ==, and, or, notnull()). Do not include variable assignments, print statements, or comments.",
-          placeholder: "(firstName == 'Bob' or Lastname == 'SMITH') and Age > 50",
-          aiInstructions: "Generate only the Python expression to be used within the query attribute of a pandas filter.\nIMPORTANT: Return only the expression string, ensuring it is valid for pandas.DataFrame.query. Do not include display or print statements, variable assignments, or explanatory comments.",
+          tooltip:
+            "Enter a valid pandas query expression. This should be combining column names, values, and logical operators (e.g., ==, and, or, notnull()). Do not include variable assignments, print statements, or comments.",
+          placeholder:
+            "(firstName == 'Bob' or Lastname == 'SMITH') and Age > 50",
+          aiInstructions:
+            "Generate only the Python expression to be used within the query attribute of a pandas filter.\nIMPORTANT: Return only the expression string, ensuring it is valid for pandas.DataFrame.query. Do not include display or print statements, variable assignments, or explanatory comments.",
           aiGeneration: true,
           aiPromptExamples: [
-            { label: "Simple equality filter", value: "Filter rows where BillingCountry is 'France'." },
-            { label: "Multiple conditions", value: "Filter rows where Industry is 'Technology' and CurrencyIsoCode is 'USD'." },
-            { label: "Null check", value: "Filter rows where BillingPostalCode is not null." },
-            { label: "Date comparison", value: "Filter rows where CreatedDate is on or after '2020-01-01'." },
-            { label: "List membership", value: "Filter rows where Industry is either 'Technology' or 'Healthcare'." }
+            {
+              label: "Simple equality filter",
+              value: "Filter rows where BillingCountry is 'France'.",
+            },
+            {
+              label: "Multiple conditions",
+              value:
+                "Filter rows where Industry is 'Technology' and CurrencyIsoCode is 'USD'.",
+            },
+            {
+              label: "Null check",
+              value: "Filter rows where BillingPostalCode is not null.",
+            },
+            {
+              label: "Date comparison",
+              value:
+                "Filter rows where CreatedDate is on or after '2020-01-01'.",
+            },
+            {
+              label: "List membership",
+              value:
+                "Filter rows where Industry is either 'Technology' or 'Healthcare'.",
+            },
           ],
           condition: { filterType: "advanced" },
-          advanced: true
-        }
+          advanced: true,
+        },
       ],
     };
-    const description = "Use Filter Rows to select and output data that meets a specified condition.";
+    // const description = "Use Filter Rows to select and output data that meets a specified condition.";
+    const description = "使用“筛选行”功能来选择并输出符合指定条件的数据。";
 
-    super("Filter Rows", "filter", description, "pandas_df_processor", [], "transforms", filterIcon, defaultConfig, form);
+    super(
+      // "Filter Rows",
+      "筛选行",
+      "filter",
+      description,
+      "pandas_df_processor",
+      [],
+      chineseLabel[1],
+      filterIcon,
+      defaultConfig,
+      form,
+    );
   }
 
   public provideImports({ config }): string[] {
@@ -96,7 +128,7 @@ export class Filter extends BaseCoreComponent {
   public generateComponentCode({
     config,
     inputName,
-    outputName
+    outputName,
   }: {
     config: any;
     inputName: string;

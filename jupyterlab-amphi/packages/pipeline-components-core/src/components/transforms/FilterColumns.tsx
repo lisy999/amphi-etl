@@ -1,7 +1,6 @@
-import { columnRemoveIcon } from '../../icons';
-import { BaseCoreComponent } from '../BaseCoreComponent';
-
-
+import { columnRemoveIcon } from "../../icons";
+import { BaseCoreComponent } from "../BaseCoreComponent";
+import { chineseLabel } from "../inputs/label";
 
 export class FilterColumns extends BaseCoreComponent {
   constructor() {
@@ -19,13 +18,25 @@ export class FilterColumns extends BaseCoreComponent {
           type: "transferData",
           label: "Filter columns",
           id: "columns",
-          advanced: true
-        }
+          advanced: true,
+        },
       ],
     };
-    const description = "Use Select Columns to select and reorder columns.";
+    // const description = "Use Select Columns to select and reorder columns.";
+    const description = "使用“选择列”功能来选择并重新排列列。";
 
-    super("Select Columns", "filterColumn", description, "pandas_df_processor", [], "transforms", columnRemoveIcon, defaultConfig, form);
+    super(
+      // "Select Columns",
+      "选择列",
+      "filterColumn",
+      description,
+      "pandas_df_processor",
+      [],
+      chineseLabel[1],
+      columnRemoveIcon,
+      defaultConfig,
+      form,
+    );
   }
 
   public provideImports({ config }): string[] {
@@ -37,10 +48,12 @@ export class FilterColumns extends BaseCoreComponent {
     const targetKeys = config.columns.targetKeys;
 
     // Prepare column references, handling named and unnamed columns
-    const columnsToKeep = targetKeys.map(key => {
-      const column = allColumns.find(c => c.value === key);
-      return column && column.named ? `"${key.trim()}"` : `${key.trim()}`;
-    }).join(', ');
+    const columnsToKeep = targetKeys
+      .map((key) => {
+        const column = allColumns.find((c) => c.value === key);
+        return column && column.named ? `"${key.trim()}"` : `${key.trim()}`;
+      })
+      .join(", ");
 
     // Python code generation for DataFrame operation
     const code = `

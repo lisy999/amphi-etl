@@ -1,7 +1,7 @@
-import { aiIcon } from '../../icons';
-import { BaseCoreComponent } from '../BaseCoreComponent';
-import { OpenAILookUp } from './OpenAILookUp';
-import { OllamaLookUp } from './OllamaLookUp';
+import { aiIcon } from "../../icons";
+import { BaseCoreComponent } from "../BaseCoreComponent";
+import { OpenAILookUp } from "./OpenAILookUp";
+import { OllamaLookUp } from "./OllamaLookUp";
 
 export class AIPrompts extends BaseCoreComponent {
   constructor() {
@@ -38,10 +38,23 @@ export class AIPrompts extends BaseCoreComponent {
     };
 
     const description =
-      "AI Prompts lets you choose OpenAI or Ollama, then runs the selected prompt per row to create a new column.";
+      "AI 提示功能允许您选择 OpenAI 或 Ollama，然后针对每一行运行所选提示以创建一个新的列。";
+    // const description =
+    //   "AI Prompts lets you choose OpenAI or Ollama, then runs the selected prompt per row to create a new column.";
 
     // Pick a neutral icon. Using OpenAI for the group.
-    super("AI Prompts", "aiPrompts", description, "pandas_df_processor", [], "transforms", aiIcon, defaultConfig, form);
+    super(
+      // "AI Prompts",
+      "AI提示",
+      "aiPrompts",
+      description,
+      "pandas_df_processor",
+      [],
+      "转化",
+      aiIcon,
+      defaultConfig,
+      form,
+    );
   }
 
   public provideDependencies({ config }): string[] {
@@ -60,7 +73,7 @@ export class AIPrompts extends BaseCoreComponent {
       imports.push(...ollamaComp.provideImports({ config }));
     }
     const seen = new Set<string>();
-    return imports.filter(i => (seen.has(i) ? false : (seen.add(i), true)));
+    return imports.filter((i) => (seen.has(i) ? false : (seen.add(i), true)));
   }
 
   public provideFunctions({ config }): string[] {
@@ -78,11 +91,19 @@ export class AIPrompts extends BaseCoreComponent {
   public generateComponentCode({ config, inputName, outputName }): string {
     if (config.provider === "openai") {
       const openaiComp = new OpenAILookUp();
-      return openaiComp.generateComponentCode({ config, inputName, outputName });
+      return openaiComp.generateComponentCode({
+        config,
+        inputName,
+        outputName,
+      });
     }
     if (config.provider === "ollama") {
       const ollamaComp = new OllamaLookUp();
-      return ollamaComp.generateComponentCode({ config, inputName, outputName });
+      return ollamaComp.generateComponentCode({
+        config,
+        inputName,
+        outputName,
+      });
     }
     return "";
   }

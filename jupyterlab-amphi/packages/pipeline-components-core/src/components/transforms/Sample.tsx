@@ -1,10 +1,20 @@
-import { ComponentItem, PipelineComponent } from '@amphi/pipeline-components-manager';
-import { sampleIcon } from '../../icons';
-import { BaseCoreComponent } from '../BaseCoreComponent';
+import {
+  ComponentItem,
+  PipelineComponent,
+} from "@amphi/pipeline-components-manager";
+import { sampleIcon } from "../../icons";
+import { BaseCoreComponent } from "../BaseCoreComponent";
+import { chineseLabel } from "../inputs/label";
 
 export class Sample extends BaseCoreComponent {
   constructor() {
-    const defaultConfig = { numberType: "number", rows: 1, percentage: 1, mode: "random", groupBy: [] };
+    const defaultConfig = {
+      numberType: "number",
+      rows: 1,
+      percentage: 1,
+      mode: "random",
+      groupBy: [],
+    };
     const form = {
       idPrefix: "component__form",
       fields: [
@@ -14,9 +24,9 @@ export class Sample extends BaseCoreComponent {
           id: "numberType",
           options: [
             { value: "number", label: "Fixed Number" },
-            { value: "percentage", label: "Percentage" }
+            { value: "percentage", label: "Percentage" },
           ],
-          advanced: true
+          advanced: true,
         },
         {
           type: "inputNumber",
@@ -24,7 +34,7 @@ export class Sample extends BaseCoreComponent {
           id: "rows",
           placeholder: "0",
           min: 0,
-          condition: { numberType: "number" }
+          condition: { numberType: "number" },
         },
         {
           type: "inputNumber",
@@ -33,7 +43,7 @@ export class Sample extends BaseCoreComponent {
           placeholder: "0",
           min: 0,
           max: 100,
-          condition: { numberType: "percentage" }
+          condition: { numberType: "percentage" },
         },
         {
           type: "radio",
@@ -42,38 +52,55 @@ export class Sample extends BaseCoreComponent {
           options: [
             { value: "random", label: "Random" },
             { value: "head", label: "First" },
-            { value: "tail", label: "Last" }
+            { value: "tail", label: "Last" },
           ],
-          advanced: true
+          advanced: true,
         },
         {
           type: "columns",
           label: "Group By Columns",
           id: "groupBy",
           selectAll: true,
-          advanced: true
-        }
+          advanced: true,
+        },
       ],
     };
-    const description = "Use the Sample component to limit data by selecting a specified number of rows or percentage, either randomly, from the start, or from the end of the dataset. You can also group the sampling by one or more columns.";
-
-    super("Sample Datasets", "sample", description, "pandas_df_processor", [], "transforms", sampleIcon, defaultConfig, form);
+    // const description = "Use the Sample component to limit data by selecting a specified number of rows or percentage, either randomly, from the start, or from the end of the dataset. You can also group the sampling by one or more columns.";
+    const description =
+      "使用“样本”组件可以按照指定的行数或百分比来限制数据，这种限制可以是随机的，也可以是从数据集的开头或结尾选取。此外，您还可以根据一个或多个列对抽样进行分组。";
+    super(
+      // "Sample Datasets",
+      "示例数据集",
+      "sample",
+      description,
+      "pandas_df_processor",
+      [],
+      chineseLabel[1],
+      sampleIcon,
+      defaultConfig,
+      form,
+    );
   }
 
   public provideImports({ config }): string[] {
     return ["import pandas as pd"];
   }
 
-  private formatGroupByColumns(groupBy: { value: string | number; type: string; named: boolean }[]): string {
-    return groupBy.map(col => (col.named ? `"${col.value}"` : col.value)).join(', ');
+  private formatGroupByColumns(
+    groupBy: { value: string | number; type: string; named: boolean }[],
+  ): string {
+    return groupBy
+      .map((col) => (col.named ? `"${col.value}"` : col.value))
+      .join(", ");
   }
 
   public generateComponentCode({ config, inputName, outputName }): string {
     let sampleCode = "";
 
-    const groupByColumns = config.groupBy && config.groupBy.length > 0 
-      ? `[${this.formatGroupByColumns(config.groupBy)}]` 
-      : null;
+    const groupByColumns =
+      config.groupBy && config.groupBy.length > 0
+        ? `[${this.formatGroupByColumns(config.groupBy)}]`
+        : null;
 
     if (config.numberType === "number") {
       if (config.mode === "random") {

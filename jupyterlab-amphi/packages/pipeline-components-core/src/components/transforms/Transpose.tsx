@@ -1,5 +1,6 @@
-import { transposeIcon } from '../../icons';
-import { BaseCoreComponent } from '../BaseCoreComponent';
+import { transposeIcon } from "../../icons";
+import { BaseCoreComponent } from "../BaseCoreComponent";
+import { chineseLabel } from "../inputs/label";
 
 export class Transpose extends BaseCoreComponent {
   constructor() {
@@ -17,8 +18,7 @@ export class Transpose extends BaseCoreComponent {
           type: "info",
           label: "Information",
           id: "information",
-          text:
-            "Transforms transposed columns into rows, replaced by a variable and value columns.",
+          text: "Transforms transposed columns into rows, replaced by a variable and value columns.",
         },
         {
           type: "columns",
@@ -103,19 +103,22 @@ export class Transpose extends BaseCoreComponent {
     };
 
     const description =
-      "Convert selected columns into rows (unpivot). It creates two output columns: one for the original column name and one for the value. No aggregation is performed. For aggregation, use Pivot Dataset.";
+      "将选定的列转换为行（去重置列格式）。它会生成两个输出列：一个用于原始列名，另一个用于值。不会进行聚合操作。如需进行聚合操作，请使用“数据透视”功能。";
+    // const description =
+    //   "Convert selected columns into rows (unpivot). It creates two output columns: one for the original column name and one for the value. No aggregation is performed. For aggregation, use Pivot Dataset.";
 
     // Keep internal id "transpose" for backward compatibility, update display name for clarity.
     super(
-      "Transpose Dataset",
+      // "Transpose Dataset",
+      "转置数据集",
       "transpose",
       description,
       "pandas_df_processor",
       [],
-      "transforms",
+      chineseLabel[1],
       transposeIcon,
       defaultConfig,
-      form
+      form,
     );
   }
 
@@ -188,9 +191,11 @@ def pyfn_transpose_dataframe(
   }
 
   public generateComponentCode({ config, inputName, outputName }): string {
-    const constTSVariableFieldName = config.inputVariableFieldName?.trim() || "Column";
+    const constTSVariableFieldName =
+      config.inputVariableFieldName?.trim() || "Column";
     const constTSValueFieldName = config.inputValueFieldName?.trim() || "Value";
-    const constTSTypeVariableField = config.selectTypeVariableField || "type as string";
+    const constTSTypeVariableField =
+      config.selectTypeVariableField || "type as string";
     const constTSTypeValueField = config.selectTypeValueField || "do nothing";
 
     // note: None vs [] can differ for id_vars/value_vars; we preserve current behavior

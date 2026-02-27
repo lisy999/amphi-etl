@@ -1,30 +1,29 @@
-import { convertIcon } from '../../icons';
-import { BaseCoreComponent } from '../BaseCoreComponent';
-
-
+import { convertIcon } from "../../icons";
+import { BaseCoreComponent } from "../BaseCoreComponent";
+import { chineseLabel } from "../inputs/label";
 
 export class TypeConverter extends BaseCoreComponent {
   constructor() {
     const defaultConfig = {
-		tsCFcascaderDataTypePandas: "string",
-		tsCFColumnsToConvert:[],
-		tsCFselectErrorManagement: "warn_coerce",
-        tsCFbooleanKeepInitial : false,
-        inputPrefixForNewColumns : "",
-        inputSuffixForNewColumns : "",
-        tsCFbooleanConvertToDtype : false,	
-		tsCFselectDtypeBackend: "pyarrow"
-		};
+      tsCFcascaderDataTypePandas: "string",
+      tsCFColumnsToConvert: [],
+      tsCFselectErrorManagement: "warn_coerce",
+      tsCFbooleanKeepInitial: false,
+      inputPrefixForNewColumns: "",
+      inputSuffixForNewColumns: "",
+      tsCFbooleanConvertToDtype: false,
+      tsCFselectDtypeBackend: "pyarrow",
+    };
     const form = {
       idPrefix: "component__form",
       fields: [
-		{
+        {
           type: "columns",
           label: "Columns to convert",
           id: "tsCFColumnsToConvert",
-          placeholder: "Column name"
+          placeholder: "Column name",
         },
-		//specific to pandas, would require some change with polars and duckdb
+        //specific to pandas, would require some change with polars and duckdb
         {
           type: "cascader",
           label: "Data Type to convert to",
@@ -41,57 +40,169 @@ export class TypeConverter extends BaseCoreComponent {
                   label: "Integer",
                   children: [
                     { value: "int64", label: "int64: Standard integer type." },
-                    { value: "int32", label: "int32: For optimized memory usage." },
-                    { value: "int16", label: "int16: For more optimized memory usage." },
-                    { value: "int8", label: "int8: For more optimized memory usage." },
-                    { value: "uint64", label: "uint64: Unsigned integer (can only hold non-negative values)" },
-                    { value: "uint32", label: "uint32: For more optimized memory usage." },
-                    { value: "uint16", label: "uint16: For more optimized memory usage." },
-                    { value: "uint8", label: "uint8: For more optimized memory usage." },
-                    { value: "Int64", label: "Int64: Pandas standard integer type." },
-                    { value: "Int32", label: "Int32: Pandas For optimized memory usage." },
-                    { value: "Int16", label: "Int16: Pandas For more optimized memory usage." },
-                    { value: "Int8", label: "Int8: Pandas For more optimized memory usage." },
-                    { value: "UInt64", label: "UInt64: Pandas Unsigned integer (can only hold non-negative values)" },
-                    { value: "UInt32", label: "UInt32: Pandas For more optimized memory usage." },
-                    { value: "UInt16", label: "UInt16: Pandas For more optimized memory usage." },
-                    { value: "UInt8", label: "UInt8: Pandas For more optimized memory usage." },
-                    { value: "int64[pyarrow]", label: "int64[pyarrow]: Pyarrow Standard integer type." },
-                    { value: "int32[pyarrow]", label: "int32[pyarrow]: Pyarrow For optimized memory usage." },
-                    { value: "int16[pyarrow]", label: "int16[pyarrow]: Pyarrow For more optimized memory usage." },
-                    { value: "int8[pyarrow]", label: "int8[pyarrow]: Pyarrow For more optimized memory usage." },
-                    { value: "uint64[pyarrow]", label: "uint64[pyarrow]: Pyarrow Unsigned integer (can only hold non-negative values)" },
-                    { value: "uint32[pyarrow]", label: "uint32[pyarrow]: Pyarrow For more optimized memory usage." },
-                    { value: "uint16[pyarrow]", label: "uint16[pyarrow]: Pyarrow For more optimized memory usage." },
-                    { value: "uint8[pyarrow]", label: "uint8[pyarrow]: Pyarrow For more optimized memory usage." },
-                  ]
+                    {
+                      value: "int32",
+                      label: "int32: For optimized memory usage.",
+                    },
+                    {
+                      value: "int16",
+                      label: "int16: For more optimized memory usage.",
+                    },
+                    {
+                      value: "int8",
+                      label: "int8: For more optimized memory usage.",
+                    },
+                    {
+                      value: "uint64",
+                      label:
+                        "uint64: Unsigned integer (can only hold non-negative values)",
+                    },
+                    {
+                      value: "uint32",
+                      label: "uint32: For more optimized memory usage.",
+                    },
+                    {
+                      value: "uint16",
+                      label: "uint16: For more optimized memory usage.",
+                    },
+                    {
+                      value: "uint8",
+                      label: "uint8: For more optimized memory usage.",
+                    },
+                    {
+                      value: "Int64",
+                      label: "Int64: Pandas standard integer type.",
+                    },
+                    {
+                      value: "Int32",
+                      label: "Int32: Pandas For optimized memory usage.",
+                    },
+                    {
+                      value: "Int16",
+                      label: "Int16: Pandas For more optimized memory usage.",
+                    },
+                    {
+                      value: "Int8",
+                      label: "Int8: Pandas For more optimized memory usage.",
+                    },
+                    {
+                      value: "UInt64",
+                      label:
+                        "UInt64: Pandas Unsigned integer (can only hold non-negative values)",
+                    },
+                    {
+                      value: "UInt32",
+                      label: "UInt32: Pandas For more optimized memory usage.",
+                    },
+                    {
+                      value: "UInt16",
+                      label: "UInt16: Pandas For more optimized memory usage.",
+                    },
+                    {
+                      value: "UInt8",
+                      label: "UInt8: Pandas For more optimized memory usage.",
+                    },
+                    {
+                      value: "int64[pyarrow]",
+                      label: "int64[pyarrow]: Pyarrow Standard integer type.",
+                    },
+                    {
+                      value: "int32[pyarrow]",
+                      label:
+                        "int32[pyarrow]: Pyarrow For optimized memory usage.",
+                    },
+                    {
+                      value: "int16[pyarrow]",
+                      label:
+                        "int16[pyarrow]: Pyarrow For more optimized memory usage.",
+                    },
+                    {
+                      value: "int8[pyarrow]",
+                      label:
+                        "int8[pyarrow]: Pyarrow For more optimized memory usage.",
+                    },
+                    {
+                      value: "uint64[pyarrow]",
+                      label:
+                        "uint64[pyarrow]: Pyarrow Unsigned integer (can only hold non-negative values)",
+                    },
+                    {
+                      value: "uint32[pyarrow]",
+                      label:
+                        "uint32[pyarrow]: Pyarrow For more optimized memory usage.",
+                    },
+                    {
+                      value: "uint16[pyarrow]",
+                      label:
+                        "uint16[pyarrow]: Pyarrow For more optimized memory usage.",
+                    },
+                    {
+                      value: "uint8[pyarrow]",
+                      label:
+                        "uint8[pyarrow]: Pyarrow For more optimized memory usage.",
+                    },
+                  ],
                 },
                 {
                   value: "float",
                   label: "Float",
                   children: [
-                    { value: "float64", label: "float64: Standard floating-point type." },
-                    { value: "float32", label: "float32: For optimized memory usage." },
-                    { value: "float16", label: "float16: For optimized memory usage." },
-                    { value: "Float64", label: "Float64: Pandas Standard floating-point type." },
-                    { value: "Float32", label: "Float32: Pandas For optimized memory usage." },
+                    {
+                      value: "float64",
+                      label: "float64: Standard floating-point type.",
+                    },
+                    {
+                      value: "float32",
+                      label: "float32: For optimized memory usage.",
+                    },
+                    {
+                      value: "float16",
+                      label: "float16: For optimized memory usage.",
+                    },
+                    {
+                      value: "Float64",
+                      label: "Float64: Pandas Standard floating-point type.",
+                    },
+                    {
+                      value: "Float32",
+                      label: "Float32: Pandas For optimized memory usage.",
+                    },
                     //{ value: "Float16", label: "Float16: Pandas For optimized memory usage." }
-                    { value: "float[pyarrow]", label: "float[pyarrow]: Pyarrow float" },
-                    { value: "double[pyarrow]", label: "double[pyarrow]: Pyarrow double" }										
-                  ]
-                }
-              ]
+                    {
+                      value: "float[pyarrow]",
+                      label: "float[pyarrow]: Pyarrow float",
+                    },
+                    {
+                      value: "double[pyarrow]",
+                      label: "double[pyarrow]: Pyarrow double",
+                    },
+                  ],
+                },
+              ],
             },
             {
               value: "text",
               label: "Text",
               children: [
                 { value: "str", label: "str : For string data." },
-                { value: "string", label: "Pandas string: For string data. (recommended)" },
-                { value: "object", label: "object: For generic objects (strings, timestamps, mixed types)." },
-                { value: "category", label: "category: For categorical variables." },
-                { value: "string[pyarrow]", label: "Pyarrow string: For string data." },
-              ]
+                {
+                  value: "string",
+                  label: "Pandas string: For string data. (recommended)",
+                },
+                {
+                  value: "object",
+                  label:
+                    "object: For generic objects (strings, timestamps, mixed types).",
+                },
+                {
+                  value: "category",
+                  label: "category: For categorical variables.",
+                },
+                {
+                  value: "string[pyarrow]",
+                  label: "Pyarrow string: For string data.",
+                },
+              ],
             },
             {
               value: "datetime",
@@ -99,28 +210,71 @@ export class TypeConverter extends BaseCoreComponent {
               children: [
                 { value: "date", label: "date: For date values." },
                 //{ value: "Date", label: "Date: Pandas For date values." },
-                { value: "datetime64[ns]", label: "datetime64[ns]: For datetime values." },
-                { value: "datetime64[ms]", label: "datetime64[ms]: For datetime values in milliseconds." },
-                { value: "datetime64[s]", label: "datetime64[s]: For datetime values in seconds." },
-                { value: "datetime32[ns]", label: "datetime32[ns]: For compact datetime storage in nanoseconds." },
-                { value: "datetime32[ms]", label: "datetime32[ms]: For compact datetime storage in milliseconds." },
-                { value: "pa.timestamp[ns]", label: "pa.timestamp[ns]: Pyarrow timestamp (nanosecond)." },
-                { value: "pa.timestamp[us]", label: "pa.timestamp[us]: Pyarrow timestamp (microsecond)." },
-                { value: "pa.timestamp[ms]", label: "pa.timestamp[ms]: Pyarrow timestamp (millisecond)." },
-                { value: "pa.timestamp[s]", label: "pa.timestamp[s]: Pyarrow timestamp (second)." },
-                { value: "timedelta[ns]", label: "timedelta[ns]: For differences between two datetimes." }				
-              ]
+                {
+                  value: "datetime64[ns]",
+                  label: "datetime64[ns]: For datetime values.",
+                },
+                {
+                  value: "datetime64[ms]",
+                  label: "datetime64[ms]: For datetime values in milliseconds.",
+                },
+                {
+                  value: "datetime64[s]",
+                  label: "datetime64[s]: For datetime values in seconds.",
+                },
+                {
+                  value: "datetime32[ns]",
+                  label:
+                    "datetime32[ns]: For compact datetime storage in nanoseconds.",
+                },
+                {
+                  value: "datetime32[ms]",
+                  label:
+                    "datetime32[ms]: For compact datetime storage in milliseconds.",
+                },
+                {
+                  value: "pa.timestamp[ns]",
+                  label: "pa.timestamp[ns]: Pyarrow timestamp (nanosecond).",
+                },
+                {
+                  value: "pa.timestamp[us]",
+                  label: "pa.timestamp[us]: Pyarrow timestamp (microsecond).",
+                },
+                {
+                  value: "pa.timestamp[ms]",
+                  label: "pa.timestamp[ms]: Pyarrow timestamp (millisecond).",
+                },
+                {
+                  value: "pa.timestamp[s]",
+                  label: "pa.timestamp[s]: Pyarrow timestamp (second).",
+                },
+                {
+                  value: "timedelta[ns]",
+                  label:
+                    "timedelta[ns]: For differences between two datetimes.",
+                },
+              ],
             },
             {
               value: "boolean",
               label: "Boolean",
               children: [
-                { value: "bool", label: "bool: For boolean values (True or False)." },
-                { value: "boolean", label: "boolean: Pandas For boolean values (True or False)." },
-                { value: "bool[pyarrow]", label: "bool[pyarrow]: Pyarrow For boolean values (True or False)." }
-              ]
-            }
-          ]
+                {
+                  value: "bool",
+                  label: "bool: For boolean values (True or False).",
+                },
+                {
+                  value: "boolean",
+                  label: "boolean: Pandas For boolean values (True or False).",
+                },
+                {
+                  value: "bool[pyarrow]",
+                  label:
+                    "bool[pyarrow]: Pyarrow For boolean values (True or False).",
+                },
+              ],
+            },
+          ],
         },
         {
           type: "select",
@@ -128,68 +282,79 @@ export class TypeConverter extends BaseCoreComponent {
           id: "tsCFselectErrorManagement",
           placeholder: "Select behavior",
           options: [
-            { value:  "raise", label: "Raise error and stop"},
-            { value: "warn_keep", label: "Warning and keep original values"},
-            { value: "warn_coerce", label: "Warning and coerce to NaN / NaT"},
-            { value: "keep", label: "Do nothing, keep original values"},
-            { value:  "coerce", label: "Silently coerce to NaN / NaT"}
+            { value: "raise", label: "Raise error and stop" },
+            { value: "warn_keep", label: "Warning and keep original values" },
+            { value: "warn_coerce", label: "Warning and coerce to NaN / NaT" },
+            { value: "keep", label: "Do nothing, keep original values" },
+            { value: "coerce", label: "Silently coerce to NaN / NaT" },
           ],
-          advanced: true
+          advanced: true,
         },
-	   {
+        {
           type: "boolean",
           label: "Keep Initial",
           id: "tsCFbooleanKeepInitial",
-          advanced: true
+          advanced: true,
         },
         {
           type: "input",
           label: "Prefix for new columns",
           id: "inputPrefixForNewColumns",
-          advanced: true
+          advanced: true,
         },
         {
           type: "input",
           label: "Suffix for new columns",
           id: "inputSuffixForNewColumns",
-          advanced: true
+          advanced: true,
         },
-	   {
+        {
           type: "boolean",
           label: "Convert to Dtype",
           id: "tsCFbooleanConvertToDtype",
-          advanced: true
+          advanced: true,
         },
-		{
+        {
           type: "select",
           label: "Dtype Backend",
           id: "tsCFselectDtypeBackend",
           options: [
-            { value:  "pyarrow", label: "Pyarrow"},
-            { value: "numpy_nullable", label: "Numpy Nullable"}
+            { value: "pyarrow", label: "Pyarrow" },
+            { value: "numpy_nullable", label: "Numpy Nullable" },
           ],
-          advanced: true
-        }
+          advanced: true,
+        },
       ],
     };
-    const description = "Use Type Converter to change the data type of one or several columns to the specified type.";
-
-    super("Type Converter", "typeConverter", description, "pandas_df_processor", [], "transforms", convertIcon, defaultConfig, form);
+    // const description = "Use Type Converter to change the data type of one or several columns to the specified type.";
+    const description =
+      "使用类型转换器可以将一个或多个列的数据类型更改为指定的类型。";
+    super(
+      "类型转换器",
+      "typeConverter",
+      description,
+      "pandas_df_processor",
+      [],
+      chineseLabel[1],
+      convertIcon,
+      defaultConfig,
+      form,
+    );
   }
 
   public provideImports({ config }): string[] {
-	//both import datetime and from datetime import datetime are necessary
+    //both import datetime and from datetime import datetime are necessary
     const imports = [
-	"import pandas as pd",
-	"import pyarrow as pa",
-	"import datetime",
-	"from datetime import datetime",
-	"import warnings",
-	"from typing import List, Union, Type"
-	];
+      "import pandas as pd",
+      "import pyarrow as pa",
+      "import datetime",
+      "from datetime import datetime",
+      "import warnings",
+      "from typing import List, Union, Type",
+    ];
     return imports;
   }
-provideFunctions({ config }): string[] {
+  provideFunctions({ config }): string[] {
     const prefix = config?.backend?.prefix ?? "pd";
     const tsTypeConverterFunction = `
 def py_fn_convert_columns_type(
@@ -366,43 +531,57 @@ def py_fn_convert_columns_type(
 	    `;
     return [tsTypeConverterFunction];
   }
-  
+
   public generateComponentCode({ config, inputName, outputName }): string {
-   const tsConstDataTypePandasStep1 = config.tsCFcascaderDataTypePandas[config.tsCFcascaderDataTypePandas.length - 1];
-   let tsConstDataTypePandas = 'None';
-    if (tsConstDataTypePandasStep1 && tsConstDataTypePandasStep1.trim() !== '' 
-	) {
-      tsConstDataTypePandas = '"' + tsConstDataTypePandasStep1+ '"';
+    const tsConstDataTypePandasStep1 =
+      config.tsCFcascaderDataTypePandas[
+        config.tsCFcascaderDataTypePandas.length - 1
+      ];
+    let tsConstDataTypePandas = "None";
+    if (
+      tsConstDataTypePandasStep1 &&
+      tsConstDataTypePandasStep1.trim() !== ""
+    ) {
+      tsConstDataTypePandas = '"' + tsConstDataTypePandasStep1 + '"';
     }
-   let tsConstErrorManagement = 'None';
-    if (config.tsCFselectErrorManagement && config.tsCFselectErrorManagement.trim() !== '' 
-	) {
-      tsConstErrorManagement = '"' + config.tsCFselectErrorManagement+ '"';
+    let tsConstErrorManagement = "None";
+    if (
+      config.tsCFselectErrorManagement &&
+      config.tsCFselectErrorManagement.trim() !== ""
+    ) {
+      tsConstErrorManagement = '"' + config.tsCFselectErrorManagement + '"';
     }
-   let tsConstPrefixForNewColumns = 'None';
-    if (config.inputPrefixForNewColumns && config.inputPrefixForNewColumns.trim() !== '' 
-	) {
-      tsConstPrefixForNewColumns = '"' + config.inputPrefixForNewColumns+ '"';
-    }	
-   let tsConstSuffixForNewColumns = 'None';
-    if (config.inputSuffixForNewColumns && config.inputSuffixForNewColumns.trim() !== '' 
-	) {
-      tsConstSuffixForNewColumns = '"' + config.inputSuffixForNewColumns+ '"';
+    let tsConstPrefixForNewColumns = "None";
+    if (
+      config.inputPrefixForNewColumns &&
+      config.inputPrefixForNewColumns.trim() !== ""
+    ) {
+      tsConstPrefixForNewColumns = '"' + config.inputPrefixForNewColumns + '"';
     }
-   let tsConstDtypeBackend = 'None';
-    if (config.tsCFselectDtypeBackend && config.tsCFselectDtypeBackend.trim() !== '' 
-	) {
-      tsConstDtypeBackend = '"' + config.tsCFselectDtypeBackend+ '"';
+    let tsConstSuffixForNewColumns = "None";
+    if (
+      config.inputSuffixForNewColumns &&
+      config.inputSuffixForNewColumns.trim() !== ""
+    ) {
+      tsConstSuffixForNewColumns = '"' + config.inputSuffixForNewColumns + '"';
     }
-	let tsConstKeepInitial = config.tsCFbooleanKeepInitial ? 'True' : 'False';
-	let tsConstConvertToDtype = config.tsCFbooleanConvertToDtype ? 'True' : 'False';
-	let tsConstColumnsToConvert = "None";
+    let tsConstDtypeBackend = "None";
+    if (
+      config.tsCFselectDtypeBackend &&
+      config.tsCFselectDtypeBackend.trim() !== ""
+    ) {
+      tsConstDtypeBackend = '"' + config.tsCFselectDtypeBackend + '"';
+    }
+    let tsConstKeepInitial = config.tsCFbooleanKeepInitial ? "True" : "False";
+    let tsConstConvertToDtype = config.tsCFbooleanConvertToDtype
+      ? "True"
+      : "False";
+    let tsConstColumnsToConvert = "None";
     if (config.tsCFColumnsToConvert?.length > 0) {
       tsConstColumnsToConvert = `[${config.tsCFColumnsToConvert
         .map((item: any) => (item.named ? `"${item.value}"` : item.value))
         .join(", ")}]`;
     }
-
 
     return `
 ${outputName}=py_fn_convert_columns_type(	

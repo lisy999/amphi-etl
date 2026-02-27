@@ -48,7 +48,8 @@ export class RenameColumns extends BaseCoreComponent {
     //   'Use Rename Columns to rename one or more columns, manually or dynamically.';
 
     super(
-      "Rename Columns",
+      // "Rename Columns",
+      "重命名列",
       "rename",
       description,
       "pandas_df_processor",

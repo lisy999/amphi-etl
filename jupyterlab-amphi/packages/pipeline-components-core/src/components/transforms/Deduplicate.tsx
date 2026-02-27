@@ -1,7 +1,6 @@
-import { dedupIcon } from '../../icons';
-import { BaseCoreComponent } from '../BaseCoreComponent';
-
-
+import { dedupIcon } from "../../icons";
+import { BaseCoreComponent } from "../BaseCoreComponent";
+import { chineseLabel } from "../inputs/label";
 
 export class Deduplicate extends BaseCoreComponent {
   constructor() {
@@ -14,9 +13,21 @@ export class Deduplicate extends BaseCoreComponent {
           label: "Keep (survivorship)",
           id: "keep",
           options: [
-            { value: "first", label: "First occurrence", tooltip: "Drop duplicates except for the first occurrence" },
-            { value: "last", label: "Last occurrence", tooltip: "Drop duplicates except for the last occurrence" },
-            { value: "False", label: "Drop all", tooltip: "Drop all duplicates" }
+            {
+              value: "first",
+              label: "First occurrence",
+              tooltip: "Drop duplicates except for the first occurrence",
+            },
+            {
+              value: "last",
+              label: "Last occurrence",
+              tooltip: "Drop duplicates except for the last occurrence",
+            },
+            {
+              value: "False",
+              label: "Drop all",
+              tooltip: "Drop all duplicates",
+            },
           ],
         },
         {
@@ -24,13 +35,27 @@ export class Deduplicate extends BaseCoreComponent {
           label: "Columns",
           id: "subset",
           placeholder: "All columns",
-          tooltip: "Columns considered for identifying duplicates. Leave empty to consider all columns."
-        }
+          tooltip:
+            "Columns considered for identifying duplicates. Leave empty to consider all columns.",
+        },
       ],
     };
-    const description = "Use Deduplicate to remove duplicate rows based on values on one or more columns.";
+    // const description = "Use Deduplicate to remove duplicate rows based on values on one or more columns.";
+    const description =
+      "使用“去重”功能，可以根据一个或多个列中的值来删除重复的行。";
 
-    super("Deduplicate Rows", "deduplicateData", description, "pandas_df_processor", [], "transforms", dedupIcon, defaultConfig, form);
+    super(
+      // "Deduplicate Rows",
+      "去重行",
+      "deduplicateData",
+      description,
+      "pandas_df_processor",
+      [],
+      chineseLabel[1],
+      dedupIcon,
+      defaultConfig,
+      form,
+    );
   }
 
   public provideImports({ config }): string[] {
@@ -38,27 +63,39 @@ export class Deduplicate extends BaseCoreComponent {
   }
 
   public generateComponentCode({ config, inputName, outputName }): string {
-    
     // Initializing code string
     let code = `
   # Deduplicate rows\n`;
-  
+
     // Ensuring config.subset is defined and has a length property
-    const subset = config.subset && Array.isArray(config.subset) ? config.subset : [];
-    const columns = subset.length > 0 ? `subset=[${subset.map(column => column.named ? `"${column.value.trim()}"` : column.value).join(', ')}]` : '';
-  
+    const subset =
+      config.subset && Array.isArray(config.subset) ? config.subset : [];
+    const columns =
+      subset.length > 0
+        ? `subset=[${subset
+            .map((column) =>
+              column.named ? `"${column.value.trim()}"` : column.value,
+            )
+            .join(", ")}]`
+        : "";
+
     // Adjusting keep parameter based on config.keep value
     let keep;
-    if (typeof config.keep === 'boolean') {
+    if (typeof config.keep === "boolean") {
       keep = config.keep ? `"first"` : "False";
     } else {
       keep = config.keep === "False" ? "False" : `"${config.keep}"`;
     }
-  
+
     // Generating the code for deduplication
-    code += `${outputName} = ${inputName}.drop_duplicates(${columns}${columns && keep ? `, keep=${keep}` : !columns && keep ? `keep=${keep}` : ''})\n`;
-  
+    code += `${outputName} = ${inputName}.drop_duplicates(${columns}${
+      columns && keep
+        ? `, keep=${keep}`
+        : !columns && keep
+        ? `keep=${keep}`
+        : ""
+    })\n`;
+
     return code;
   }
-
 }

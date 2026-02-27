@@ -1,16 +1,15 @@
-import { splitIcon } from '../../icons';
-import { BaseCoreComponent } from '../BaseCoreComponent';
-
-
+import { splitIcon } from "../../icons";
+import { BaseCoreComponent } from "../BaseCoreComponent";
+import { chineseLabel } from "../inputs/label";
 
 export class SplitColumn extends BaseCoreComponent {
   constructor() {
     const defaultConfig = {
-	splitType: "columns",
-	regex: false,
-	keepOriginalColumn: false,
-	selectConvertResult : "none"
-	};
+      splitType: "columns",
+      regex: false,
+      keepOriginalColumn: false,
+      selectConvertResult: "none",
+    };
     const form = {
       idPrefix: "component__form",
       fields: [
@@ -20,9 +19,9 @@ export class SplitColumn extends BaseCoreComponent {
           id: "splitType",
           options: [
             { value: "columns", label: "Split to columns" },
-            { value: "rows", label: "Split to rows" }
+            { value: "rows", label: "Split to rows" },
           ],
-          advanced: false
+          advanced: false,
         },
         {
           type: "column",
@@ -40,15 +39,15 @@ export class SplitColumn extends BaseCoreComponent {
             { value: ";", label: "semicolon (;)" },
             { value: " ", label: "space" },
             { value: "  ", label: "tab" },
-            { value: "|", label: "pipe (|)" }
+            { value: "|", label: "pipe (|)" },
           ],
-          advanded: true
+          advanded: true,
         },
         {
           type: "boolean",
           label: "Is delimiter a regex?",
           id: "regex",
-          advanced: true
+          advanced: true,
         },
         {
           type: "inputNumber",
@@ -56,45 +55,58 @@ export class SplitColumn extends BaseCoreComponent {
           id: "numberColumns",
           placeholder: "auto",
           min: 1,
-          condition: { splitType: "columns" }
+          condition: { splitType: "columns" },
         },
         {
           type: "input",
           label: "Name of new column",
           tooltip: "Mandatory if original column is kept",
           id: "inputNameNewColumn",
-          condition: { splitType: "rows" }
+          condition: { splitType: "rows" },
         },
         {
           type: "boolean",
           label: "Keep original column",
           id: "keepOriginalColumn",
-          advanced: true
+          advanced: true,
         },
-		{
+        {
           type: "selectCustomizable",
           label: "Convert result",
           id: "selectConvertResult",
           options: [
             { value: "none", label: "None" },
             { value: "string", label: "string" },
-            { value: "auto", label: "auto (numeric or string)" }
+            { value: "auto", label: "auto (numeric or string)" },
           ],
           condition: { splitType: "rows" },
-          advanced: true
-        }
+          advanced: true,
+        },
       ],
-    }
-    const description = "Use Split Column to split the text from one column into multiple columns or multiple rows.";
+    };
+    // const description = "Use Split Column to split the text from one column into multiple columns or multiple rows.";
+    const description =
+      "使用“拆分列”功能可将一个单元格中的文本拆分成多列或多行。";
 
-    super("Split Column", "splitColumn", description, "pandas_df_processor", [], "transforms", splitIcon, defaultConfig, form);
+    super(
+      // "Split Column",
+      "拆分列",
+      "splitColumn",
+      description,
+      "pandas_df_processor",
+      [],
+      chineseLabel[1],
+      splitIcon,
+      defaultConfig,
+      form,
+    );
   }
 
   public provideImports({ config }): string[] {
     return ["import pandas as pd"];
   }
 
- public provideFunctions({ config }): string[] {
+  public provideFunctions({ config }): string[] {
     const prefix = config?.backend?.prefix ?? "pd";
     // Function to compare data
     const Split_Column_To_Row_Function = `
@@ -165,78 +177,75 @@ def split_dataframe_to_rows(
     return df
     `;
     if (config.splitType === "rows") {
-      return [Split_Column_To_Row_Function]; 
+      return [Split_Column_To_Row_Function];
     } else {
       return [];
     }
-  }	
-
+  }
 
   public generateComponentCode({ config, inputName, outputName }): string {
     const prefix = config?.backend?.prefix ?? "pd";
     const columnName = config.column.value; // name of the column
     const columnType = config.column.type; // current type of the column (e.g., 'int', 'string')
     const columnNamed = config.column.named; // boolean, true if column is named, false if index is used
-  
+
     // Ensure unique variable names for intermediate dataframes
     const uniqueSplitVar = `${outputName}_split`;
     const uniqueCombinedVar = `${outputName}_combined`;
-  
+
     // Start generating the code string
     let code = `\n# Create a new DataFrame from the split operation\n`;
-  
+
     // Handling column access based on whether it's named or indexed
     const columnAccess = columnNamed ? `"${columnName}"` : columnName;
-  
+
     // Convert column to string if it's not already
     if (columnType !== "string") {
       code += `${inputName}[${columnAccess}] = ${inputName}[${columnAccess}].astype("string")\n`;
     }
-  
+
     // Determine whether to use regex in the split
     const regexOption = config.regex ? ", regex=True" : "";
-  
+
     // Add the split logic based on splitType
     if (config.splitType === "columns") {
       // Split to columns
       code += `${uniqueSplitVar} = ${inputName}[${columnAccess}].str.split("${config.delimiter}"${regexOption}, expand=True)\n`;
-  
+
       // Rename the new columns to avoid any potential overlap
       code += `${uniqueSplitVar}.columns  = [f"${columnName}_{i}" for i in range(${uniqueSplitVar}.shape[1])]\n`;
-  
+
       // If numberColumns is specified, keep only the desired number of columns
       if (config.numberColumns > 0) {
         code += `${uniqueSplitVar} = ${uniqueSplitVar}.iloc[:, :${config.numberColumns}]\n`;
       }
-  
+
       // Combine the original DataFrame with the new columns
       code += `${outputName} = ${prefix}.concat([${inputName}, ${uniqueSplitVar}], axis=1)\n`;
-  
+
       // Check if the original column should be kept
       if (!config.keepOriginalColumn) {
         code += `\n# Remove the original column used for split\n`;
         code += `${outputName}.drop(columns=[${columnAccess}], inplace=True)\n`;
       }
-    }
-
-	else if (config.splitType === "rows") {
+    } else if (config.splitType === "rows") {
       // Split to rows. if we keep original column, we have to rename the new one. Moreover, assign only accept a kwarg like argument (so no quoted, so space..)
       const const_ts_column_to_split = columnNamed ? columnName : columnAccess; // Added to fix https://github.com/amphi-ai/amphi-etl/issues/235
-      const const_ts_boolean_keepOriginalColumn= config.keepOriginalColumn ? "True" : "False";
-	  //if null, undefined or empty
+      const const_ts_boolean_keepOriginalColumn = config.keepOriginalColumn
+        ? "True"
+        : "False";
+      //if null, undefined or empty
       const const_ts_new_column_name =
-      config.inputNameNewColumn && config.inputNameNewColumn.length > 0
-        ? config.inputNameNewColumn
-        : const_ts_column_to_split;
-	  const const_ts_split_delimiter = config.delimiter;
-	  const const_ts_boolean_is_regex= config.regex ? "False" : "True";
-	  const const_ts_convert_result=config.selectConvertResult;
-	  code += `${outputName}=split_dataframe_to_rows(df=${inputName},keep_original_column=${const_ts_boolean_keepOriginalColumn},column_to_split='${const_ts_column_to_split}',new_column_name='${const_ts_new_column_name}',split_delimiter='${const_ts_split_delimiter}',is_regex=${const_ts_boolean_is_regex},convert_result='${const_ts_convert_result}')\n`;
+        config.inputNameNewColumn && config.inputNameNewColumn.length > 0
+          ? config.inputNameNewColumn
+          : const_ts_column_to_split;
+      const const_ts_split_delimiter = config.delimiter;
+      const const_ts_boolean_is_regex = config.regex ? "False" : "True";
+      const const_ts_convert_result = config.selectConvertResult;
+      code += `${outputName}=split_dataframe_to_rows(df=${inputName},keep_original_column=${const_ts_boolean_keepOriginalColumn},column_to_split='${const_ts_column_to_split}',new_column_name='${const_ts_new_column_name}',split_delimiter='${const_ts_split_delimiter}',is_regex=${const_ts_boolean_is_regex},convert_result='${const_ts_convert_result}')\n`;
     }
-  
+
     // Return the generated code
     return code;
   }
-
-
 }

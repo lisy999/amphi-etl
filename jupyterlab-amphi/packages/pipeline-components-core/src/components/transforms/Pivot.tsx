@@ -1,5 +1,6 @@
-import { pivotIcon } from '../../icons';
-import { BaseCoreComponent } from '../BaseCoreComponent';// Adjust the import path
+import { pivotIcon } from "../../icons";
+import { BaseCoreComponent } from "../BaseCoreComponent"; // Adjust the import path
+import { chineseLabel } from "../inputs/label";
 
 export class Pivot extends BaseCoreComponent {
   constructor() {
@@ -12,21 +13,21 @@ export class Pivot extends BaseCoreComponent {
           label: "Index Columns",
           id: "indexColumns",
           tooltip: "List of columns used as index for the pivot.",
-          placeholder: "Select columns"
+          placeholder: "Select columns",
         },
         {
           type: "columns",
           label: "Columns to pivot",
           id: "columnsToPivot",
           tooltip: "List of columns that are pivoted.",
-          placeholder: "Select columns"
+          placeholder: "Select columns",
         },
         {
           type: "columns",
           label: "Values",
           id: "values",
           tooltip: "Values used to fill in the pivot table.",
-          placeholder: "Select columns"
+          placeholder: "Select columns",
         },
         {
           type: "select",
@@ -38,9 +39,9 @@ export class Pivot extends BaseCoreComponent {
             { value: "sum", label: "Sum" },
             { value: "mean", label: "Mean" },
             { value: "min", label: "Min" },
-            { value: "max", label: "Max" }
+            { value: "max", label: "Max" },
           ],
-          advanced: true
+          advanced: true,
         },
         {
           type: "inputNumber",
@@ -48,19 +49,31 @@ export class Pivot extends BaseCoreComponent {
           id: "fillValue",
           placeholder: "0",
           min: 0,
-          advanced: true
+          advanced: true,
         },
         {
           type: "boolean",
           label: "Drop rows with missing values",
           id: "dropna",
-          advanced: true
-        }
+          advanced: true,
+        },
       ],
     };
-    const description = "Use Pivot Dataset to rearrange and aggregate data in a dataset. It allows you to organize your data into a new table by defining rows, columns, and the values to populate the table. If you're looking to simply swap rows and columns without aggregation, check out the Transpose Dataset component."
-
-    super("Pivot Dataset", "pivot", description, "pandas_df_processor", [], "transforms", pivotIcon, defaultConfig, form);
+    // const description = "Use Pivot Dataset to rearrange and aggregate data in a dataset. It allows you to organize your data into a new table by defining rows, columns, and the values to populate the table. If you're looking to simply swap rows and columns without aggregation, check out the Transpose Dataset component."
+    const description =
+      "使用“数据透视”功能可以对数据集中的数据进行重新排列和汇总。通过定义行、列以及填充表格的值，您可以将数据整理成一个新的表格。如果您只是想简单地交换行和列而无需进行汇总操作，可以查看“转置数据集”组件。";
+    super(
+      // "Pivot Dataset",
+      "数据透视",
+      "pivot",
+      description,
+      "pandas_df_processor",
+      [],
+      chineseLabel[1],
+      pivotIcon,
+      defaultConfig,
+      form,
+    );
   }
 
   public provideImports({ config }): string[] {
@@ -68,7 +81,10 @@ export class Pivot extends BaseCoreComponent {
   }
 
   public generateComponentCode({ config, inputName, outputName }) {
-    const formatColumns = (cols) => cols.length === 1 ? `"${cols[0].value}"` : `[${cols.map(col => `"${col.value}"`).join(', ')}]`;
+    const formatColumns = (cols) =>
+      cols.length === 1
+        ? `"${cols[0].value}"`
+        : `[${cols.map((col) => `"${col.value}"`).join(", ")}]`;
 
     const indexColumns = formatColumns(config.indexColumns);
     const columnsToPivot = formatColumns(config.columnsToPivot);
@@ -82,7 +98,11 @@ ${outputName} = ${inputName}.pivot(
     values=${values}
 ).reset_index()\n`;
 
-      if (config.fillValue !== null && config.fillValue !== undefined && config.fillValue !== '') {
+      if (
+        config.fillValue !== null &&
+        config.fillValue !== undefined &&
+        config.fillValue !== ""
+      ) {
         code += `
 ${outputName} = ${outputName}.fillna(${config.fillValue})\n`;
       }
@@ -90,8 +110,13 @@ ${outputName} = ${outputName}.fillna(${config.fillValue})\n`;
       return code;
     } else {
       const aggfunc = `"${config.aggfunc}"`;
-      const fillValue = config.fillValue !== null && config.fillValue !== undefined && config.fillValue !== '' ? config.fillValue : 0;
-      const dropna = config.dropna ? 'True' : 'False';
+      const fillValue =
+        config.fillValue !== null &&
+        config.fillValue !== undefined &&
+        config.fillValue !== ""
+          ? config.fillValue
+          : 0;
+      const dropna = config.dropna ? "True" : "False";
 
       let code = `
 ${outputName} = ${inputName}.pivot_table(

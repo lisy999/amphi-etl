@@ -1,11 +1,17 @@
-import { joinIcon } from '../../../icons';
-import { BaseCoreComponent } from '../../BaseCoreComponent';
-import { Join } from './BasicJoin';
-import { AdvancedJoin } from './AdvancedJoin';
+import { joinIcon } from "../../../icons";
+import { BaseCoreComponent } from "../../BaseCoreComponent";
+import { Join } from "./BasicJoin";
+import { AdvancedJoin } from "./AdvancedJoin";
+import { chineseLabel } from "../../inputs/label";
 
 export class CombinedJoin extends BaseCoreComponent {
   constructor() {
-    const defaultConfig = { mode: 'basic', selectJoinType: 'left', selectActionIfCartesianProduct: '0', selectSameNameStrategy: "suffix_right" };
+    const defaultConfig = {
+      mode: "basic",
+      selectJoinType: "left",
+      selectActionIfCartesianProduct: "0",
+      selectSameNameStrategy: "suffix_right",
+    };
 
     const basic = new Join();
     const advanced = new AdvancedJoin();
@@ -15,72 +21,96 @@ export class CombinedJoin extends BaseCoreComponent {
       return Array.isArray(form?.fields) ? form.fields : [];
     };
 
-    const wrapFields = (fields: any[], mode: 'basic' | 'advanced') =>
-      fields.map(f => ({ ...f, condition: { mode: [mode], ...(f.condition || {}) } }));
+    const wrapFields = (fields: any[], mode: "basic" | "advanced") =>
+      fields.map((f) => ({
+        ...f,
+        condition: { mode: [mode], ...(f.condition || {}) },
+      }));
 
     const form = {
-      idPrefix: 'component__form',
+      idPrefix: "component__form",
       fields: [
         {
-          type: 'radio',
-          label: 'Type',
-          id: 'mode',
+          type: "radio",
+          label: "Type",
+          id: "mode",
           options: [
-            { value: 'basic', label: 'Basic' },
-            { value: 'advanced', label: 'Advanced' }
+            { value: "basic", label: "Basic" },
+            { value: "advanced", label: "Advanced" },
           ],
-          advanced: true
+          advanced: true,
         },
-        ...wrapFields(getFields(basic), 'basic'),
-        ...wrapFields(getFields(advanced), 'advanced')
-      ]
+        ...wrapFields(getFields(basic), "basic"),
+        ...wrapFields(getFields(advanced), "advanced"),
+      ],
     };
 
     const description =
-      'Join Datasets with a single component. Pick Basic or Advanced via radio.';
+      "使用单个组件将数据集进行合并。通过复选框选择“基础”或“高级”模式。";
+    // const description =
+    //   "Join Datasets with a single component. Pick Basic or Advanced via radio.";
 
     super(
-      'Join Datasets',
-      'join',
+      // "Join Datasets",
+      "合并数据集",
+      "join",
       description,
-      'pandas_df_double_processor',
+      "pandas_df_double_processor",
       [],
-      'transforms',
+      chineseLabel[1],
       joinIcon,
       defaultConfig,
-      form
+      form,
     );
   }
-//no need now
+  //no need now
   // public provideDependencies({ config }): string[] {
   //  Only AdvancedJoin exposes deps; basic mode returns none
-    // if (config?.mode === "advanced") {
-      // return new AdvancedJoin().provideDependencies?.({ config }) ?? [];
-    // }
-    // return [];
+  // if (config?.mode === "advanced") {
+  // return new AdvancedJoin().provideDependencies?.({ config }) ?? [];
+  // }
+  // return [];
   // }
 
   public provideImports({ config }): string[] {
     const mode = config.mode;
     const imports =
-      mode === 'advanced'
+      mode === "advanced"
         ? new AdvancedJoin().provideImports({ config })
         : new Join().provideImports({ config });
 
     const seen = new Set<string>();
-    return imports.filter(i => (seen.has(i) ? false : (seen.add(i), true)));
+    return imports.filter((i) => (seen.has(i) ? false : (seen.add(i), true)));
   }
 
   public provideFunctions({ config }): string[] {
-    if (config.mode === 'advanced' && typeof (AdvancedJoin as any).prototype.provideFunctions === 'function') {
+    if (
+      config.mode === "advanced" &&
+      typeof (AdvancedJoin as any).prototype.provideFunctions === "function"
+    ) {
       return new AdvancedJoin().provideFunctions({ config });
     }
     return [];
   }
 
-  public generateComponentCode({ config, inputName1, inputName2, outputName }): string {
-    return config.mode === 'advanced'
-      ? new AdvancedJoin().generateComponentCode({ config, inputName1, inputName2, outputName })
-      : new Join().generateComponentCode({ config, inputName1, inputName2, outputName });
+  public generateComponentCode({
+    config,
+    inputName1,
+    inputName2,
+    outputName,
+  }): string {
+    return config.mode === "advanced"
+      ? new AdvancedJoin().generateComponentCode({
+          config,
+          inputName1,
+          inputName2,
+          outputName,
+        })
+      : new Join().generateComponentCode({
+          config,
+          inputName1,
+          inputName2,
+          outputName,
+        });
   }
 }

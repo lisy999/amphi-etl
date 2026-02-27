@@ -1,7 +1,5 @@
-import { sqlIcon } from '../../icons';
-import { BaseCoreComponent } from '../BaseCoreComponent';
-
-
+import { sqlIcon } from "../../icons";
+import { BaseCoreComponent } from "../BaseCoreComponent";
 
 export class SQLQuery extends BaseCoreComponent {
   constructor() {
@@ -15,20 +13,43 @@ export class SQLQuery extends BaseCoreComponent {
           mode: "sql",
           id: "query",
           placeholder: "Enter your SQL Query here. Table is named input_df1.",
-          aiInstructions: "Generate a DuckDB SQL script that processes an input table named 'input_df1'.\nIMPORTANT: Ensure the SQL is valid for DuckDB and does not include any display or print statements. Include short comments for clarity.",
+          aiInstructions:
+            "Generate a DuckDB SQL script that processes an input table named 'input_df1'.\nIMPORTANT: Ensure the SQL is valid for DuckDB and does not include any display or print statements. Include short comments for clarity.",
           aiGeneration: true,
           aiPromptExamples: [
-            { label: "Filter amount > 100", value: "Select/filter rows where the amount is more than 100." },
-            { label: "Extract year from date", value: "Extract the year from the column 'date'." },
-            { label: "Sort by order_date", value: "Sort rows based on column 'order_date' from the latest to the oldest and keep the first 10." }
+            {
+              label: "Filter amount > 100",
+              value: "Select/filter rows where the amount is more than 100.",
+            },
+            {
+              label: "Extract year from date",
+              value: "Extract the year from the column 'date'.",
+            },
+            {
+              label: "Sort by order_date",
+              value:
+                "Sort rows based on column 'order_date' from the latest to the oldest and keep the first 10.",
+            },
           ],
-          advanced: true
-        }
+          advanced: true,
+        },
       ],
     };
-    const description = "Run a SQL query to select and update the dataset."
+    // const description = "Run a SQL query to select and update the dataset."
+    const description = "运行一个 SQL 查询以选择并更新数据集。";
 
-    super("SQL Query", "sqlQuery", description, "pandas_df_processor", [], "transforms", sqlIcon, defaultConfig, form);
+    super(
+      // "SQL Query",
+      "SQL查询",
+      "sqlQuery",
+      description,
+      "pandas_df_processor",
+      [],
+      "转化",
+      sqlIcon,
+      defaultConfig,
+      form,
+    );
   }
 
   private getEffectiveQuery(config: any): string {
@@ -36,11 +57,11 @@ export class SQLQuery extends BaseCoreComponent {
     if (!rawValue) return "";
 
     // If already an object
-    if (typeof rawValue === 'object') return rawValue.code || "";
+    if (typeof rawValue === "object") return rawValue.code || "";
 
     try {
       const parsed = JSON.parse(rawValue);
-      if (parsed && typeof parsed === 'object' && 'code' in parsed) {
+      if (parsed && typeof parsed === "object" && "code" in parsed) {
         return parsed.code;
       }
     } catch (e) {
@@ -51,7 +72,7 @@ export class SQLQuery extends BaseCoreComponent {
   }
 
   public provideDependencies({ config }): string[] {
-    return ['duckdb'];
+    return ["duckdb"];
   }
 
   public provideImports({ config }): string[] {
@@ -67,7 +88,7 @@ export class SQLQuery extends BaseCoreComponent {
 
     // 3. Replace the placeholder 'input_df1' with the actual variable name from the pipeline
     // We use a regex with word boundaries (\b) to be safe
-    const tableRegex = new RegExp('\\binput_df1\\b', 'g');
+    const tableRegex = new RegExp("\\binput_df1\\b", "g");
     const finalQuery = escapedQuery.replace(tableRegex, inputName);
 
     // 4. Generate the DuckDB execution wrapper

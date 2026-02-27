@@ -1,11 +1,14 @@
-import { concatIcon } from '../../icons';
-import { BaseCoreComponent } from '../BaseCoreComponent';
-
-
+import { concatIcon } from "../../icons";
+import { BaseCoreComponent } from "../BaseCoreComponent";
+import { chineseLabel } from "../inputs/label";
 
 export class Unite extends BaseCoreComponent {
   constructor() {
-    const defaultConfig = { ignoreIndex: true, sort: false, concatDirection: "horizontal" };
+    const defaultConfig = {
+      ignoreIndex: true,
+      sort: false,
+      concatDirection: "horizontal",
+    };
     const form = {
       idPrefix: "component__form",
       fields: [
@@ -13,32 +16,47 @@ export class Unite extends BaseCoreComponent {
           type: "radio",
           label: "Concatenation direction",
           id: "concatDirection",
-          tooltip: "Select whether you want to concatenate the datasets vertically (stacking rows) or horizontally (side-by-side columns).",
+          tooltip:
+            "Select whether you want to concatenate the datasets vertically (stacking rows) or horizontally (side-by-side columns).",
           options: [
             { value: "horizontal", label: "Along columns (horizontal)" },
-            { value: "vertical", label: "Along rows (vertical)" }
+            { value: "vertical", label: "Along rows (vertical)" },
           ],
-          advanced: true
+          advanced: true,
         },
         {
           type: "boolean",
           label: "Ignore Index",
           tooltip: "Enable this option to reindex the combined dataset.",
           id: "ignoreIndex",
-          advanced: true
+          advanced: true,
         },
         {
           type: "boolean",
           label: "Sort",
-          tooltip: "Disable this option to prevent automatic sorting of columns.",
+          tooltip:
+            "Disable this option to prevent automatic sorting of columns.",
           id: "sort",
-          advanced: true
-        }
+          advanced: true,
+        },
       ],
     };
-    const description = "Use Concatenate to combine two or more datasets vertically (stacking rows) or horizontally (side-by-side columns)."
+    // const description = "Use Concatenate to combine two or more datasets vertically (stacking rows) or horizontally (side-by-side columns)."
+    const description =
+      "使用“连接”功能可以将两个或多个数据集纵向（即堆叠行）或横向（即并列列）地进行组合。";
 
-    super("Concatenate", "concat", description, "pandas_df_multi_processor", [], "transforms", concatIcon, defaultConfig, form);
+    super(
+      // "Concatenate",
+      "连接",
+      "concat",
+      description,
+      "pandas_df_multi_processor",
+      [],
+      chineseLabel[1],
+      concatIcon,
+      defaultConfig,
+      form,
+    );
   }
 
   public provideImports({ config }): string[] {
@@ -46,16 +64,23 @@ export class Unite extends BaseCoreComponent {
   }
 
   public generateComponentCode({ config, inputNames, outputName }): string {
-    
-    const prefix = config?.backend?.prefix ?? "pd";    const ignoreIndex = config.ignoreIndex !== undefined ? `, ignore_index=${config.ignoreIndex ? 'True' : 'False'}` : '';
-    const sort = config.sort !== undefined ? `, sort=${config.sort ? 'True' : 'False'}` : '';
-    const concatDirection = config.concatDirection === "horizontal" 
-    ? ", axis=1" 
-    : config.concatDirection === "vertical"
-    ? ", axis=0"
-    : "";
+    const prefix = config?.backend?.prefix ?? "pd";
+    const ignoreIndex =
+      config.ignoreIndex !== undefined
+        ? `, ignore_index=${config.ignoreIndex ? "True" : "False"}`
+        : "";
+    const sort =
+      config.sort !== undefined
+        ? `, sort=${config.sort ? "True" : "False"}`
+        : "";
+    const concatDirection =
+      config.concatDirection === "horizontal"
+        ? ", axis=1"
+        : config.concatDirection === "vertical"
+        ? ", axis=0"
+        : "";
 
-    const dataframesList = inputNames.join(', ');
+    const dataframesList = inputNames.join(", ");
 
     const code = `
 # Concatenate dataframes
