@@ -1,5 +1,6 @@
-import { activityIcon } from '../../icons';
-import { BaseCoreComponent } from '../BaseCoreComponent';
+import { activityIcon } from "../../icons";
+import { BaseCoreComponent } from "../BaseCoreComponent";
+import { chineseLabel } from "../inputs/label";
 
 export class FrequencyAnalysis extends BaseCoreComponent {
   constructor() {
@@ -15,13 +16,26 @@ export class FrequencyAnalysis extends BaseCoreComponent {
           label: "Columns to analyze",
           id: "columns",
           placeholder: "Leave blank to analyze all columns",
-        }
+        },
       ],
     };
 
-    const description = "Turn selected columns into simple frequency tables. For every unique value you get the count, percent, and cumulative totals. The results are combined into one table.";
+    // const description = "Turn selected columns into simple frequency tables. For every unique value you get the count, percent, and cumulative totals. The results are combined into one table.";
+    const description =
+      "将选定的列转换为简单的频率表。对于每一个唯一的值，都会显示其计数、百分比以及累计总和。所有结果会合并到一个表格中。";
 
-    super("Frequency Analysis", "frequencyAnalysis", description, "pandas_df_processor", [], "Misc", activityIcon, defaultConfig, form);
+    super(
+      // "Frequency Analysis",
+      "频率分析",
+      "frequencyAnalysis",
+      description,
+      "pandas_df_processor",
+      [],
+      chineseLabel[2],
+      activityIcon,
+      defaultConfig,
+      form,
+    );
   }
 
   public provideImports({ config }): string[] {
@@ -56,7 +70,15 @@ def frequency_analysis(df, column_name):
     return [frequencyAnalysisFunction];
   }
 
-  public generateComponentCode({ config, inputName, outputName }: { config: any; inputName: string; outputName: string }): string {
+  public generateComponentCode({
+    config,
+    inputName,
+    outputName,
+  }: {
+    config: any;
+    inputName: string;
+    outputName: string;
+  }): string {
     const prefix = config?.backend?.prefix ?? "pd";
 
     const selectedColumns = config.columns;
@@ -72,14 +94,16 @@ ${outputName}_results = []
 
     // Check if columns are selected; if not, analyze all columns
     if (selectedColumns && selectedColumns.length > 0) {
-      code += selectedColumns.map((col: any) => {
-        const columnRef = getColumnReference(col);
-        return `
+      code += selectedColumns
+        .map((col: any) => {
+          const columnRef = getColumnReference(col);
+          return `
 ${outputName}_result_${col.value} = frequency_analysis(${inputName}, ${columnRef})
 ${outputName}_result_${col.value}['Field Name'] = '${col.value}'
 ${outputName}_results.append(${outputName}_result_${col.value})
 `;
-      }).join('');
+        })
+        .join("");
 
       code += `${outputName} = ${prefix}.concat(${outputName}_results, ignore_index=True)\n`;
     } else {
@@ -91,6 +115,6 @@ for col in ${inputName}.columns:
 ${outputName} = ${prefix}.concat(${outputName}_results, ignore_index=True)\n`;
     }
 
-    return code + '\n';
+    return code + "\n";
   }
 }

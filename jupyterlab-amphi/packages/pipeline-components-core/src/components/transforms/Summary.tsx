@@ -1,5 +1,6 @@
-import { eyeGlassesIcon } from '../../icons';
-import { BaseCoreComponent } from '../BaseCoreComponent';
+import { eyeGlassesIcon } from "../../icons";
+import { BaseCoreComponent } from "../BaseCoreComponent";
+import { chineseLabel } from "../inputs/label";
 
 export class Summary extends BaseCoreComponent {
   constructor() {
@@ -17,9 +18,21 @@ export class Summary extends BaseCoreComponent {
           placeholder: "Select statistics type",
           options: [
             { value: "all", label: "All columns" },
-            { value: "numerical", label: "Numerical columns", tooltip: "Limit the result to numeric columns" },
-            { value: "categorical", label: "Categorical columns", tooltip: "Limit the result to categorical columns" },
-            { value: "select", label: "Select columns (advanced)", tooltip: "Limit the result to the selected columns" },
+            {
+              value: "numerical",
+              label: "Numerical columns",
+              tooltip: "Limit the result to numeric columns",
+            },
+            {
+              value: "categorical",
+              label: "Categorical columns",
+              tooltip: "Limit the result to categorical columns",
+            },
+            {
+              value: "select",
+              label: "Select columns (advanced)",
+              tooltip: "Limit the result to the selected columns",
+            },
           ],
         },
         {
@@ -29,7 +42,7 @@ export class Summary extends BaseCoreComponent {
           placeholder: "Select columns",
           tooltip: "Select which columns to analyze",
           condition: { statisticsType: "select" },
-          advanced: true
+          advanced: true,
         },
         {
           type: "radio",
@@ -38,21 +51,31 @@ export class Summary extends BaseCoreComponent {
           placeholder: "Select how should the resulting table be formatted",
           options: [
             { value: "rows", label: "As rows" },
-            { value: "columns", label: "As columns" }
+            { value: "columns", label: "As columns" },
           ],
-        }
+        },
       ],
     };
 
-    const description = "Use Summary Component to provide a statistical summary of the incoming data.";
+    // const description = "Use Summary Component to provide a statistical summary of the incoming data.";
+    const description = "使用“汇总组件”来对输入数据进行统计汇总。";
 
-    super("Summary", "summary", description, "pandas_df_processor", [], "Misc", eyeGlassesIcon, defaultConfig, form);
+    super(
+      // "Summary",
+      "汇总",
+      "summary",
+      description,
+      "pandas_df_processor",
+      [],
+      chineseLabel[2],
+      eyeGlassesIcon,
+      defaultConfig,
+      form,
+    );
   }
 
   public provideImports({ config }): string[] {
-    return [
-      "import pandas as pd",
-      "import numpy as np"];
+    return ["import pandas as pd", "import numpy as np"];
   }
 
   public provideFunctions({ config }): string[] {
@@ -165,10 +188,18 @@ def describe_dataset(df, column_type='all', orientation='columns_as_row', select
     `;
     return [SummaryFunction];
   }
-  public generateComponentCode({ config, inputName, outputName }: { config: any; inputName: string; outputName: string }): string {
+  public generateComponentCode({
+    config,
+    inputName,
+    outputName,
+  }: {
+    config: any;
+    inputName: string;
+    outputName: string;
+  }): string {
     const statisticsType = config.statisticsType;
     const pivot = config.pivot;
-    let orientation="";
+    let orientation = "";
     let code = `# Generate summary statistics\n`;
 
     // Handle subset selection based on statisticsType.
@@ -186,9 +217,9 @@ def describe_dataset(df, column_type='all', orientation='columns_as_row', select
     // Apply pivot if specified.
     if (pivot === "rows") {
       //code += `${outputName} = ${outputName}.transpose()\n`;
-      orientation="columns_as_row"
+      orientation = "columns_as_row";
     } else {
-      orientation="columns_as_column"
+      orientation = "columns_as_column";
     }
     //execute the function
     code += `
@@ -197,6 +228,6 @@ ${outputName} = []
 ${outputName} = describe_dataset(df_subset, 'all', '${orientation}')
 del df_subset
     `;
-    return code + '\n';
+    return code + "\n";
   }
 }

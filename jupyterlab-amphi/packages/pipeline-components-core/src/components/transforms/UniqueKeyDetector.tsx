@@ -1,11 +1,12 @@
-import { UniqueKeyIcon } from '../../icons';
-import { BaseCoreComponent } from '../BaseCoreComponent';
+import { UniqueKeyIcon } from "../../icons";
+import { BaseCoreComponent } from "../BaseCoreComponent";
+import { chineseLabel } from "../inputs/label";
 
 export class UniqueKeyDetector extends BaseCoreComponent {
   constructor() {
     const defaultConfig = {
       columns: [],
-      combination_nfield : 1
+      combination_nfield: 1,
     };
 
     const form = {
@@ -24,21 +25,30 @@ export class UniqueKeyDetector extends BaseCoreComponent {
           id: "combination_nfield",
           placeholder: "Default: 1",
           min: 1,
-          advanced: false
-        }
+          advanced: false,
+        },
       ],
     };
 
-    const description = "Find combination of fields for unique key";
+    // const description = "Find combination of fields for unique key";
+    const description = "找出构成唯一键的字段组合";
 
-    super("Unique Key Detector", "UniqueKeyDetector", description, "pandas_df_processor", [], "Misc", UniqueKeyIcon, defaultConfig, form);
+    super(
+      // "Unique Key Detector",
+      "唯一键检测器",
+      "UniqueKeyDetector",
+      description,
+      "pandas_df_processor",
+      [],
+      chineseLabel[2],
+      UniqueKeyIcon,
+      defaultConfig,
+      form,
+    );
   }
 
   public provideImports({ config }): string[] {
-    return [
-      "import pandas as pd",
-      "from itertools import combinations"
-      ];
+    return ["import pandas as pd", "from itertools import combinations"];
   }
 
   public provideFunctions({ config }): string[] {
@@ -90,11 +100,19 @@ def detect_unique_key(df, fields=None, max_combination=0):
   }
 
   // Generate the Python execution script
-public generateComponentCode({ config, inputName, outputName }: { config: any; inputName: string; outputName: string }): string {
-    console.log("Generated outputName:", outputName);  // Debugging output
+  public generateComponentCode({
+    config,
+    inputName,
+    outputName,
+  }: {
+    config: any;
+    inputName: string;
+    outputName: string;
+  }): string {
+    console.log("Generated outputName:", outputName); // Debugging output
     const combination_nfield = config.combination_nfield ?? 1;
-    const combination_columns_step1=[];
-     // If no columns are selected, pass None so that the Python function uses all columns(default).
+    const combination_columns_step1 = [];
+    // If no columns are selected, pass None so that the Python function uses all columns(default).
     let combination_columns = "None";
     if (config.combination_columns?.length > 0) {
       combination_columns = `[${config.combination_columns

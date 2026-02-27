@@ -1,17 +1,18 @@
-import { FileActionIcon } from '../../../icons';
-import { BaseCoreComponent } from '../../BaseCoreComponent';
+import { FileActionIcon } from "../../../icons";
+import { BaseCoreComponent } from "../../BaseCoreComponent";
+import { chineseLabel } from "../../inputs/label";
 
 export class FileAction extends BaseCoreComponent {
   constructor() {
     const defaultConfig = {
       action_on_file_all: "move",
-      source_file_path : "",
-      action_on_file : "",
-      destination_path : "",
-      file_new_name : "",
-      overwrite_file_if_exists : "",
-      retry_count : 0,
-      boolean_raise_error : true
+      source_file_path: "",
+      action_on_file: "",
+      destination_path: "",
+      file_new_name: "",
+      overwrite_file_if_exists: "",
+      retry_count: 0,
+      boolean_raise_error: true,
     };
 
     const form = {
@@ -28,9 +29,9 @@ export class FileAction extends BaseCoreComponent {
             { value: "copy", label: "Copy" },
             { value: "zip", label: "Zip" },
             { value: "create as empty", label: "Create as empty" },
-            { value: "", label: "From Field" }
+            { value: "", label: "From Field" },
           ],
-          advanced: true
+          advanced: true,
         },
         {
           type: "column",
@@ -38,27 +39,29 @@ export class FileAction extends BaseCoreComponent {
           allowedTypes: ["string"],
           id: "source_file_path",
           placeholder: "Column name",
-          advanced: true
+          advanced: true,
         },
         {
           type: "column",
           label: "Action on file",
-          tooltip: "Action to perform: move, delete, copy, rename, zip,create as empty (string)",
+          tooltip:
+            "Action to perform: move, delete, copy, rename, zip,create as empty (string)",
           allowedTypes: ["string"],
           id: "action_on_file",
           placeholder: "Column name",
-          condition: { action_on_file_all: ""},
-          advanced: true
+          condition: { action_on_file_all: "" },
+          advanced: true,
         },
         {
           type: "column",
           label: "Destination path",
-          tooltip: "Destination path such as C:/windows/result/file.txt or /your/destination/path",
+          tooltip:
+            "Destination path such as C:/windows/result/file.txt or /your/destination/path",
           allowedTypes: ["string"],
           id: "destination_path",
           placeholder: "/your/destination/path",
-          condition: { action_on_file_all: ["","move","copy"]},
-          advanced: true
+          condition: { action_on_file_all: ["", "move", "copy"] },
+          advanced: true,
         },
         {
           type: "column",
@@ -67,8 +70,8 @@ export class FileAction extends BaseCoreComponent {
           allowedTypes: ["string"],
           id: "file_new_name",
           placeholder: "Column name",
-          condition: { action_on_file_all: ["","rename"]},
-          advanced: true
+          condition: { action_on_file_all: ["", "rename"] },
+          advanced: true,
         },
         {
           type: "column",
@@ -76,8 +79,10 @@ export class FileAction extends BaseCoreComponent {
           id: "overwrite_file_if_exists",
           placeholder: "Column name",
           allowedTypes: ["bool"],
-          condition: { action_on_file_all: ["","move","copy","zip","rename"]},
-          advanced: true
+          condition: {
+            action_on_file_all: ["", "move", "copy", "zip", "rename"],
+          },
+          advanced: true,
         },
         {
           type: "column",
@@ -85,21 +90,33 @@ export class FileAction extends BaseCoreComponent {
           allowedTypes: ["numeric"],
           id: "retry_count",
           placeholder: "Column name",
-          advanced: true
+          advanced: true,
         },
         {
           type: "boolean",
           label: "Raise an error",
           tooltip: "Raise an error and stop execution",
           id: "boolean_raise_error",
-          advanced: true
-         }
+          advanced: true,
+        },
       ],
     };
 
-    const description = "Delete, move, rename, zip.. files";
+    // const description = "Delete, move, rename, zip.. files";
+    const description = "删除、移动、重命名、压缩……文件";
 
-    super("File Action", "FileAction", description, "pandas_df_processor", [], "Misc", FileActionIcon, defaultConfig, form);
+    super(
+      //   "File Action",
+      "文件操作",
+      "FileAction",
+      description,
+      "pandas_df_processor",
+      [],
+      chineseLabel[2],
+      FileActionIcon,
+      defaultConfig,
+      form,
+    );
   }
 
   public provideImports({ config }): string[] {
@@ -107,8 +124,8 @@ export class FileAction extends BaseCoreComponent {
       "import pandas as pd",
       "import os",
       "import shutil",
-      "import zipfile"
-      ];
+      "import zipfile",
+    ];
   }
 
   public provideFunctions({ config }): string[] {
@@ -264,22 +281,31 @@ def handle_file_safe(file_path, action, destination=None, new_name=None, overwri
   }
 
   // Generate the Python execution script
-public generateComponentCode({ config, inputName, outputName }: { config: any; inputName: string; outputName: string }): string {
-const source_file_path_value =  config.source_file_path?.value ?? "";
-console.log(source_file_path_value);
-const destination_path_value = config.destination_path?.value ?? "";
-console.log(destination_path_value);
-const action_on_file_value = config.action_on_file?.value ?? "";
-console.log(action_on_file_value);
-const file_new_name_value = config.file_new_name?.value ?? "";
-console.log(file_new_name_value);
-const overwrite_file_if_exists_value = config.overwrite_file_if_exists?.value ?? "";
-console.log(overwrite_file_if_exists_value);
-const retry_count_value = config.retry_count?.value ?? "";
-console.log(retry_count_value);
-const action_on_file_all_value = config.action_on_file_all ?? "";
-console.log(action_on_file_all_value);
-const raise_on_error=config.boolean_raise_error ? "True" : "False";
+  public generateComponentCode({
+    config,
+    inputName,
+    outputName,
+  }: {
+    config: any;
+    inputName: string;
+    outputName: string;
+  }): string {
+    const source_file_path_value = config.source_file_path?.value ?? "";
+    console.log(source_file_path_value);
+    const destination_path_value = config.destination_path?.value ?? "";
+    console.log(destination_path_value);
+    const action_on_file_value = config.action_on_file?.value ?? "";
+    console.log(action_on_file_value);
+    const file_new_name_value = config.file_new_name?.value ?? "";
+    console.log(file_new_name_value);
+    const overwrite_file_if_exists_value =
+      config.overwrite_file_if_exists?.value ?? "";
+    console.log(overwrite_file_if_exists_value);
+    const retry_count_value = config.retry_count?.value ?? "";
+    console.log(retry_count_value);
+    const action_on_file_all_value = config.action_on_file_all ?? "";
+    console.log(action_on_file_all_value);
+    const raise_on_error = config.boolean_raise_error ? "True" : "False";
     return `
 # Execute the file action function
 ${outputName} = []

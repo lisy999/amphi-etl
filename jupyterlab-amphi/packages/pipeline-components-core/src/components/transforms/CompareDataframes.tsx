@@ -1,19 +1,20 @@
-import { CompareDataframesIcon } from '../../icons';
-import { BaseCoreComponent } from '../BaseCoreComponent';
+import { CompareDataframesIcon } from "../../icons";
+import { BaseCoreComponent } from "../BaseCoreComponent";
+import { chineseLabel } from "../inputs/label";
 
 export class CompareDataframes extends BaseCoreComponent {
   constructor() {
     const defaultConfig = {
-		select_execution_engine : "pandas",
-		select_comparison_mode : "data",
-		select_column_mismatch : "intersect",
-		boolean_index_data_for_compare : false,
-		boolean_index_metadata_for_compare : true,
-		boolean_check_forcount : true,
-		selectTimestampDateTimeRound : "None",
-		selectcol_key_fields: [],
-		selectcol_ignore_fields: []
-		};
+      select_execution_engine: "pandas",
+      select_comparison_mode: "data",
+      select_column_mismatch: "intersect",
+      boolean_index_data_for_compare: false,
+      boolean_index_metadata_for_compare: true,
+      boolean_check_forcount: true,
+      selectTimestampDateTimeRound: "None",
+      selectcol_key_fields: [],
+      selectcol_ignore_fields: [],
+    };
     const form = {
       idPrefix: "component__form",
       fields: [
@@ -23,151 +24,233 @@ export class CompareDataframes extends BaseCoreComponent {
           id: "select_execution_engine",
           //placeholder: "Default: Pandas", (no placeholder because defined in defaultConfig)
           options: [
-            { value: "pandas", label: "Pandas", tooltip: "Mature, easy-to-use, great for small-to-medium datasets." },
-            { value: "polars", label: "Polars", tooltip: "Fast, memory-efficient, great for large-scale in-memory analytics." },
-            { value: "duckdb", label: "DuckDB", tooltip: "SQL-based, excellent for large datasets" }
+            {
+              value: "pandas",
+              label: "Pandas",
+              tooltip:
+                "Mature, easy-to-use, great for small-to-medium datasets.",
+            },
+            {
+              value: "polars",
+              label: "Polars",
+              tooltip:
+                "Fast, memory-efficient, great for large-scale in-memory analytics.",
+            },
+            {
+              value: "duckdb",
+              label: "DuckDB",
+              tooltip: "SQL-based, excellent for large datasets",
+            },
           ],
-          advanced: true
-        }
-		,
+          advanced: true,
+        },
         {
           type: "select",
           label: "Comparison mode",
           id: "select_comparison_mode",
           //placeholder: "Default: Do nothing", (no placeholder because defined in defaultConfig)
           options: [
-            { value: "data", label: "Compare rows of both inputs, output is row-level", tooltip: "Compare rows of both inputs" },
-            { value: "count_data", label: "Compare rows of both inputs, output the number of difference", tooltip: "Compare rows of both inputs" },
-            { value: "field_data", label: "Compare rows of both inputs, output fields with their data in difference", tooltip: "Compare rows of both inputs (keys required)" },
-            { value: "differing_fields", label: "Compare rows of both inputs, output list of fields where there is a difference", tooltip: "Compare rows of both inputs (keys required)"  },
-            { value: "metadata", label: "Compare columns of both inputs, output one row by column with difference", tooltip: "Compare columns of both inputs (name, type,...)" },
-            { value: "metadata+metrics", label: "Compare columns of both inputs+metrics of each column, output one row by column with difference", tooltip: "Compare columns of both inputs (name, type,min, etc...)" }
+            {
+              value: "data",
+              label: "Compare rows of both inputs, output is row-level",
+              tooltip: "Compare rows of both inputs",
+            },
+            {
+              value: "count_data",
+              label:
+                "Compare rows of both inputs, output the number of difference",
+              tooltip: "Compare rows of both inputs",
+            },
+            {
+              value: "field_data",
+              label:
+                "Compare rows of both inputs, output fields with their data in difference",
+              tooltip: "Compare rows of both inputs (keys required)",
+            },
+            {
+              value: "differing_fields",
+              label:
+                "Compare rows of both inputs, output list of fields where there is a difference",
+              tooltip: "Compare rows of both inputs (keys required)",
+            },
+            {
+              value: "metadata",
+              label:
+                "Compare columns of both inputs, output one row by column with difference",
+              tooltip: "Compare columns of both inputs (name, type,...)",
+            },
+            {
+              value: "metadata+metrics",
+              label:
+                "Compare columns of both inputs+metrics of each column, output one row by column with difference",
+              tooltip:
+                "Compare columns of both inputs (name, type,min, etc...)",
+            },
           ],
-          advanced: true
-        }
-		,
+          advanced: true,
+        },
         {
           type: "select",
           label: "When columns differ in dataframe",
           id: "select_column_mismatch",
-		  //placeholder: "Default: suffix_right", (no placeholder because defined in defaultConfig)
+          //placeholder: "Default: suffix_right", (no placeholder because defined in defaultConfig)
           options: [
-            { value: "intersect", label: "Take only common columns", tooltip: "Take only common columns" },
-            { value: "strict", label: "Raise an error", tooltip: "Raise an error" }
+            {
+              value: "intersect",
+              label: "Take only common columns",
+              tooltip: "Take only common columns",
+            },
+            {
+              value: "strict",
+              label: "Raise an error",
+              tooltip: "Raise an error",
+            },
           ],
-          advanced: true
-        }
-		//for V2
-		,
+          advanced: true,
+        },
+        //for V2
         {
           type: "columns",
           label: "Key Fields",
           id: "selectcol_key_fields",
           placeholder: "Column name",
-		  condition: { select_comparison_mode: ["field_data","differing_fields"]},
-		  inputNb: 1,
-		  advanced: true
-        }
-		,
+          condition: {
+            select_comparison_mode: ["field_data", "differing_fields"],
+          },
+          inputNb: 1,
+          advanced: true,
+        },
         {
           type: "columns",
           label: "Fields to be ignored",
           id: "selectcol_ignore_fields",
           placeholder: "Column name",
-		  advanced: true
-        }
-		,
+          advanced: true,
+        },
         {
           type: "boolean",
           label: "Rows order to be considered",
           id: "boolean_index_data_for_compare",
-          condition: { select_comparison_mode: ["data","count_data","field_data","differing_fields"]},
-          advanced: true
-        }
-        ,
+          condition: {
+            select_comparison_mode: [
+              "data",
+              "count_data",
+              "field_data",
+              "differing_fields",
+            ],
+          },
+          advanced: true,
+        },
         {
           type: "boolean",
           label: "Columns order to be considered",
           id: "boolean_index_metadata_for_compare",
-          condition: { select_comparison_mode: ["metadata","metadata+metrics"]},
-          advanced: true
+          condition: {
+            select_comparison_mode: ["metadata", "metadata+metrics"],
+          },
+          advanced: true,
         },
         {
           type: "boolean",
           label: "Check for equal count",
           id: "boolean_check_forcount",
-          condition: { select_comparison_mode: ["data","count_data"]},
-          advanced: true
+          condition: { select_comparison_mode: ["data", "count_data"] },
+          advanced: true,
         },
-		{
+        {
           type: "inputNumber",
           tooltip: "Number of decimal for rounding (nothing=No rounding)",
           label: "Decimal Rounding",
           id: "inputNumberDecimalRound",
           min: 0,
           max: 20,
-          advanced: true
+          advanced: true,
         },
-		{
+        {
           type: "select",
           label: "Timestamp/DateTime Rounding",
           id: "selectTimestampDateTimeRound",
-          placeholder: "Error: raise an Exception when a bad line is encountered",
+          placeholder:
+            "Error: raise an Exception when a bad line is encountered",
           options: [
             { value: "None", label: "None", tooltip: "No rounding" },
             { value: "s", label: "Second", tooltip: "Rounding to second" },
-            { value: "ms", label: "Millisecond", tooltip: "Rounding to millisecond" },
-            { value: "us", label: "Microsecond", tooltip: "Rounding to microsecond" },
-            { value: "ns", label: "Nanosecond", tooltip: "Rounding to nanosecond" }
+            {
+              value: "ms",
+              label: "Millisecond",
+              tooltip: "Rounding to millisecond",
+            },
+            {
+              value: "us",
+              label: "Microsecond",
+              tooltip: "Rounding to microsecond",
+            },
+            {
+              value: "ns",
+              label: "Nanosecond",
+              tooltip: "Rounding to nanosecond",
+            },
           ],
-          advanced: true
+          advanced: true,
         },
       ],
     };
-    const description = "Compare dataframe of both inputs at several levels"
+    // const description = "Compare dataframe of both inputs at several levels"
+    const description = "在多个层面比较两个输入数据集的差异";
 
-    super("Compare Dataframes", "CompareDataframes", description, "pandas_df_double_processor", [], "Misc", CompareDataframesIcon, defaultConfig, form);
+    super(
+      //   "Compare Dataframes",
+      "比较数据框",
+      "CompareDataframes",
+      description,
+      "pandas_df_double_processor",
+      [],
+      chineseLabel[2],
+      CompareDataframesIcon,
+      defaultConfig,
+      form,
+    );
   }
 
-//now always available through requirements.txt
-//    public provideDependencies({ config }): string[] {
-//        const engine = config?.selectExecutionEngine ?? "pandas";
-//        const deps: string[] = [];
-//
-//        if (engine === "polars") {
-//            deps.push("polars", "pyarrow");
-//        } else if (engine === "duckdb") {
-//            deps.push("duckdb", "pyarrow");
-//        }
-//        // pandas assumed available, no extra deps
-//        return deps;
-//    }
+  //now always available through requirements.txt
+  //    public provideDependencies({ config }): string[] {
+  //        const engine = config?.selectExecutionEngine ?? "pandas";
+  //        const deps: string[] = [];
+  //
+  //        if (engine === "polars") {
+  //            deps.push("polars", "pyarrow");
+  //        } else if (engine === "duckdb") {
+  //            deps.push("duckdb", "pyarrow");
+  //        }
+  //        // pandas assumed available, no extra deps
+  //        return deps;
+  //    }
 
-//condition import does not work because there are functions.
-    // public provideImports({ config }): string[] {
-        // const engine = config?.selectExecutionEngine ?? "pandas";
-		////pandas always necessary, since output and input are still pandas df
-        // const imports = ["import pandas as pd", "import typing", "from typing import *"];
+  //condition import does not work because there are functions.
+  // public provideImports({ config }): string[] {
+  // const engine = config?.selectExecutionEngine ?? "pandas";
+  ////pandas always necessary, since output and input are still pandas df
+  // const imports = ["import pandas as pd", "import typing", "from typing import *"];
 
-        // if (engine === "polars") {
-            // imports.push("import polars as pl", "import pyarrow");
-        // } else if (engine === "duckdb") {
-            // imports.push("import duckdb", "import pyarrow");
-        // }
-        // return imports;
-    // }
+  // if (engine === "polars") {
+  // imports.push("import polars as pl", "import pyarrow");
+  // } else if (engine === "duckdb") {
+  // imports.push("import duckdb", "import pyarrow");
+  // }
+  // return imports;
+  // }
   public provideImports({ config }): string[] {
     return [
-	"import pandas as pd",
-	"import polars as pl",
-	"import pyarrow",
-	"import duckdb",
-	"import typing",
-	"from typing import *"
-	];
+      "import pandas as pd",
+      "import polars as pl",
+      "import pyarrow",
+      "import duckdb",
+      "import typing",
+      "from typing import *",
+    ];
   }
 
- public provideFunctions({ config }): string[] {
+  public provideFunctions({ config }): string[] {
     const prefix = config?.backend?.prefix ?? "pd";
     // Function to compare data
     const CompareFunction = `
@@ -1396,63 +1479,89 @@ def compare_datasets(
     `;
     return [CompareFunction];
   }
-  
-  
-  public generateComponentCode({ config, inputName1, inputName2, outputName }): string {
 
+  public generateComponentCode({
+    config,
+    inputName1,
+    inputName2,
+    outputName,
+  }): string {
     const prefix = config?.backend?.prefix ?? "pd";
-	const const_ts_execution_engine = config.select_execution_engine ?? "pandas";
-	const const_ts_comparison_mode = config.select_comparison_mode ?? "data";
-	const const_ts_column_mismatch = config.select_column_mismatch ?? "intersect";	
-	//for V2
-	
-	function buildRoundingString(
-  selectTimestampDateTimeRound: string | null, // "None", "s", "ms"
-  inputNumberDecimalRound?: number // 0–20 ou undefined
-): string {
-  // Case 1 : both aren't present or "None"
-  if ((selectTimestampDateTimeRound === "None" || selectTimestampDateTimeRound == null) && (inputNumberDecimalRound === undefined || inputNumberDecimalRound== null)) {
-    return "None";
-  }
+    const const_ts_execution_engine =
+      config.select_execution_engine ?? "pandas";
+    const const_ts_comparison_mode = config.select_comparison_mode ?? "data";
+    const const_ts_column_mismatch =
+      config.select_column_mismatch ?? "intersect";
+    //for V2
 
-  // Construction dynamique de l'objet
-  const rounding: Record<string, string | number> = {};
+    function buildRoundingString(
+      selectTimestampDateTimeRound: string | null, // "None", "s", "ms"
+      inputNumberDecimalRound?: number, // 0–20 ou undefined
+    ): string {
+      // Case 1 : both aren't present or "None"
+      if (
+        (selectTimestampDateTimeRound === "None" ||
+          selectTimestampDateTimeRound == null) &&
+        (inputNumberDecimalRound === undefined ||
+          inputNumberDecimalRound == null)
+      ) {
+        return "None";
+      }
 
-  if ((inputNumberDecimalRound !== undefined)  &&  (inputNumberDecimalRound !== null)) {
-    rounding["float"] = inputNumberDecimalRound;
-  }
+      // Construction dynamique de l'objet
+      const rounding: Record<string, string | number> = {};
 
-  if (selectTimestampDateTimeRound !== "None" && selectTimestampDateTimeRound != null) {
-    rounding["datetime"] = selectTimestampDateTimeRound;
-  }
+      if (
+        inputNumberDecimalRound !== undefined &&
+        inputNumberDecimalRound !== null
+      ) {
+        rounding["float"] = inputNumberDecimalRound;
+      }
 
-  return JSON.stringify(rounding);
-}
+      if (
+        selectTimestampDateTimeRound !== "None" &&
+        selectTimestampDateTimeRound != null
+      ) {
+        rounding["datetime"] = selectTimestampDateTimeRound;
+      }
 
-////Exemple d’utilisation :
-// console.log(buildRoundingString("s", 4));       // '{"float":4,"datetime":"s"}'
-// console.log(buildRoundingString("None", 4));    // '{"float":4}'
-// console.log(buildRoundingString("s", undefined)); // '{"datetime":"s"}'
-// console.log(buildRoundingString("None", undefined)); // 'None'
+      return JSON.stringify(rounding);
+    }
 
-//	const const_ts_rounding = '{"float": 4, "datetime": "s"}'; //No UI right now
-	const const_ts_rounding = buildRoundingString(config.selectTimestampDateTimeRound,config.inputNumberDecimalRound);
-    const const_ts_key_fields = config.selectcol_key_fields.map(column => column.named ? `"${column.value}"` : column.value);
-    const const_ts_ignore_fields = config.selectcol_ignore_fields.map(column => column.named ? `"${column.value}"` : column.value);
-	const const_ts_index_data_for_compare = config.boolean_index_data_for_compare ? "False" : "True";
-	const const_ts_index_metadata_for_compare = config.boolean_index_metadata_for_compare ? "True" : "False";
-	const const_ts_check_forcount = config.boolean_check_forcount ? "True" : "False";
-	
+    ////Exemple d’utilisation :
+    // console.log(buildRoundingString("s", 4));       // '{"float":4,"datetime":"s"}'
+    // console.log(buildRoundingString("None", 4));    // '{"float":4}'
+    // console.log(buildRoundingString("s", undefined)); // '{"datetime":"s"}'
+    // console.log(buildRoundingString("None", undefined)); // 'None'
+
+    //	const const_ts_rounding = '{"float": 4, "datetime": "s"}'; //No UI right now
+    const const_ts_rounding = buildRoundingString(
+      config.selectTimestampDateTimeRound,
+      config.inputNumberDecimalRound,
+    );
+    const const_ts_key_fields = config.selectcol_key_fields.map((column) =>
+      column.named ? `"${column.value}"` : column.value,
+    );
+    const const_ts_ignore_fields = config.selectcol_ignore_fields.map(
+      (column) => (column.named ? `"${column.value}"` : column.value),
+    );
+    const const_ts_index_data_for_compare =
+      config.boolean_index_data_for_compare ? "False" : "True";
+    const const_ts_index_metadata_for_compare =
+      config.boolean_index_metadata_for_compare ? "True" : "False";
+    const const_ts_check_forcount = config.boolean_check_forcount
+      ? "True"
+      : "False";
+
     // Join the keys into a string for the Python code
-    const const_ts_key_fieldsstr = `[${const_ts_key_fields.join(', ')}]`;
-	const const_ts_ignore_fieldsstr = `[${const_ts_ignore_fields.join(', ')}]`;
-	
-	
-	//Comment for Python
+    const const_ts_key_fieldsstr = `[${const_ts_key_fields.join(", ")}]`;
+    const const_ts_ignore_fieldsstr = `[${const_ts_ignore_fields.join(", ")}]`;
+
+    //Comment for Python
     let code = `# Compare ${inputName1} and ${inputName2}\n`;
     //code += `${outputName}=compare_datasets(execution_engine='${const_ts_execution_engine}',df1=${inputName1}, df2=${inputName2},mode='${const_ts_comparison_mode}',column_mismatch='${const_ts_column_mismatch}')`
-   //for V2	
-   code += `${outputName}=compare_datasets(execution_engine='${const_ts_execution_engine}',
+    //for V2
+    code += `${outputName}=compare_datasets(execution_engine='${const_ts_execution_engine}',
   df1=${inputName1},
   df2=${inputName2},
   mode='${const_ts_comparison_mode}',
@@ -1463,10 +1572,8 @@ def compare_datasets(
   index_data_for_compare=${const_ts_index_data_for_compare},
   index_metadata_for_compare=${const_ts_index_metadata_for_compare},
   check_forcount=${const_ts_check_forcount}
-  )`
-  
+  )`;
 
     return code;
   }
-
 }

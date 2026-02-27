@@ -1,20 +1,47 @@
-import React, { useCallback, useState, useEffect } from 'react';
-import { type NodeProps, useReactFlow, useStore, useStoreApi, NodeResizer, NodeToolbar, Position, useKeyPress } from 'reactflow';
+import React, { useCallback, useState, useEffect } from "react";
+import {
+  type NodeProps,
+  useReactFlow,
+  useStore,
+  useStoreApi,
+  NodeResizer,
+  NodeToolbar,
+  Position,
+  useKeyPress,
+} from "reactflow";
 import { Remark } from "react-remark";
-import type { GetRef, InputRef, ColorPickerProps, GetProp } from 'antd';
-import { CodeTextarea } from '@amphi/pipeline-components-manager';
-import { QuestionCircleOutlined } from '@ant-design/icons';
+import type { GetRef, InputRef, ColorPickerProps, GetProp } from "antd";
+import { CodeTextarea } from "@amphi/pipeline-components-manager";
+import { QuestionCircleOutlined } from "@ant-design/icons";
 
-import { Form, ConfigProvider, ColorPicker, Row, Col, Slider, Modal, InputNumber, Popconfirm } from 'antd';
+import {
+  Form,
+  ConfigProvider,
+  ColorPicker,
+  Row,
+  Col,
+  Slider,
+  Modal,
+  InputNumber,
+  Popconfirm,
+} from "antd";
 
-import { ComponentItem, PipelineComponent, onChange } from '@amphi/pipeline-components-manager';
-import { annotationIcon } from '../../icons';
+import {
+  ComponentItem,
+  PipelineComponent,
+  onChange,
+} from "@amphi/pipeline-components-manager";
+import { annotationIcon } from "../../icons";
 
-import { lockIcon, unlockIcon, xIcon, settingsIcon } from '../../icons';
-import { generate, green, presetPalettes, red } from '@ant-design/colors';
+import { lockIcon, unlockIcon, xIcon, settingsIcon } from "../../icons";
+import { generate, green, presetPalettes, red } from "@ant-design/colors";
+import { chineseLabel } from "../inputs/label";
 
-type Color = Extract<GetProp<ColorPickerProps, 'value'>, string | { cleared: any }>;
-type Format = GetProp<ColorPickerProps, 'format'>;
+type Color = Extract<
+  GetProp<ColorPickerProps, "value">,
+  string | { cleared: any }
+>;
+type Format = GetProp<ColorPickerProps, "format">;
 
 export type AnnotationData = {
   content: string;
@@ -25,13 +52,14 @@ export type AnnotationData = {
 };
 
 export class Annotation extends PipelineComponent<ComponentItem>() {
-
-  public _name = "Annotation";
+  // public _name = "Annotation";
+  public _name = "注释";
   public _id = "annotation";
   public _type = "annotation";
   public _icon = annotationIcon;
-  public _category = "Misc";
-  public _description = "Annotation";
+  public _category = chineseLabel[2];
+  // public _description = "Annotation";
+  public _description = "注释";
   public _default = { content: "# Annotation", isLocked: false };
 
   public static ConfigForm = ({
@@ -45,38 +73,56 @@ export class Annotation extends PipelineComponent<ComponentItem>() {
     setNodes,
     handleChange,
     modalOpen,
-    setModalOpen
+    setModalOpen,
   }) => {
+    const handleColorChange = useCallback(
+      (colorObj, setColor, field) => {
+        const colorValue = colorObj.toRgbString();
+        setColor(colorValue);
+        handleChange(colorValue, field);
+      },
+      [handleChange],
+    );
 
-    const handleColorChange = useCallback((colorObj, setColor, field) => {
-      const colorValue = colorObj.toRgbString();
-      setColor(colorValue);
-      handleChange(colorValue, field);
-    }, [handleChange]);
+    const handleBorderRadiusChange = useCallback(
+      (newValue: number) => {
+        setBorderRadius(newValue);
+        handleChange(newValue, "borderRadius");
+      },
+      [handleChange],
+    );
 
-    const handleBorderRadiusChange = useCallback((newValue: number) => {
-      setBorderRadius(newValue);
-      handleChange(newValue, 'borderRadius');
-    }, [handleChange]);
+    const handleBorderWidthChange = useCallback(
+      (newValue: number) => {
+        setBorderWidth(newValue);
+        handleChange(newValue, "borderWidth");
+      },
+      [handleChange],
+    );
 
-    const handleBorderWidthChange = useCallback((newValue: number) => {
-      setBorderWidth(newValue);
-      handleChange(newValue, 'borderWidth');
-    }, [handleChange]);
-
-    const [content, setContent] = useState<string>(data.content || '# Annotation');
-    const [backgroundColor, setBackgroundColor] = useState<Color>(data.backgroundColor || '#fff');
-    const [borderColor, setBorderColor] = useState<Color>(data.borderColor || '#42766D');
-    const [borderWidth, setBorderWidth] = useState<number>(data.borderWidth || 5);
-    const [textColor, setTextColor] = useState<Color>(data.textColor || '#000');
-    const [borderRadius, setBorderRadius] = useState<number>(data.borderRadius || 5);
+    const [content, setContent] = useState<string>(
+      data.content || "# Annotation",
+    );
+    const [backgroundColor, setBackgroundColor] = useState<Color>(
+      data.backgroundColor || "#fff",
+    );
+    const [borderColor, setBorderColor] = useState<Color>(
+      data.borderColor || "#42766D",
+    );
+    const [borderWidth, setBorderWidth] = useState<number>(
+      data.borderWidth || 5,
+    );
+    const [textColor, setTextColor] = useState<Color>(data.textColor || "#000");
+    const [borderRadius, setBorderRadius] = useState<number>(
+      data.borderRadius || 5,
+    );
 
     useEffect(() => {
-      setContent(data.content || '# Annotation');
+      setContent(data.content || "# Annotation");
     }, [data.content]);
 
     useEffect(() => {
-      handleChange(content, 'content');
+      handleChange(content, "content");
     }, [content]);
 
     return (
@@ -84,7 +130,7 @@ export class Annotation extends PipelineComponent<ComponentItem>() {
         <ConfigProvider
           theme={{
             token: {
-              colorPrimary: '#5F9B97',
+              colorPrimary: "#5F9B97",
             },
           }}
         >
@@ -110,7 +156,13 @@ export class Annotation extends PipelineComponent<ComponentItem>() {
                   format={"hex"}
                   showText
                   value={backgroundColor}
-                  onChange={(color) => handleColorChange(color, setBackgroundColor, 'backgroundColor')}
+                  onChange={(color) =>
+                    handleColorChange(
+                      color,
+                      setBackgroundColor,
+                      "backgroundColor",
+                    )
+                  }
                 />
               </Form.Item>
               <Form.Item label="Border Color">
@@ -120,7 +172,9 @@ export class Annotation extends PipelineComponent<ComponentItem>() {
                   format={"hex"}
                   showText
                   value={borderColor}
-                  onChange={(color) => handleColorChange(color, setBorderColor, 'borderColor')}
+                  onChange={(color) =>
+                    handleColorChange(color, setBorderColor, "borderColor")
+                  }
                 />
               </Form.Item>
               <Form.Item label="Border Width">
@@ -130,14 +184,14 @@ export class Annotation extends PipelineComponent<ComponentItem>() {
                       min={0}
                       max={20}
                       onChange={handleBorderWidthChange}
-                      value={typeof borderWidth === 'number' ? borderWidth : 5}
+                      value={typeof borderWidth === "number" ? borderWidth : 5}
                     />
                   </Col>
                   <Col span={4}>
                     <InputNumber
                       min={0}
                       max={20}
-                      style={{ margin: '0 16px' }}
+                      style={{ margin: "0 16px" }}
                       value={borderWidth}
                       onChange={handleBorderWidthChange}
                     />
@@ -151,7 +205,9 @@ export class Annotation extends PipelineComponent<ComponentItem>() {
                   format={"hex"}
                   showText
                   value={textColor}
-                  onChange={(color) => handleColorChange(color, setTextColor, 'textColor')}
+                  onChange={(color) =>
+                    handleColorChange(color, setTextColor, "textColor")
+                  }
                 />
               </Form.Item>
               <Form.Item label="Border Radius">
@@ -161,14 +217,16 @@ export class Annotation extends PipelineComponent<ComponentItem>() {
                       min={0}
                       max={50}
                       onChange={handleBorderRadiusChange}
-                      value={typeof borderRadius === 'number' ? borderRadius : 5}
+                      value={
+                        typeof borderRadius === "number" ? borderRadius : 5
+                      }
                     />
                   </Col>
                   <Col span={4}>
                     <InputNumber
                       min={0}
                       max={50}
-                      style={{ margin: '0 16px' }}
+                      style={{ margin: "0 16px" }}
                       value={borderRadius}
                       onChange={handleBorderRadiusChange}
                     />
@@ -184,15 +242,15 @@ export class Annotation extends PipelineComponent<ComponentItem>() {
                     placeholder: "Markdown",
                   }}
                   handleChange={(value) => {
-                    handleChange(value, 'content');
+                    handleChange(value, "content");
                     setContent(value);
                   }}
                   advanced={false}
                   value={content}
-                  context={context}  
-                  commands={commands} 
-                  componentService={componentService} 
-                  nodeId={nodeId} 
+                  context={context}
+                  commands={commands}
+                  componentService={componentService}
+                  nodeId={nodeId}
                 />
               </Form.Item>
             </Form>
@@ -200,9 +258,18 @@ export class Annotation extends PipelineComponent<ComponentItem>() {
         </ConfigProvider>
       </>
     );
-  }
+  };
 
-  public UIComponent({ id, data, context, componentService, manager, commands, rendermimeRegistry, settings }) {
+  public UIComponent({
+    id,
+    data,
+    context,
+    componentService,
+    manager,
+    commands,
+    rendermimeRegistry,
+    settings,
+  }) {
     const { setNodes, deleteElements, setViewport } = useReactFlow();
     const store = useStoreApi();
 
@@ -210,11 +277,16 @@ export class Annotation extends PipelineComponent<ComponentItem>() {
       deleteElements({ nodes: [{ id }] });
     }, [id, deleteElements]);
 
-    const isSelected = useStore((state) => !!state.nodeInternals.get(id)?.selected);
+    const isSelected = useStore(
+      (state) => !!state.nodeInternals.get(id)?.selected,
+    );
 
-    const handleChange = useCallback((evtTargetValue: any, field: string) => {
-      onChange({ evtTargetValue, field, nodeId: id, store, setNodes });
-    }, [id, store, setNodes]);
+    const handleChange = useCallback(
+      (evtTargetValue: any, field: string) => {
+        onChange({ evtTargetValue, field, nodeId: id, store, setNodes });
+      },
+      [id, store, setNodes],
+    );
 
     const toggleLock = useCallback(() => {
       setNodes((nds) =>
@@ -228,7 +300,7 @@ export class Annotation extends PipelineComponent<ComponentItem>() {
             node.draggable = !newIsLocked;
           }
           return node;
-        })
+        }),
       );
     }, [id, setNodes]);
 
@@ -239,18 +311,18 @@ export class Annotation extends PipelineComponent<ComponentItem>() {
             node.draggable = !data.isLocked;
           }
           return node;
-        })
+        }),
       );
     }, [data.isLocked, id, setNodes]);
 
-    const shiftKeyPressed = useKeyPress('Shift');
+    const shiftKeyPressed = useKeyPress("Shift");
 
     const [modalOpen, setModalOpen] = useState(false);
 
-    const backgroundColorStyle = data.backgroundColor || 'transparent';
-    const borderColorStyle = data.borderColor || '#42766D';
+    const backgroundColorStyle = data.backgroundColor || "transparent";
+    const borderColorStyle = data.borderColor || "#42766D";
     const borderWidthStyle = data.borderWidth || 2;
-    const textColorStyle = data.textColor || 'rgba(0, 0, 0, 1)';
+    const textColorStyle = data.textColor || "rgba(0, 0, 0, 1)";
     const borderRadiusStyle = data.borderRadius || 0;
 
     return (
@@ -260,34 +332,37 @@ export class Annotation extends PipelineComponent<ComponentItem>() {
             title="Sure to delete?"
             placement="right"
             onConfirm={deleteNode}
-            icon={<QuestionCircleOutlined style={{ color: 'red' }} />}
+            icon={<QuestionCircleOutlined style={{ color: "red" }} />}
           >
             <div
               className="deletebutton"
               style={{
-                position: 'absolute',
-                top: '-20px',
-                right: '-20px',
-                cursor: 'pointer',
-                zIndex: 10
+                position: "absolute",
+                top: "-20px",
+                right: "-20px",
+                cursor: "pointer",
+                zIndex: 10,
               }}
             >
               <xIcon.react className="group-hover:text-primary" />
             </div>
           </Popconfirm>
         )}
-        <div className="annotation" style={{
-          height: '100%',
-          backgroundColor: backgroundColorStyle,
-          paddingLeft: '40px',
-          paddingRight: '40px',
-          paddingTop: '20px',
-          paddingBottom: '20px',
-          position: 'relative',
-          zIndex: 0,
-          borderRadius: `${borderRadiusStyle}px`,
-          border: `${borderWidthStyle}px solid ${borderColorStyle}`,
-        }}>
+        <div
+          className="annotation"
+          style={{
+            height: "100%",
+            backgroundColor: backgroundColorStyle,
+            paddingLeft: "40px",
+            paddingRight: "40px",
+            paddingTop: "20px",
+            paddingBottom: "20px",
+            position: "relative",
+            zIndex: 0,
+            borderRadius: `${borderRadiusStyle}px`,
+            border: `${borderWidthStyle}px solid ${borderColorStyle}`,
+          }}
+        >
           <NodeResizer
             keepAspectRatio={shiftKeyPressed}
             isVisible={isSelected}
@@ -300,7 +375,9 @@ export class Annotation extends PipelineComponent<ComponentItem>() {
           </div>
 
           <NodeToolbar isVisible={isSelected} position={Position.Bottom}>
-            <button onClick={() => setModalOpen(true)}><settingsIcon.react /></button>
+            <button onClick={() => setModalOpen(true)}>
+              <settingsIcon.react />
+            </button>
             <button onClick={toggleLock}>
               {data.isLocked ? <lockIcon.react /> : <unlockIcon.react />}
             </button>
