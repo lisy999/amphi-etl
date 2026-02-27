@@ -18,7 +18,9 @@ Remove-Item -Recurse -Force node_modules, yarn.lock, packages\*\node_modules, pa
 
 ```
 
-```jupyterlab-amphi下
+### jupyterlab-amphi下
+
+```
 
 1.需要使用 jlpm install
 2.jlpm build
