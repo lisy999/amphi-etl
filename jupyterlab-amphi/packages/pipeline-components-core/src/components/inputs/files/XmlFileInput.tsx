@@ -71,7 +71,7 @@ export class XmlFileInput extends BaseCoreComponent {
       description,
       "pandas_df_input",
       ["xml"],
-      chineseLabel,
+      chineseLabel[0],
       fileXmlIcon,
       defaultConfig,
       form,

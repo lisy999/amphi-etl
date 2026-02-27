@@ -40,7 +40,7 @@ export class PdfTablesInput extends BaseCoreComponent {
       "no desc",
       "pandas_df_input",
       ["pdf"],
-      chineseLabel,
+      chineseLabel[0],
       filePdfIcon,
       defaultConfig,
       form,

@@ -145,7 +145,7 @@ export class ExcelFileInput extends BaseCoreComponent {
       description,
       "pandas_df_input",
       ["xlsx", "xls", "ods", "xlsb"],
-      chineseLabel,
+      chineseLabel[0],
       fileExcelIcon,
       defaultConfig,
       form,

@@ -90,7 +90,7 @@ export class S3FileInput extends BaseCoreComponent {
       description,
       "pandas_df_input",
       [],
-      chineseLabel,
+      chineseLabel[0],
       bucketIcon,
       defaultConfig,
       form,

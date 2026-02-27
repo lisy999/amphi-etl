@@ -58,12 +58,12 @@ export class DatabaseInput extends BaseCoreComponent {
 
     super(
       // "Database Input",
-      "数据库 chineseLabel",
+      "数据库 输入",
       "databaseInput",
       description,
       "pandas_df_input",
       [],
-      chineseLabel,
+      chineseLabel[0],
       databaseIcon,
       defaultConfig,
       form,

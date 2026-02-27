@@ -68,7 +68,7 @@ export class ParquetFileInput extends BaseCoreComponent {
       description,
       "pandas_df_input",
       ["parquet"],
-      chineseLabel,
+      chineseLabel[0],
       fileParquetIcon,
       defaultConfig,
       form,

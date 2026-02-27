@@ -1,16 +1,15 @@
-import { renameIcon } from '../../../icons';
-import { BaseCoreComponent } from '../../BaseCoreComponent';
+import { renameIcon } from "../../../icons";
+import { BaseCoreComponent } from "../../BaseCoreComponent";
 //real components behind it
-import { ManualRenameColumns } from './ManualRenameColumns';
-import { DynamicRenameColumns } from './DynamicRenameColumns';
-
-
+import { ManualRenameColumns } from "./ManualRenameColumns";
+import { DynamicRenameColumns } from "./DynamicRenameColumns";
+import { chineseLabel } from "../../inputs/label";
 
 export class RenameColumns extends BaseCoreComponent {
   constructor() {
-	//default active component  
-    const defaultConfig = { mode: "manual"};
-	
+    //default active component
+    const defaultConfig = { mode: "manual" };
+
     const manual = new ManualRenameColumns();
     const dynamic = new DynamicRenameColumns();
 
@@ -19,54 +18,81 @@ export class RenameColumns extends BaseCoreComponent {
       return Array.isArray(form?.fields) ? form.fields : [];
     };
 
-    const wrapFields = (fields: any[], mode: 'manual' | 'dynamic') =>
-      fields.map(f => ({ ...f, condition: { mode: [mode], ...(f.condition || {}) } }));
+    const wrapFields = (fields: any[], mode: "manual" | "dynamic") =>
+      fields.map((f) => ({
+        ...f,
+        condition: { mode: [mode], ...(f.condition || {}) },
+      }));
 
     const form = {
-      idPrefix: 'component__form',
+      idPrefix: "component__form",
       fields: [
         {
-          type: 'radio',
-          label: 'Rename type',
-          id: 'mode',
+          type: "radio",
+          label: "Rename type",
+          id: "mode",
           options: [
-            { value: 'manual', label: 'Manual' },
-            { value: 'dynamic', label: 'Dynamic' }
+            { value: "manual", label: "Manual" },
+            { value: "dynamic", label: "Dynamic" },
           ],
-          advanced: true
+          advanced: true,
         },
-        ...wrapFields(getFields(manual), 'manual'),
-        ...wrapFields(getFields(dynamic), 'dynamic')
-      ]
+        ...wrapFields(getFields(manual), "manual"),
+        ...wrapFields(getFields(dynamic), "dynamic"),
+      ],
     };
 
     const description =
-      'Use Rename Columns to rename one or more columns, manually or dynamically.';
+      "使用“重命名列”功能可以手动或动态地对一个或多个列进行重命名操作。";
+    // const description =
+    //   'Use Rename Columns to rename one or more columns, manually or dynamically.';
 
-super("Rename Columns", "rename", description, "pandas_df_processor", [], "transforms", renameIcon, defaultConfig, form);
+    super(
+      "Rename Columns",
+      "rename",
+      description,
+      "pandas_df_processor",
+      [],
+      chineseLabel[1],
+      renameIcon,
+      defaultConfig,
+      form,
+    );
   }
 
   public provideImports({ config }): string[] {
     const mode = config.mode;
     const imports =
-      mode === 'dynamic'
+      mode === "dynamic"
         ? new DynamicRenameColumns().provideImports({ config })
         : new ManualRenameColumns().provideImports({ config });
 
     const seen = new Set<string>();
-    return imports.filter(i => (seen.has(i) ? false : (seen.add(i), true)));
+    return imports.filter((i) => (seen.has(i) ? false : (seen.add(i), true)));
   }
 
   public provideFunctions({ config }): string[] {
-    if (config.mode === 'dynamic' && typeof (DynamicRenameColumns as any).prototype.provideFunctions === 'function') {
+    if (
+      config.mode === "dynamic" &&
+      typeof (DynamicRenameColumns as any).prototype.provideFunctions ===
+        "function"
+    ) {
       return new DynamicRenameColumns().provideFunctions({ config });
     }
     return [];
   }
 
   public generateComponentCode({ config, inputName, outputName }): string {
-    return config.mode === 'dynamic'
-      ? new DynamicRenameColumns().generateComponentCode({ config, inputName, outputName })
-      : new ManualRenameColumns().generateComponentCode({ config, inputName, outputName });
+    return config.mode === "dynamic"
+      ? new DynamicRenameColumns().generateComponentCode({
+          config,
+          inputName,
+          outputName,
+        })
+      : new ManualRenameColumns().generateComponentCode({
+          config,
+          inputName,
+          outputName,
+        });
   }
 }

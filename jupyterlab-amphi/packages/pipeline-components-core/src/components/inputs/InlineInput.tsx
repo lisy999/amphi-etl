@@ -61,7 +61,7 @@ Sarah,Wilson,30,🥇`;
       description,
       "pandas_df_input",
       [],
-      chineseLabel,
+      chineseLabel[0],
       editIcon,
       defaultConfig,
       form,

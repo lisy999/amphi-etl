@@ -209,7 +209,7 @@ export class CsvFileInput extends BaseCoreComponent {
       description,
       "pandas_df_input",
       ["csv", "tsv"],
-      chineseLabel,
+      chineseLabel[0],
       fileCsvIcon,
       defaultConfig,
       form,

@@ -70,7 +70,7 @@ export class CustomInput extends BaseCoreComponent {
       description,
       "pandas_df_input",
       [],
-      chineseLabel,
+      chineseLabel[0],
       pythonIcon,
       defaultConfig,
       form,

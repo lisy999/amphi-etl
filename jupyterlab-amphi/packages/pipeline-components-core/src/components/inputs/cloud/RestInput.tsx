@@ -59,7 +59,7 @@ export class RestInput extends BaseCoreComponent {
       description,
       "pandas_df_input",
       [],
-      chineseLabel,
+      chineseLabel[0],
       apiIcon,
       defaultConfig,
       form,

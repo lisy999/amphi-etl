@@ -50,7 +50,7 @@ export class GoogleSheetsInput extends BaseCoreComponent {
       description,
       "pandas_df_input",
       [],
-      chineseLabel,
+      chineseLabel[0],
       fileSpreadsheetIcon,
       defaultConfig,
       form,

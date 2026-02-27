@@ -1,1 +1,1 @@
-export const chineseLabel = "输入";
+export const chineseLabel = ["输入", "转化"];

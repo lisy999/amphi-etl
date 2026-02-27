@@ -102,7 +102,7 @@ export class JsonFileInput extends BaseCoreComponent {
       description,
       "pandas_df_input",
       ["json", "jsonl"],
-      chineseLabel,
+      chineseLabel[0],
       fileJsonIcon,
       defaultConfig,
       form,
