@@ -1,28 +1,33 @@
 import {
   ILauncher,
   Launcher as JupyterlabLauncher,
-  LauncherModel as JupyterLauncherModel
-} from '@jupyterlab/launcher';
-import { LabIcon } from '@jupyterlab/ui-components';
-import { CommandRegistry } from '@lumino/commands';
-import { githubIcon, pipelineIcon, discourseIcon, alertDiamondIcon } from './icons';
+  LauncherModel as JupyterLauncherModel,
+} from "@jupyterlab/launcher";
+import { LabIcon } from "@jupyterlab/ui-components";
+import { CommandRegistry } from "@lumino/commands";
+import {
+  githubIcon,
+  pipelineIcon,
+  discourseIcon,
+  alertDiamondIcon,
+} from "./icons";
 
-import { each } from '@lumino/algorithm';
+import { each } from "@lumino/algorithm";
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 
 // Largely inspired by Elyra launcher https://github.com/elyra-ai/elyra
 
 /**
  * The known categories of launcher items and their default ordering.
  */
-const AMPHI_CATEGORY = 'Data Integration';
+const AMPHI_CATEGORY = "Data Integration";
 
 const CommandIDs = {
-  newPipeline: 'pipeline-editor:create-new',
-  newFile: 'fileeditor:create-new',
-  createNewPythonEditor: 'script-editor:create-new-python-editor',
-  createNewREditor: 'script-editor:create-new-r-editor'
+  newPipeline: "pipeline-editor:create-new",
+  newFile: "fileeditor:create-new",
+  createNewPythonEditor: "script-editor:create-new-python-editor",
+  createNewREditor: "script-editor:create-new-r-editor",
 };
 
 // LauncherModel deals with the underlying data and logic of the launcher (what items are available, their order, etc.).
@@ -36,7 +41,7 @@ export class LauncherModel extends JupyterLauncherModel {
     let pyEditorInstalled = false;
     let rEditorInstalled = false;
 
-    this.itemsList.forEach(item => {
+    this.itemsList.forEach((item) => {
       if (item.command === CommandIDs.createNewPythonEditor) {
         pyEditorInstalled = true;
       } else if (item.command === CommandIDs.createNewREditor) {
@@ -49,12 +54,12 @@ export class LauncherModel extends JupyterLauncherModel {
     }
 
     // Dont add tiles for new py and r files if their script editor is installed
-    this.itemsList.forEach(item => {
+    this.itemsList.forEach((item) => {
       if (
         !(
           item.command === CommandIDs.newFile &&
-          ((pyEditorInstalled && item.args?.fileExt === 'py') ||
-            (rEditorInstalled && item.args?.fileExt === 'r'))
+          ((pyEditorInstalled && item.args?.fileExt === "py") ||
+            (rEditorInstalled && item.args?.fileExt === "r"))
         )
       ) {
         items.push(item);
@@ -68,7 +73,6 @@ export class LauncherModel extends JupyterLauncherModel {
 // Launcher deals with the visual representation and user interactions of the launcher
 // (how items are displayed, icons, categories, etc.).
 export class Launcher extends JupyterlabLauncher {
-
   private myCommands: CommandRegistry;
   /**
    * Construct a new launcher widget.
@@ -88,19 +92,19 @@ export class Launcher extends JupyterlabLauncher {
    */
   private replaceCategoryIcon(
     category: React.ReactElement,
-    icon: LabIcon
+    icon: LabIcon,
   ): React.ReactElement {
-    const children = React.Children.map(category.props.children, child => {
-      if (child.props.className === 'jp-Launcher-sectionHeader') {
+    const children = React.Children.map(category.props.children, (child) => {
+      if (child.props.className === "jp-Launcher-sectionHeader") {
         const grandchildren = React.Children.map(
           child.props.children,
-          grandchild => {
-            if (grandchild.props.className !== 'jp-Launcher-sectionTitle') {
+          (grandchild) => {
+            if (grandchild.props.className !== "jp-Launcher-sectionTitle") {
               return <icon.react stylesheet="launcherSection" />;
             } else {
               return grandchild;
             }
-          }
+          },
         );
 
         return React.cloneElement(child, child.props, grandchildren);
@@ -145,26 +149,24 @@ export class Launcher extends JupyterlabLauncher {
     });
 
     const handleNewPipelineClick = () => {
-      this.myCommands.execute('pipeline-editor:create-new');
+      this.myCommands.execute("pipeline-editor:create-new");
     };
 
     const handleUploadFiles = () => {
-      this.myCommands.execute('ui-components:file-upload');
+      this.myCommands.execute("ui-components:file-upload");
     };
-
-
 
     const AlertBox = () => {
       const [isVisible, setIsVisible] = useState(false);
 
       useEffect(() => {
-        const alertClosed = localStorage.getItem('alertClosed') === 'true';
+        const alertClosed = localStorage.getItem("alertClosed") === "true";
         setIsVisible(!alertClosed);
       }, []);
 
       const closeAlert = () => {
         setIsVisible(false);
-        localStorage.setItem('alertClosed', 'true');
+        localStorage.setItem("alertClosed", "true");
       };
 
       if (!isVisible) return null;
@@ -179,8 +181,14 @@ export class Launcher extends JupyterlabLauncher {
             <div className="alert-text">
               <h2>About</h2>
               <p>
-                Welcome to Amphi's demo playground! Explore Amphi ETL's capabilities and user experience here. <br />
-                Note that <b>executing pipelines is not supported in this environment.</b> For full functionality, install Amphi — it's free and open source.{' '}
+                Welcome to Amphi's demo playground! Explore Amphi ETL's
+                capabilities and user experience here. <br />
+                Note that{" "}
+                <b>
+                  executing pipelines is not supported in this environment.
+                </b>{" "}
+                For full functionality, install Amphi — it's free and open
+                source.{" "}
                 <a href="https://github.com/amphi-ai/amphi-etl" target="_blank">
                   Learn more.
                 </a>
@@ -189,8 +197,18 @@ export class Launcher extends JupyterlabLauncher {
 
             <button onClick={closeAlert} className="alert-close-btn">
               <span className="sr-only">Dismiss popup</span>
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth="1.5"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M6 18L18 6M6 6l12 12"
+                />
               </svg>
             </button>
           </div>
@@ -205,61 +223,77 @@ export class Launcher extends JupyterlabLauncher {
           <div className="launcher-grid">
             <div className="launcher-card">
               <div className="launcher-card-header">
-                <h3>Start</h3>
+                <h3>开始</h3>
               </div>
 
               <ul className="launcher-card-list">
                 <li>
-                  <a href="#" onClick={handleNewPipelineClick} className="launcher-card-item">
+                  <a
+                    href="#"
+                    onClick={handleNewPipelineClick}
+                    className="launcher-card-item"
+                  >
                     <div className="launcher-icon">
                       <pipelineIcon.react fill="#5A8F7B" />
                     </div>
                     <div>
-                      <strong>New pipeline</strong>
-                      <p>Open a new untitled pipeline and drag and drop components to design and develop your data flow.</p>
+                      <strong>新建流水线</strong>
+                      <p>
+                        打开一个新的未命名流水线，将组件拖放到其中以设计和开发您的数据流。
+                      </p>
                     </div>
                   </a>
                 </li>
               </ul>
             </div>
 
-            <div className="launcher-card">
+            {/* <div className="launcher-card">
               <div className="launcher-card-header">
-                <h3>Resources</h3>
+                <h3>资源</h3>
               </div>
 
               <ul className="launcher-card-list">
                 <li>
-                  <a href="https://community.amphi.ai/" target="_blank" className="launcher-card-item">
+                  <a
+                    href="https://community.amphi.ai/"
+                    target="_blank"
+                    className="launcher-card-item"
+                  >
                     <div className="launcher-icon">
                       <discourseIcon.react />
                     </div>
                     <div>
                       <strong>Join the Community</strong>
-                      <p>Access Amphi's forum, read documentation, get support, ask questions, and share your experience.</p>
+                      <p>
+                        Access Amphi's forum, read documentation, get support,
+                        ask questions, and share your experience.
+                      </p>
                     </div>
                   </a>
                 </li>
                 <li>
-                  <a href="https://github.com/amphi-ai/amphi-etl" target="_blank" className="launcher-card-item">
+                  <a
+                    href="https://github.com/amphi-ai/amphi-etl"
+                    target="_blank"
+                    className="launcher-card-item"
+                  >
                     <div className="launcher-icon">
                       <githubIcon.react />
                     </div>
                     <div>
                       <strong>Issues and feature requests</strong>
-                      <p>Report issues and suggest features on GitHub. Don't hesitate to star the repository to watch the repository.</p>
+                      <p>
+                        Report issues and suggest features on GitHub. Don't
+                        hesitate to star the repository to watch the repository.
+                      </p>
                     </div>
                   </a>
                 </li>
-
               </ul>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>
     );
   }
-
-
 }
-

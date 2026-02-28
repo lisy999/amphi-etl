@@ -580,7 +580,7 @@ WHERE TABLE_NAME = '{{table}}' AND TABLE_SCHEMA = 'dbo';
     // 1. Do not forget to add the icon in amphi-etl\jupyterlab-amphi\packages\pipeline-components-core\src\icons.ts and in amphi-etl\jupyterlab-amphi\packages\pipeline-components-core\style\icons.
     super(
       // "Form Example",
-      "Form examples",
+      "示例形式",
       "form_example",
       description,
       "pandas_df_processor",
