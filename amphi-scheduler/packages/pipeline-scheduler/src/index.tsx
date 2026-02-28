@@ -937,7 +937,8 @@ const SchedulerPanel: React.FC<SchedulerPanelProps> = ({
                       </div>
                     ) : jobs.length === 0 ? (
                       <Empty
-                        description="No scheduled tasks yet"
+                        // description="No scheduled tasks yet"
+                        description="目前还没有安排好的任务"
                         image={Empty.PRESENTED_IMAGE_SIMPLE}
                       />
                     ) : (

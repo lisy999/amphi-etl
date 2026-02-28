@@ -1,19 +1,23 @@
 import {
   JupyterFrontEnd,
-  JupyterFrontEndPlugin
-} from '@jupyterlab/application';
-import { ICommandPalette, Notification, ReactWidget } from '@jupyterlab/apputils';
-import { PathExt } from '@jupyterlab/coreutils';
-import { IDefaultFileBrowser } from '@jupyterlab/filebrowser';
-import { ComponentManager } from '@amphi/pipeline-components-manager';
-import { puzzleIcon } from './icons';
+  JupyterFrontEndPlugin,
+} from "@jupyterlab/application";
+import {
+  ICommandPalette,
+  Notification,
+  ReactWidget,
+} from "@jupyterlab/apputils";
+import { PathExt } from "@jupyterlab/coreutils";
+import { IDefaultFileBrowser } from "@jupyterlab/filebrowser";
+import { ComponentManager } from "@amphi/pipeline-components-manager";
+import { puzzleIcon } from "./icons";
 
-import React, { useEffect, useMemo, useState } from 'react';
-import { CloseOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons';
-import { Button, ConfigProvider, Empty, Input, Modal, Radio, Tree } from 'antd';
-import type { TreeDataNode, TreeProps } from 'antd';
+import React, { useEffect, useMemo, useState } from "react";
+import { CloseOutlined, PlusOutlined, ReloadOutlined } from "@ant-design/icons";
+import { Button, ConfigProvider, Empty, Input, Modal, Radio, Tree } from "antd";
+import type { TreeDataNode, TreeProps } from "antd";
 
-import '../style/index.css';
+import "../style/index.css";
 
 interface ComponentItem {
   _id: string;
@@ -36,14 +40,14 @@ interface ComponentsService {
   removeComponent(id: string): void;
 }
 
-type SourceMode = 'code' | 'link';
+type SourceMode = "code" | "link";
 
 interface ComponentsConfig {
   sources: string[];
 }
 
-const AMPHI_DIR_PATH = '.amphi';
-const AMPHI_COMPONENTS_DIR = '.amphi/components';
+const AMPHI_DIR_PATH = ".amphi";
+const AMPHI_COMPONENTS_DIR = ".amphi/components";
 
 /**
  * Normalize path for Jupyter's contents API.
@@ -52,7 +56,7 @@ const AMPHI_COMPONENTS_DIR = '.amphi/components';
  */
 function normalizeForJupyter(path: string): string {
   // Only strip './' prefix, but keep single '.' for hidden directories like '.amphi'
-  if (path.startsWith('./')) {
+  if (path.startsWith("./")) {
     return path.slice(2);
   }
   return path;
@@ -60,10 +64,10 @@ function normalizeForJupyter(path: string): string {
 
 function formatCategoryLabel(category: string): string {
   return category
-    .replace(/[_-]+/g, ' ')
-    .replace(/\s+/g, ' ')
+    .replace(/[_-]+/g, " ")
+    .replace(/\s+/g, " ")
     .trim()
-    .replace(/\b\w/g, char => char.toUpperCase());
+    .replace(/\b\w/g, (char) => char.toUpperCase());
 }
 
 function isRemoteSource(source: string): boolean {
@@ -76,27 +80,32 @@ function toStoredSource(input: string): string {
     return value;
   }
 
-  if (value.startsWith('/')) {
-    throw new Error('Please provide a relative path (for example: ./.amphi/components/my_component.tsx).');
+  if (value.startsWith("/")) {
+    throw new Error(
+      "Please provide a relative path (for example: ./.amphi/components/my_component.tsx).",
+    );
   }
 
-  return value.startsWith('./') ? value : `./${value.replace(/^\.\//, '')}`;
+  return value.startsWith("./") ? value : `./${value.replace(/^\.\//, "")}`;
 }
 
 function toJupyterPath(source: string): string {
-  return source.replace(/^\.\//, '').replace(/^\/+/, '');
+  return source.replace(/^\.\//, "").replace(/^\/+/, "");
 }
 
 function normalizeWorkspaceRootPath(path: string): string {
-  const value = (path || '').trim();
-  if (!value || value === '/' || value === '.') {
-    return '';
+  const value = (path || "").trim();
+  if (!value || value === "/" || value === ".") {
+    return "";
   }
-  return value.replace(/^\/+/, '').replace(/\/+$/, '');
+  return value.replace(/^\/+/, "").replace(/\/+$/, "");
 }
 
-function joinWorkspacePath(workspaceRootPath: string, relativePath: string): string {
-  const rel = relativePath.replace(/^\/+/, '');
+function joinWorkspacePath(
+  workspaceRootPath: string,
+  relativePath: string,
+): string {
+  const rel = relativePath.replace(/^\/+/, "");
   const root = normalizeWorkspaceRootPath(workspaceRootPath);
   if (!root) {
     return rel;
@@ -104,30 +113,45 @@ function joinWorkspacePath(workspaceRootPath: string, relativePath: string): str
   return PathExt.join(root, rel);
 }
 
-function toWorkspacePathFromSource(source: string, workspaceRootPath: string): string {
+function toWorkspacePathFromSource(
+  source: string,
+  workspaceRootPath: string,
+): string {
   let jupyterPath = toJupyterPath(source);
 
   // If the path starts with 'components/', it's stored relative to .amphi/ directory
   // Convert it to be relative to workspace root: .amphi/components/...
-  if (jupyterPath.startsWith('components/')) {
+  if (jupyterPath.startsWith("components/")) {
     jupyterPath = `.amphi/${jupyterPath}`;
   }
 
   return joinWorkspacePath(workspaceRootPath, jupyterPath);
 }
 
-function isManagedLocalSource(source: string, workspaceRootPath: string): boolean {
+function isManagedLocalSource(
+  source: string,
+  workspaceRootPath: string,
+): boolean {
   if (isRemoteSource(source)) {
     return false;
   }
 
   const localPath = toWorkspacePathFromSource(source, workspaceRootPath);
-  const componentsRoot = joinWorkspacePath(workspaceRootPath, AMPHI_COMPONENTS_DIR);
-  return localPath.startsWith(`${componentsRoot}/`) || localPath.startsWith(`${componentsRoot}\\`);
+  const componentsRoot = joinWorkspacePath(
+    workspaceRootPath,
+    AMPHI_COMPONENTS_DIR,
+  );
+  return (
+    localPath.startsWith(`${componentsRoot}/`) ||
+    localPath.startsWith(`${componentsRoot}\\`)
+  );
 }
 
-function extractSection(content: string, header: string): { before: string; section: string; after: string } {
-  const lines = content.split('\n');
+function extractSection(
+  content: string,
+  header: string,
+): { before: string; section: string; after: string } {
+  const lines = content.split("\n");
   const headerRegex = new RegExp(`^\\s*\\[${header}\\]\\s*$`);
   let start = -1;
 
@@ -139,7 +163,7 @@ function extractSection(content: string, header: string): { before: string; sect
   }
 
   if (start < 0) {
-    return { before: content, section: '', after: '' };
+    return { before: content, section: "", after: "" };
   }
 
   let end = lines.length;
@@ -151,20 +175,20 @@ function extractSection(content: string, header: string): { before: string; sect
   }
 
   return {
-    before: lines.slice(0, start).join('\n'),
-    section: lines.slice(start, end).join('\n'),
-    after: lines.slice(end).join('\n')
+    before: lines.slice(0, start).join("\n"),
+    section: lines.slice(start, end).join("\n"),
+    after: lines.slice(end).join("\n"),
   };
 }
 
 function readArrayBlock(section: string, key: string): string[] {
-  const keyRegex = new RegExp(`^\\s*${key}\\s*=\\s*\\[\\s*$`, 'm');
+  const keyRegex = new RegExp(`^\\s*${key}\\s*=\\s*\\[\\s*$`, "m");
   const match = keyRegex.exec(section);
   if (!match || match.index === undefined) {
     return [];
   }
 
-  const start = section.indexOf('[', match.index);
+  const start = section.indexOf("[", match.index);
   if (start < 0) {
     return [];
   }
@@ -180,7 +204,7 @@ function readArrayBlock(section: string, key: string): string[] {
     if (inString) {
       if (escaped) {
         escaped = false;
-      } else if (ch === '\\') {
+      } else if (ch === "\\") {
         escaped = true;
       } else if (ch === '"') {
         inString = false;
@@ -193,12 +217,12 @@ function readArrayBlock(section: string, key: string): string[] {
       continue;
     }
 
-    if (ch === '[') {
+    if (ch === "[") {
       depth += 1;
       continue;
     }
 
-    if (ch === ']') {
+    if (ch === "]") {
       depth -= 1;
       if (depth === 0) {
         end = i;
@@ -217,10 +241,7 @@ function readArrayBlock(section: string, key: string): string[] {
   let itemMatch: RegExpExecArray | null;
 
   while ((itemMatch = stringRegex.exec(body)) !== null) {
-    const raw = itemMatch[1]
-      .replace(/\\"/g, '"')
-      .replace(/\\\\/g, '\\')
-      .trim();
+    const raw = itemMatch[1].replace(/\\"/g, '"').replace(/\\\\/g, "\\").trim();
     if (raw) {
       values.push(raw);
     }
@@ -230,40 +251,47 @@ function readArrayBlock(section: string, key: string): string[] {
 }
 
 function renderArrayBlock(key: string, values: string[]): string {
-  const escaped = values.map(value => value.replace(/\\/g, '\\\\').replace(/"/g, '\\"'));
-  const renderedItems = escaped.map(value => `  "${value}",`).join('\n');
-  return `${key} = [\n${renderedItems}${renderedItems ? '\n' : ''}]`;
+  const escaped = values.map((value) =>
+    value.replace(/\\/g, "\\\\").replace(/"/g, '\\"'),
+  );
+  const renderedItems = escaped.map((value) => `  "${value}",`).join("\n");
+  return `${key} = [\n${renderedItems}${renderedItems ? "\n" : ""}]`;
 }
 
 function parseComponentsConfig(rawToml: string): ComponentsConfig {
-  const { section } = extractSection(rawToml, 'components');
+  const { section } = extractSection(rawToml, "components");
   if (!section) {
     return { sources: [] };
   }
 
   return {
-    sources: readArrayBlock(section, 'sources')
+    sources: readArrayBlock(section, "sources"),
   };
 }
 
-function applyComponentsConfig(rawToml: string, config: ComponentsConfig): string {
-  const normalizedSources = Array.from(new Set(config.sources.map(source => source.trim()).filter(Boolean)));
+function applyComponentsConfig(
+  rawToml: string,
+  config: ComponentsConfig,
+): string {
+  const normalizedSources = Array.from(
+    new Set(config.sources.map((source) => source.trim()).filter(Boolean)),
+  );
 
   const nextSection = [
-    '[components]',
-    renderArrayBlock('sources', normalizedSources)
-  ].join('\n\n');
+    "[components]",
+    renderArrayBlock("sources", normalizedSources),
+  ].join("\n\n");
 
-  const { before, section, after } = extractSection(rawToml, 'components');
+  const { before, section, after } = extractSection(rawToml, "components");
   if (!section) {
     const prefix = rawToml.trim();
-    return `${prefix}${prefix ? '\n\n' : ''}${nextSection}\n`;
+    return `${prefix}${prefix ? "\n\n" : ""}${nextSection}\n`;
   }
 
-  const beforeTrimmed = before.replace(/\s+$/, '');
-  const afterTrimmed = after.replace(/^\s+/, '');
+  const beforeTrimmed = before.replace(/\s+$/, "");
+  const afterTrimmed = after.replace(/^\s+/, "");
   const parts = [beforeTrimmed, nextSection, afterTrimmed].filter(Boolean);
-  return `${parts.join('\n\n')}\n`;
+  return `${parts.join("\n\n")}\n`;
 }
 
 const ComponentsPanel: React.FC<{
@@ -272,16 +300,23 @@ const ComponentsPanel: React.FC<{
   getCurrentBrowserPath: () => string;
   workspaceRootPath: string;
 }> = ({ app, componentService, getCurrentBrowserPath, workspaceRootPath }) => {
-  const [componentCatalog, setComponentCatalog] = useState<ComponentItem[]>(() => componentService.getComponents());
-  const [registeredIds, setRegisteredIds] = useState<Set<string>>(
-    () => new Set(componentService.getComponents().map(component => component._id))
+  const [componentCatalog, setComponentCatalog] = useState<ComponentItem[]>(
+    () => componentService.getComponents(),
   );
-  const [componentSourceById, setComponentSourceById] = useState<Record<string, string>>({});
+  const [registeredIds, setRegisteredIds] = useState<Set<string>>(
+    () =>
+      new Set(
+        componentService.getComponents().map((component) => component._id),
+      ),
+  );
+  const [componentSourceById, setComponentSourceById] = useState<
+    Record<string, string>
+  >({});
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [sourceMode, setSourceMode] = useState<SourceMode>('code');
-  const [codeValue, setCodeValue] = useState('');
-  const [linkValue, setLinkValue] = useState('');
+  const [sourceMode, setSourceMode] = useState<SourceMode>("code");
+  const [codeValue, setCodeValue] = useState("");
+  const [linkValue, setLinkValue] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const stopKeyPropagation = (event: React.KeyboardEvent) => {
@@ -306,19 +341,19 @@ const ComponentsPanel: React.FC<{
       const response = await fetch(
         `${app.serviceManager.serverSettings.baseUrl}pipeline-scheduler/components-config`,
         {
-          method: 'GET',
+          method: "GET",
           headers: {
-            'Authorization': `token ${app.serviceManager.serverSettings.token}`
-          }
-        }
+            Authorization: `token ${app.serviceManager.serverSettings.token}`,
+          },
+        },
       );
       if (response.ok) {
         const data = await response.json();
-        return data.content || '';
+        return data.content || "";
       }
-      return '';
+      return "";
     } catch {
-      return '';
+      return "";
     }
   };
 
@@ -331,18 +366,18 @@ const ComponentsPanel: React.FC<{
     const response = await fetch(
       `${app.serviceManager.serverSettings.baseUrl}pipeline-scheduler/components-config`,
       {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Authorization': `token ${app.serviceManager.serverSettings.token}`,
-          'Content-Type': 'application/json'
+          Authorization: `token ${app.serviceManager.serverSettings.token}`,
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify({ content: next })
-      }
+        body: JSON.stringify({ content: next }),
+      },
     );
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.error || 'Failed to write config');
+      throw new Error(error.error || "Failed to write config");
     }
   };
 
@@ -353,25 +388,32 @@ const ComponentsPanel: React.FC<{
 
   const syncFromService = (showNotification = false) => {
     const liveComponents = componentService.getComponents();
-    const nextCatalogById = new Map(componentCatalog.map(component => [component._id, component]));
+    const nextCatalogById = new Map(
+      componentCatalog.map((component) => [component._id, component]),
+    );
 
     for (const component of liveComponents) {
       nextCatalogById.set(component._id, component);
     }
 
     setComponentCatalog(Array.from(nextCatalogById.values()));
-    setRegisteredIds(new Set(liveComponents.map(component => component._id)));
+    setRegisteredIds(new Set(liveComponents.map((component) => component._id)));
 
     if (showNotification) {
-      Notification.success('Components list refreshed.', { autoClose: 2500 });
+      Notification.success("Components list refreshed.", { autoClose: 2500 });
     }
   };
 
   const registerLocalSource = async (storedSource: string) => {
-    const path = normalizeForJupyter(toWorkspacePathFromSource(storedSource, workspaceRootPath));
-    await app.commands.execute('@amphi/pipeline-components-manager:register-tsx', {
-      path: path
-    });
+    const path = normalizeForJupyter(
+      toWorkspacePathFromSource(storedSource, workspaceRootPath),
+    );
+    await app.commands.execute(
+      "@amphi/pipeline-components-manager:register-tsx",
+      {
+        path: path,
+      },
+    );
   };
 
   const registerRemoteSource = async (url: string) => {
@@ -383,18 +425,23 @@ const ComponentsPanel: React.FC<{
     const source = await response.text();
     const currentPath = getCurrentBrowserPath();
     const fileName = `amphi_component_${Date.now()}.tsx`;
-    const tempPath = currentPath ? PathExt.join(currentPath, fileName) : fileName;
+    const tempPath = currentPath
+      ? PathExt.join(currentPath, fileName)
+      : fileName;
 
     await app.serviceManager.contents.save(tempPath, {
-      type: 'file',
-      format: 'text',
-      content: source
+      type: "file",
+      format: "text",
+      content: source,
     });
 
     try {
-      await app.commands.execute('@amphi/pipeline-components-manager:register-tsx', {
-        path: tempPath
-      });
+      await app.commands.execute(
+        "@amphi/pipeline-components-manager:register-tsx",
+        {
+          path: tempPath,
+        },
+      );
     } finally {
       await app.serviceManager.contents.delete(tempPath).catch(() => undefined);
     }
@@ -411,16 +458,18 @@ const ComponentsPanel: React.FC<{
   const findComponentIdForSource = (
     beforeIds: Set<string>,
     source: string,
-    previousSourceToId: Map<string, string>
+    previousSourceToId: Map<string, string>,
   ): string | null => {
-    const afterIds = new Set(componentService.getComponents().map(component => component._id));
+    const afterIds = new Set(
+      componentService.getComponents().map((component) => component._id),
+    );
     const knownId = previousSourceToId.get(source);
 
     if (knownId && afterIds.has(knownId)) {
       return knownId;
     }
 
-    const added = Array.from(afterIds).filter(id => !beforeIds.has(id));
+    const added = Array.from(afterIds).filter((id) => !beforeIds.has(id));
     if (added.length === 1) {
       return added[0];
     }
@@ -440,22 +489,33 @@ const ComponentsPanel: React.FC<{
 
     for (const storedSource of config.sources) {
       const knownComponentId = previousSourceToId.get(storedSource);
-      if (knownComponentId && componentCatalog.some(component => component._id === knownComponentId)) {
+      if (
+        knownComponentId &&
+        componentCatalog.some((component) => component._id === knownComponentId)
+      ) {
         nextComponentSourceById[knownComponentId] = storedSource;
         continue;
       }
 
       try {
-        const beforeIds = new Set(componentService.getComponents().map(component => component._id));
+        const beforeIds = new Set(
+          componentService.getComponents().map((component) => component._id),
+        );
         await registerSource(storedSource);
-        const componentId = findComponentIdForSource(beforeIds, storedSource, previousSourceToId);
+        const componentId = findComponentIdForSource(
+          beforeIds,
+          storedSource,
+          previousSourceToId,
+        );
         if (componentId) {
           nextComponentSourceById[componentId] = storedSource;
         }
       } catch (error: any) {
         Notification.warning(
-          `Could not register configured component source: ${storedSource}. ${String(error?.message ?? error)}`,
-          { autoClose: 5000 }
+          `Could not register configured component source: ${storedSource}. ${String(
+            error?.message ?? error,
+          )}`,
+          { autoClose: 5000 },
         );
       }
     }
@@ -468,19 +528,25 @@ const ComponentsPanel: React.FC<{
     void loadConfiguredComponents(false);
   }, []);
 
-  const onCheck: TreeProps['onCheck'] = checkedKeysValue => {
+  const onCheck: TreeProps["onCheck"] = (checkedKeysValue) => {
     const keys = Array.isArray(checkedKeysValue)
       ? checkedKeysValue
       : (checkedKeysValue.checked as React.Key[]);
 
     const nextCheckedComponentIds = new Set(
       keys
-        .map(value => String(value))
-        .filter(value => componentCatalog.some(component => component._id === value))
+        .map((value) => String(value))
+        .filter((value) =>
+          componentCatalog.some((component) => component._id === value),
+        ),
     );
 
-    const currentRegistered = new Set(componentService.getComponents().map(component => component._id));
-    const nextCatalogById = new Map(componentCatalog.map(component => [component._id, component]));
+    const currentRegistered = new Set(
+      componentService.getComponents().map((component) => component._id),
+    );
+    const nextCatalogById = new Map(
+      componentCatalog.map((component) => [component._id, component]),
+    );
 
     for (const componentId of nextCheckedComponentIds) {
       if (!currentRegistered.has(componentId)) {
@@ -506,9 +572,9 @@ const ComponentsPanel: React.FC<{
 
   const closeModal = () => {
     setIsModalOpen(false);
-    setSourceMode('code');
-    setCodeValue('');
-    setLinkValue('');
+    setSourceMode("code");
+    setCodeValue("");
+    setLinkValue("");
   };
 
   const removeConfiguredComponent = async (componentId: string) => {
@@ -520,37 +586,44 @@ const ComponentsPanel: React.FC<{
 
       const config = await readConfig();
       const nextConfig: ComponentsConfig = {
-        sources: config.sources.filter(item => item !== source)
+        sources: config.sources.filter((item) => item !== source),
       };
       await writeConfigToml(nextConfig);
 
       if (isManagedLocalSource(source, workspaceRootPath)) {
         const localPath = toWorkspacePathFromSource(source, workspaceRootPath);
         // Extract filename from path
-        const fileName = localPath.split('/').pop() || localPath.split('\\').pop();
+        const fileName =
+          localPath.split("/").pop() || localPath.split("\\").pop();
         if (fileName) {
           // Use backend API to delete component file
           await fetch(
-            `${app.serviceManager.serverSettings.baseUrl}pipeline-scheduler/components-file?filename=${encodeURIComponent(fileName)}`,
+            `${
+              app.serviceManager.serverSettings.baseUrl
+            }pipeline-scheduler/components-file?filename=${encodeURIComponent(
+              fileName,
+            )}`,
             {
-              method: 'DELETE',
+              method: "DELETE",
               headers: {
-                'Authorization': `token ${app.serviceManager.serverSettings.token}`
-              }
-            }
+                Authorization: `token ${app.serviceManager.serverSettings.token}`,
+              },
+            },
           ).catch((): void => undefined);
         }
       }
 
       componentService.removeComponent(componentId);
-      setComponentCatalog(prev => prev.filter(component => component._id !== componentId));
-      setRegisteredIds(prev => {
+      setComponentCatalog((prev) =>
+        prev.filter((component) => component._id !== componentId),
+      );
+      setRegisteredIds((prev) => {
         const next = new Set(prev);
         next.delete(componentId);
         return next;
       });
 
-      setComponentSourceById(prev => {
+      setComponentSourceById((prev) => {
         const next = { ...prev };
         delete next[componentId];
         return next;
@@ -565,16 +638,20 @@ const ComponentsPanel: React.FC<{
       setIsSubmitting(true);
 
       const config = await readConfig();
-      let storedSource = '';
+      let storedSource = "";
 
-      if (sourceMode === 'code') {
+      if (sourceMode === "code") {
         const code = codeValue.trim();
         if (!code) {
-          throw new Error('Please provide component code.');
+          throw new Error("Please provide component code.");
         }
 
-        await ensureDirectory(joinWorkspacePath(workspaceRootPath, AMPHI_DIR_PATH));
-        await ensureDirectory(joinWorkspacePath(workspaceRootPath, AMPHI_COMPONENTS_DIR));
+        await ensureDirectory(
+          joinWorkspacePath(workspaceRootPath, AMPHI_DIR_PATH),
+        );
+        await ensureDirectory(
+          joinWorkspacePath(workspaceRootPath, AMPHI_COMPONENTS_DIR),
+        );
 
         const fileName = `amphi_component_${Date.now()}.tsx`;
 
@@ -582,18 +659,18 @@ const ComponentsPanel: React.FC<{
         const response = await fetch(
           `${app.serviceManager.serverSettings.baseUrl}pipeline-scheduler/components-file`,
           {
-            method: 'POST',
+            method: "POST",
             headers: {
-              'Authorization': `token ${app.serviceManager.serverSettings.token}`,
-              'Content-Type': 'application/json'
+              Authorization: `token ${app.serviceManager.serverSettings.token}`,
+              "Content-Type": "application/json",
             },
-            body: JSON.stringify({ filename: fileName, content: code })
-          }
+            body: JSON.stringify({ filename: fileName, content: code }),
+          },
         );
 
         if (!response.ok) {
           const error = await response.json();
-          throw new Error(error.error || 'Failed to save component file');
+          throw new Error(error.error || "Failed to save component file");
         }
 
         // Path stored in config.toml (relative to .amphi/ where config.toml lives)
@@ -601,26 +678,35 @@ const ComponentsPanel: React.FC<{
       } else {
         const raw = linkValue.trim();
         if (!raw) {
-          throw new Error('Please provide a component URL or relative path.');
+          throw new Error("Please provide a component URL or relative path.");
         }
         if (!/\.tsx?(\?|#|$)/i.test(raw)) {
-          throw new Error('Source must reference a .ts or .tsx file.');
+          throw new Error("Source must reference a .ts or .tsx file.");
         }
 
         storedSource = toStoredSource(raw);
       }
 
       const nextConfig: ComponentsConfig = {
-        sources: Array.from(new Set([...config.sources, storedSource]))
+        sources: Array.from(new Set([...config.sources, storedSource])),
       };
       await writeConfigToml(nextConfig);
 
-      const beforeIds = new Set(componentService.getComponents().map(component => component._id));
+      const beforeIds = new Set(
+        componentService.getComponents().map((component) => component._id),
+      );
       await registerSource(storedSource);
 
-      const componentId = findComponentIdForSource(beforeIds, storedSource, new Map());
+      const componentId = findComponentIdForSource(
+        beforeIds,
+        storedSource,
+        new Map(),
+      );
       if (componentId) {
-        setComponentSourceById(prev => ({ ...prev, [componentId]: storedSource }));
+        setComponentSourceById((prev) => ({
+          ...prev,
+          [componentId]: storedSource,
+        }));
       }
 
       syncFromService();
@@ -636,7 +722,7 @@ const ComponentsPanel: React.FC<{
     const categories = new Map<string, ComponentItem[]>();
 
     for (const component of componentCatalog) {
-      const category = component._category || 'uncategorized';
+      const category = component._category || "uncategorized";
       if (!categories.has(category)) {
         categories.set(category, []);
       }
@@ -646,19 +732,21 @@ const ComponentsPanel: React.FC<{
     return Array.from(categories.entries()).map(([category, components]) => ({
       title: formatCategoryLabel(category),
       key: `category:${category}`,
-      children: components.map(component => {
+      children: components.map((component) => {
         const source = componentSourceById[component._id];
         return {
           title: (
             <div className="amphi-ComponentsPanel__componentRow">
-              <span className="amphi-ComponentsPanel__componentName">{component._name}</span>
+              <span className="amphi-ComponentsPanel__componentName">
+                {component._name}
+              </span>
               {source ? (
                 <Button
                   type="text"
                   size="small"
                   className="amphi-ComponentsPanel__removeButton"
                   icon={<CloseOutlined />}
-                  onClick={event => {
+                  onClick={(event) => {
                     event.preventDefault();
                     event.stopPropagation();
                     void removeConfiguredComponent(component._id);
@@ -667,9 +755,9 @@ const ComponentsPanel: React.FC<{
               ) : null}
             </div>
           ),
-          key: component._id
+          key: component._id,
         };
-      })
+      }),
     }));
   }, [componentCatalog, componentSourceById]);
 
@@ -677,13 +765,12 @@ const ComponentsPanel: React.FC<{
     <ConfigProvider
       theme={{
         token: {
-          colorPrimary: '#5F9B97'
-        }
+          colorPrimary: "#5F9B97",
+        },
       }}
     >
       <div className="amphi-ComponentsPanel">
-        <div className="amphi-ComponentsPanel__header">
-        </div>
+        <div className="amphi-ComponentsPanel__header"></div>
         <div className="amphi-ComponentsPanel__actions">
           <Button
             type="primary"
@@ -691,7 +778,8 @@ const ComponentsPanel: React.FC<{
             className="amphi-ComponentsPanel__actionButton"
             onClick={openModal}
           >
-            Add Component
+            {/* Add Component */}
+            添加组件
           </Button>
           <Button
             icon={<ReloadOutlined />}
@@ -731,17 +819,17 @@ const ComponentsPanel: React.FC<{
         >
           <Radio.Group
             value={sourceMode}
-            onChange={event => setSourceMode(event.target.value)}
+            onChange={(event) => setSourceMode(event.target.value)}
             style={{ marginBottom: 12 }}
           >
             <Radio.Button value="code">Code</Radio.Button>
             <Radio.Button value="link">URL / Relative path</Radio.Button>
           </Radio.Group>
 
-          {sourceMode === 'code' ? (
+          {sourceMode === "code" ? (
             <Input.TextArea
               value={codeValue}
-              onChange={event => setCodeValue(event.target.value)}
+              onChange={(event) => setCodeValue(event.target.value)}
               onKeyDown={stopKeyPropagation}
               onCopy={stopClipboardPropagation}
               onCut={stopClipboardPropagation}
@@ -752,7 +840,7 @@ const ComponentsPanel: React.FC<{
           ) : (
             <Input
               value={linkValue}
-              onChange={event => setLinkValue(event.target.value)}
+              onChange={(event) => setLinkValue(event.target.value)}
               onKeyDown={stopKeyPropagation}
               onCopy={stopClipboardPropagation}
               onCut={stopClipboardPropagation}
@@ -767,33 +855,33 @@ const ComponentsPanel: React.FC<{
 };
 
 namespace CommandIDs {
-  export const open = 'components-panel:open';
+  export const open = "components-panel:open";
 }
 
 const plugin: JupyterFrontEndPlugin<void> = {
-  id: '@amphi/components-panel:plugin',
+  id: "@amphi/components-panel:plugin",
   autoStart: true,
   requires: [ICommandPalette, ComponentManager, IDefaultFileBrowser],
   activate: (
     app: JupyterFrontEnd,
     palette: ICommandPalette,
     componentService: ComponentsService,
-    defaultFileBrowser: IDefaultFileBrowser
+    defaultFileBrowser: IDefaultFileBrowser,
   ) => {
     const { commands, shell } = app;
 
     commands.addCommand(CommandIDs.open, {
-      label: 'Pipeline Components',
-      caption: 'Manage registered pipeline components',
+      label: "Pipeline Components",
+      caption: "Manage registered pipeline components",
       execute: () => {
         class ComponentsPanelWidget extends ReactWidget {
           // Align with scheduler behavior: always root workspace `.amphi`.
-          private _workspaceRootPath = '';
+          private _workspaceRootPath = "";
 
           constructor() {
             super();
-            this.id = 'amphi-components-panel';
-            this.title.caption = 'Pipeline Components';
+            this.id = "amphi-components-panel";
+            this.title.caption = "Pipeline Components";
             this.title.icon = puzzleIcon;
             this.title.closable = true;
           }
@@ -811,8 +899,8 @@ const plugin: JupyterFrontEndPlugin<void> = {
         }
 
         let widget: ReactWidget | undefined;
-        for (const item of shell.widgets('left')) {
-          if (item.id === 'amphi-components-panel') {
+        for (const item of shell.widgets("left")) {
+          if (item.id === "amphi-components-panel") {
             widget = item as ReactWidget;
             break;
           }
@@ -823,15 +911,15 @@ const plugin: JupyterFrontEndPlugin<void> = {
         }
 
         if (!widget.isAttached) {
-          shell.add(widget, 'left');
+          shell.add(widget, "left");
         }
         shell.activateById(widget.id);
-      }
+      },
     });
 
-    palette.addItem({ command: CommandIDs.open, category: 'Amphi' });
+    palette.addItem({ command: CommandIDs.open, category: "Amphi" });
     commands.execute(CommandIDs.open);
-  }
+  },
 };
 
 export default plugin;
